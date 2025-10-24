@@ -27,9 +27,9 @@ CREATE TABLE Teams (
 	PRIMARY KEY (teamID),
 	FOREIGN KEY (schoolID) REFERENCES Schools(schoolID),
     CONSTRAINT valid_season_sports CHECK (
-                    (seasonName = 'fall' AND sportType IN ('football', 'volleyball')) OR
-                    (seasonName = 'winter' AND sportType IN ('basketball', 'soccer')) OR
-                    (seasonName = 'spring' AND sportType IN ('baseball', 'tennis'))
+        (seasonName = 'fall' AND sportType IN ('football', 'volleyball')) OR
+        (seasonName = 'winter' AND sportType IN ('basketball', 'soccer')) OR
+        (seasonName = 'spring' AND sportType IN ('baseball', 'tennis'))
     )
 );
 
