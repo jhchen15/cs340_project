@@ -47,10 +47,10 @@ CREATE TABLE Athletes (
 	schoolID INT(11) NOT NULL,
 	firstName VARCHAR(120) NOT NULL,
 	lastName VARCHAR(120) NOT NULL,
-gradeLevel INT(11) NOT NULL,
-isEligible BOOLEAN DEFAULT 1,
-isActive BOOLEAN DEFAULT 1,
-emergencyContact VARCHAR(20),
+    gradeLevel INT(11) NOT NULL,
+    isEligible BOOLEAN DEFAULT 1,
+    isActive BOOLEAN DEFAULT 1,
+    emergencyContact VARCHAR(20),
 	PRIMARY KEY (athleteID),
 	FOREIGN KEY (schoolid) REFERENCES Schools(schoolid)
 );
@@ -61,7 +61,7 @@ CREATE TABLE Players (
 	athleteID INT(11) NOT NULL,
 	PRIMARY KEY (playerID),
 	FOREIGN KEY (teamID) REFERENCES Teams(teamID),
-FOREIGN KEY (athleteID) REFERENCES Athletes(athleteID)
+    FOREIGN KEY (athleteID) REFERENCES Athletes(athleteID)
 );
 
 CREATE TABLE Games (
