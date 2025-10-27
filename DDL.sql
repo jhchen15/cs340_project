@@ -7,78 +7,101 @@ Project Step 2 Draft
 SET FOREIGN_KEY_CHECKS = 0;
 SET AUTOCOMMIT = 0;
 
+/*
+    CREATE TABLES
+*/
+
 -- Schools Table
 DROP TABLE IF EXISTS Schools;
 
-CREATE TABLE Schools (
-	schoolID INT(11) AUTO_INCREMENT NOT NULL,
-	name VARCHAR(120) NOT NULL,
-	address VARCHAR(120),
-	phone VARCHAR(20),
-	PRIMARY KEY (schoolID),
-	CONSTRAINT distinct_name UNIQUE (name)
+CREATE TABLE Schools
+(
+    schoolID INT(11) AUTO_INCREMENT NOT NULL,
+    name     VARCHAR(120)           NOT NULL,
+    address  VARCHAR(120),
+    phone    VARCHAR(20),
+    PRIMARY KEY (schoolID),
+    CONSTRAINT distinct_name UNIQUE (name)
 );
 
 -- Teams Table
 DROP TABLE IF EXISTS Teams;
 
-CREATE TABLE Teams (
-	teamID INT(11) AUTO_INCREMENT NOT NULL,
-	schoolID INT(11) NOT NULL,
-	teamName VARCHAR(120) NOT NULL,
-	sportType ENUM('football', 'volleyball', 'basketball', 'soccer', 'baseball', 'tennis') NOT NULL,
-	varsityJv ENUM('varsity', 'jv') NOT NULL,
-	seasonName ENUM('fall', 'winter', 'spring') NOT NULL,
-	academicYear YEAR,
-	PRIMARY KEY (teamID),
-	FOREIGN KEY (schoolID) REFERENCES Schools(schoolID) ON DELETE RESTRICT ON UPDATE CASCADE,
+CREATE TABLE Teams
+(
+    teamID       INT(11) AUTO_INCREMENT                                                        NOT NULL,
+    schoolID     INT(11)                                                                       NOT NULL,
+    teamName     VARCHAR(120)                                                                  NOT NULL,
+    sportType    ENUM ('football', 'volleyball', 'basketball', 'soccer', 'baseball', 'tennis') NOT NULL,
+    varsityJv    ENUM ('varsity', 'jv')                                                        NOT NULL,
+    seasonName   ENUM ('fall', 'winter', 'spring')                                             NOT NULL,
+    academicYear YEAR,
+    PRIMARY KEY (teamID),
+    FOREIGN KEY (schoolID)
+        REFERENCES Schools (schoolID)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
     CONSTRAINT valid_season_sports CHECK (
         (seasonName = 'fall' AND sportType IN ('football', 'volleyball')) OR
         (seasonName = 'winter' AND sportType IN ('basketball', 'soccer')) OR
         (seasonName = 'spring' AND sportType IN ('baseball', 'tennis'))
-    ),
+        ),
     CONSTRAINT unique_teams UNIQUE (schoolID, teamName, sportType, varsityJv, seasonName, academicYear)
 );
 
 -- Facilities Table
 DROP TABLE IF EXISTS Facilities;
 
-CREATE TABLE Facilities (
-	facilityID INT(11) AUTO_INCREMENT NOT NULL,
-	schoolID INT(11) NOT NULL,
-	facilityName VARCHAR(120),
-	capacity INT,
-	PRIMARY KEY (facilityID),
-	FOREIGN KEY (schoolID) REFERENCES Schools(schoolID) ON DELETE RESTRICT ON UPDATE CASCADE
+CREATE TABLE Facilities
+(
+    facilityID   INT(11) AUTO_INCREMENT NOT NULL,
+    schoolID     INT(11)                NOT NULL,
+    facilityName VARCHAR(120),
+    capacity     INT,
+    PRIMARY KEY (facilityID),
+    FOREIGN KEY (schoolID)
+        REFERENCES Schools (schoolID)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
 );
 
 -- Athletes Table
 DROP TABLE IF EXISTS Athletes;
 
-CREATE TABLE Athletes (
-	athleteID INT(11) AUTO_INCREMENT NOT NULL,
-	schoolID INT(11) NOT NULL,
-	firstName VARCHAR(120) NOT NULL,
-	lastName VARCHAR(120) NOT NULL,
-    gradeLevel INT(11) NOT NULL,
-    isEligible BOOLEAN DEFAULT 1,
-    isActive BOOLEAN DEFAULT 1,
+CREATE TABLE Athletes
+(
+    athleteID        INT(11) AUTO_INCREMENT NOT NULL,
+    schoolID         INT(11)                NOT NULL,
+    firstName        VARCHAR(120)           NOT NULL,
+    lastName         VARCHAR(120)           NOT NULL,
+    gradeLevel       INT(11)                NOT NULL,
+    isEligible       BOOLEAN DEFAULT 1,
+    isActive         BOOLEAN DEFAULT 1,
     emergencyContact VARCHAR(20),
-	PRIMARY KEY (athleteID),
-	FOREIGN KEY (schoolid) REFERENCES Schools(schoolid) ON DELETE RESTRICT ON UPDATE CASCADE
+    PRIMARY KEY (athleteID),
+    FOREIGN KEY (schoolid)
+        REFERENCES Schools (schoolid)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
 );
 
 
 -- Players Table
 DROP TABLE IF EXISTS Players;
 
-CREATE TABLE Players (
-	playerID INT(11) AUTO_INCREMENT NOT NULL,
-	teamID INT(11) NOT NULL,
-	athleteID INT(11) NOT NULL,
-	PRIMARY KEY (playerID),
-	FOREIGN KEY (teamID) REFERENCES Teams(teamID) ON DELETE RESTRICT ON UPDATE CASCADE,
-	FOREIGN KEY (athleteID) REFERENCES Athletes(athleteID) ON DELETE RESTRICT ON UPDATE CASCADE,
+CREATE TABLE Players
+(
+    playerID  INT(11) AUTO_INCREMENT NOT NULL,
+    teamID    INT(11)                NOT NULL,
+    athleteID INT(11)                NOT NULL,
+    PRIMARY KEY (playerID),
+    FOREIGN KEY (teamID)
+        REFERENCES Teams (teamID)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    FOREIGN KEY (athleteID) REFERENCES Athletes (athleteID)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
     CONSTRAINT unique_players UNIQUE (playerID, teamID)
 );
 
@@ -86,29 +109,43 @@ CREATE TABLE Players (
 -- Games Table
 DROP TABLE IF EXISTS Games;
 
-CREATE TABLE Games (
-	gameID INT(11) AUTO_INCREMENT NOT NULL,
-	homeTeamID INT(11),
-	awayTeamID INT(11),
-	facilityID INT(11),
-	gameDate DATE,
-	gameTime TIME,
-	gameType ENUM('preseason', 'regular season', 'playoff', 'tournament', 'exhibition'),
-	status ENUM('scheduled', 'in progress', 'completed', 'cancelled', 'postponed', 'forfeited'),
-	PRIMARY KEY (gameID),
-	FOREIGN KEY (homeTeamID) REFERENCES Teams(teamID) ON DELETE RESTRICT,
-	FOREIGN KEY (awayTeamID) REFERENCES Teams(teamID) ON DELETE RESTRICT,
-	FOREIGN KEY (facilityID) REFERENCES Facilities(facilityID) ON DELETE RESTRICT,
-	CONSTRAINT unique_teams CHECK (homeTeamID != awayTeamID),
-	CONSTRAINT facility_in_use UNIQUE (facilityID, gameDate) 
+CREATE TABLE Games
+(
+    gameID     INT(11) AUTO_INCREMENT NOT NULL,
+    homeTeamID INT(11),
+    awayTeamID INT(11),
+    facilityID INT(11),
+    gameDate   DATE,
+    gameTime   TIME,
+    gameType   ENUM ('preseason', 'regular season', 'playoff', 'tournament', 'exhibition'),
+    status     ENUM ('scheduled', 'in progress', 'completed', 'cancelled', 'postponed', 'forfeited'),
+    PRIMARY KEY (gameID),
+    FOREIGN KEY (homeTeamID)
+        REFERENCES Teams (teamID)
+        ON DELETE RESTRICT,
+    FOREIGN KEY (awayTeamID)
+        REFERENCES Teams (teamID)
+        ON DELETE RESTRICT,
+    FOREIGN KEY (facilityID)
+        REFERENCES Facilities (facilityID)
+        ON DELETE RESTRICT,
+    CONSTRAINT unique_teams CHECK (homeTeamID != awayTeamID),
+    CONSTRAINT facility_in_use UNIQUE (facilityID, gameDate)
 );
 
+
+/*
+    INSERT DATA
+*/
+
+-- Schools table
 INSERT INTO Schools (name, address, phone) VALUES
 ('Lincoln High School', '123 Education Blvd, Springfield, IL', '555-123-4567'),
 ('Jefferson High School', '456 Scholar Way, Springfield, IL', '555-123-4568'),
 ('Washington High School', '789 Academic Ave, Springfield, IL', '555-123-4569'),
 ('Roosevelt High School', '321 Learning Lane, Springfield, IL', '555-123-4570');
 
+-- Teams table
 INSERT INTO Teams (schoolID, teamName, sportType, varsityJv, seasonName, academicYear) VALUES
 (
     (SELECT schoolID FROM Schools WHERE name='Lincoln High School'),
@@ -167,6 +204,7 @@ INSERT INTO Teams (schoolID, teamName, sportType, varsityJv, seasonName, academi
     2024
 );
 
+-- Facilities table
 INSERT INTO Facilities (schoolID, facilityName, capacity) VALUES
 (
     (SELECT schoolID FROM Schools WHERE name='Lincoln High School'),
@@ -199,6 +237,7 @@ INSERT INTO Facilities (schoolID, facilityName, capacity) VALUES
     2000
 );
 
+-- Athletes table
 INSERT INTO Athletes (schoolID, firstName, lastName, gradeLevel, isEligible, isActive, emergencyContact) VALUES
 (
     (SELECT schoolID FROM Schools WHERE name='Lincoln High School'),
@@ -273,6 +312,7 @@ INSERT INTO Athletes (schoolID, firstName, lastName, gradeLevel, isEligible, isA
     '555-444-5556'
 );
 
+-- Players table
 INSERT INTO Players (teamID, athleteID) VALUES
 (
     (SELECT teamID FROM Teams WHERE teamName='Lincoln Lions' AND sportType='football' AND varsityJv='varsity'),
@@ -307,6 +347,7 @@ INSERT INTO Players (teamID, athleteID) VALUES
     (SELECT athleteID FROM Athletes WHERE firstName='Matthew' AND lastName='Taylor')
 );
 
+-- Games table
 INSERT INTO Games (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status) VALUES
 (
     (SELECT teamID FROM Teams WHERE teamName='Lincoln Lions' AND sportType='football' AND varsityJv='varsity'),
