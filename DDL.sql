@@ -4,7 +4,7 @@ Group 59 - Valleyview Athletics Management System
 Project Step 2 Draft
 */
 
-SET FOREIGN_KEY_CHECKS=0;
+SET FOREIGN_KEY_CHECKS = 0;
 SET AUTOCOMMIT = 0;
 
 -- Schools Table
@@ -354,5 +354,5 @@ INSERT INTO Games (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameT
     'scheduled'
 );
 
-SET FOREIGN_KEY_CHECKS=1;
+SET FOREIGN_KEY_CHECKS = 1;
 COMMIT;
