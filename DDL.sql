@@ -76,7 +76,7 @@ CREATE TABLE Games (
 	PRIMARY KEY (gameID),
 	FOREIGN KEY (homeTeamID) REFERENCES Teams(teamID),
 	FOREIGN KEY (awayTeamID) REFERENCES Teams(teamID),
-	CONSTRAINT unique_teams CHECK homeTeamID <> awayTeamID,
+	CONSTRAINT unique_teams CHECK (homeTeamID != awayTeamID),
 	CONSTRAINT facility_in_use UNIQUE (facilityID, gameDate) 
 );
 
