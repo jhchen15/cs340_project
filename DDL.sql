@@ -1,6 +1,6 @@
 /*
 Schema DDL by Humza Hussain and James Chen
-Group 59 - Valleyview Athletics Management System
+Group 57 - Valleyview Athletics Management System
 Project Step 2 Draft
 */
 
@@ -313,39 +313,38 @@ INSERT INTO Athletes (schoolID, firstName, lastName, gradeLevel, isEligible, isA
 );
 
 -- Players table
-INSERT INTO Players (teamID, athleteID) VALUES
-(
-    (SELECT teamID FROM Teams WHERE teamName='Lincoln Lions' AND sportType='football' AND varsityJv='varsity'),
-    (SELECT athleteID FROM Athletes WHERE firstName='John' AND lastName='Smith')
-),
-(
-    (SELECT teamID FROM Teams WHERE teamName='Lincoln Lions' AND sportType='volleyball' AND varsityJv='varsity'),
-    (SELECT athleteID FROM Athletes WHERE firstName='Michael' AND lastName='Johnson')
-),
-(
-    (SELECT teamID FROM Teams WHERE teamName='Jefferson Jaguars' AND sportType='basketball' AND varsityJv='varsity'),
-    (SELECT athleteID FROM Athletes WHERE firstName='David' AND lastName='Brown')
-),
-(
-    (SELECT teamID FROM Teams WHERE teamName='Jefferson Jaguars' AND sportType='soccer' AND varsityJv='jv'),
-    (SELECT athleteID FROM Athletes WHERE firstName='Christopher' AND lastName='Williams')
-),
-(
-    (SELECT teamID FROM Teams WHERE teamName='Washington Wildcats' AND sportType='baseball' AND varsityJv='varsity'),
-    (SELECT athleteID FROM Athletes WHERE firstName='James' AND lastName='Wilson')
-),
-(
-    (SELECT teamID FROM Teams WHERE teamName='Washington Wildcats' AND sportType='tennis' AND varsityJv='varsity'),
-    (SELECT athleteID FROM Athletes WHERE firstName='Robert' AND lastName='Davis')
-),
-(
-    (SELECT teamID FROM Teams WHERE teamName='Roosevelt Ravens' AND sportType='basketball' AND varsityJv='jv'),
-    (SELECT athleteID FROM Athletes WHERE firstName='Daniel' AND lastName='Miller')
-),
-(
-    (SELECT teamID FROM Teams WHERE teamName='Roosevelt Ravens' AND sportType='basketball' AND varsityJv='jv'),
-    (SELECT athleteID FROM Athletes WHERE firstName='Matthew' AND lastName='Taylor')
-);
+INSERT INTO Players (teamID, athleteID)
+VALUES ((SELECT teamID
+         FROM Teams
+         WHERE teamName = 'Lincoln Lions' AND sportType = 'football' AND varsityJv = 'varsity'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'John' AND lastName = 'Smith')),
+       ((SELECT teamID
+         FROM Teams
+         WHERE teamName = 'Lincoln Lions' AND sportType = 'volleyball' AND varsityJv = 'varsity'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'Michael' AND lastName = 'Johnson')),
+       ((SELECT teamID
+         FROM Teams
+         WHERE teamName = 'Jefferson Jaguars' AND sportType = 'basketball' AND varsityJv = 'varsity'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'David' AND lastName = 'Brown')),
+       ((SELECT teamID FROM Teams WHERE teamName = 'Jefferson Jaguars' AND sportType = 'soccer' AND varsityJv = 'jv'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'Christopher' AND lastName = 'Williams')),
+       ((SELECT teamID
+         FROM Teams
+         WHERE teamName = 'Washington Wildcats' AND sportType = 'baseball' AND varsityJv = 'varsity'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'James' AND lastName = 'Wilson')),
+       ((SELECT teamID
+         FROM Teams
+         WHERE teamName = 'Washington Wildcats' AND sportType = 'tennis' AND varsityJv = 'varsity'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'Robert' AND lastName = 'Davis')),
+       ((SELECT teamID
+         FROM Teams
+         WHERE teamName = 'Roosevelt Ravens' AND sportType = 'basketball' AND varsityJv = 'jv'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'Daniel' AND lastName = 'Miller')),
+       ((SELECT teamID
+         FROM Teams
+         WHERE teamName = 'Roosevelt Ravens' AND sportType = 'basketball' AND varsityJv = 'jv'),
+        (SELECT athleteID FROM Athletes WHERE firstName = 'Matthew' AND lastName = 'Taylor'));
+
 
 -- Games table
 INSERT INTO Games (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status) VALUES
