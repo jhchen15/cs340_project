@@ -1,4 +1,4 @@
-import mysqlclient
+import MySQLdb
 
 # Database credentials
 host = 'classmysql.engr.oregonstate.edu'
@@ -11,7 +11,7 @@ def connectDB(host=host, user=user, passwd=passwd, db=db):
     '''
     connects to a database and returns a database object
     '''
-    dbConnection = mysqlclient.connect(host, user, passwd, db)
+    dbConnection = MySQLdb.connect(host, user, passwd, db)
     return dbConnection
 
 
@@ -34,7 +34,7 @@ def query(dbConnection=None, query=None, query_params=()):
 
     print("Executing %s with %s" % (query, query_params));
     # Create a cursor to execute query. Why? Because apparently they optimize execution by retaining a reference according to PEP0249
-    cursor = dbConnection.cursor(mysqlclient.cursors.DictCursor)
+    cursor = dbConnection.cursor(MySQLdb.cursors.DictCursor)
 
     # Sanitize the query before executing it.
     cursor.execute(query, query_params)
