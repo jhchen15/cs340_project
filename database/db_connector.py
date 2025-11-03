@@ -33,7 +33,7 @@ def query(dbConnection=None, query=None, query_params=()):
         return None
 
     print("Executing %s with %s" % (query, query_params));
-    # Create a cursor to execute query. Why? Because apparently they optimize execution by retaining a reference according to PEP0249
+    # Create a cursor to execute query
     cursor = dbConnection.cursor(MySQLdb.cursors.DictCursor)
 
     # Sanitize the query before executing it.
