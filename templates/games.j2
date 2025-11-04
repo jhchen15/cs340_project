@@ -1,14 +1,14 @@
 {% extends "main.j2" %}
 {% block content %}
 
-<h1>BSG People</h1>
+<h1>Scheduled Games</h1>
 
 {# READ table #}
 <table>
     <thead>
-        {# For the table header row, we print the DB attribute names #}
+        {# Table attribute names #}
         <tr>
-            {% for key in people[0].keys() %}
+            {% for key in games[0].keys() %}
             <th>{{ key }}</th>
             {% endfor %}
             <th></th>
@@ -17,18 +17,24 @@
 
     <tbody>
         {# For each row, print the id, fname, lname, homeworld and age #}
-        {% for person in people %}
+        {% for game in games %}
         <tr>
-            <td>{{ person.id }}</td>
-            <td>{{ person.fname }}</td>
-            <td>{{ person.lname }}</td>
-            <td>{{ person.homeworld | default('', true) }}</td>
-            <td>{{ person.age | default('', true) }}</td>
+            <td>{{ game.gameID }}</td>
+            <td>{{ game.homeTeamID }}</td>
+            <td>{{ game.awayTeamID }}</td>
+            <td>{{ game.homeTeamName }}</td>
+            <td>{{ game.awayTeamName }}</td>
+            <td>{{ game.facilityID }}</td>
+            <td>{{ game.facilitySchool }}</td>
+            <td>{{ game.facilityName }}</td>
+            <td>{{ game.gameDate }}</td>
+            <td>{{ game.gameTime }}</td>
+            <td>{{ game.gameType }}</td>
+            <td>{{ game.status }}</td>
 
             {# DELETE form #}
-            <form id="delete_person_form">
-                <input type="hidden" name="delete_person_id" value="{{ person.id }}">
-                <input type="hidden" name="delete_person_name" value="{{ person.fname }} {{ person.lname }}">
+            <form id="delete_game_form">
+                <input type="hidden" name="delete_game_id" value="{{ game.id }}">
                 <td>
                     <button type="submit">
                         Delete
@@ -41,58 +47,148 @@
 </table>
 
 {# CREATE form #}
-<h2>Create a Person</h2>
-<form class="cuForm" id="create_person_form">
-    <label for="create_person_fname">First Name: </label>
-    <input type="text" name="create_person_fname" id="create_person_fname" required>
+<h2>Create game</h2>
+<form class="cuForm" id="create_game_form">
 
-    <label for="create_person_lname">Last Name: </label>
-    <input type="text" name="create_person_lname" id="create_person_lname">
-
-    <label for="create_person_homeworld">Homeworld: </label>
-    <select name="create_person_homeworld" id="create_person_homeworld" required>
-        <option value="NULL" selected>Select a Planet</option>
+    {# Home team #}
+    <label for="create_game_homeTeam">Home Team: </label>
+    <select name="create_game_homeTeam" id="create_game_homeTeam" required>
+        <option value="NULL" selected>Select a Team</option>
         <option value="NULL">&lt; None &gt;</option>
-        {% for homeworld in homeworlds %}
-        <option value="{{homeworld['id']}}" required>{{homeworld['name']}}</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
+            -
+            {{team['varsityJv'].upper()}}
+            -
+            {{ team['academicYear'] }}</option>
         {% endfor %}
     </select>
 
-    <label for="create_person_age">Age: </label>
-    <input type="number" name="create_person_age" id="create_person_age" min="0">
+    {# Away team #}
+    <label for="create_game_awayTeam">Away Team: </label>
+    <select name="create_game_awayTeam" id="create_game_awayTeam" required>
+        <option value="NULL" selected>Select a Team</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
+            -
+            {{team['varsityJv'].upper()}}
+            -
+            {{ team['academicYear'] }}</option>
+        {% endfor %}
+    </select>
+
+    {# Facility #}
+    <label for="create_game_facility">Facility: </label>
+    <select name="create_game_facility" id="create_game_facility" required>
+        <option value="NULL" selected>Select a Facility</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for facility in facilities %}
+        <option value="{{facility['facilityID']}}" required>{{facility['facilityName']}}</option>
+        {% endfor %}
+    </select>
+
+    {# Date #}
+    <label for="create_game_gameDate">Date: </label>
+    <input type="date" name="create_game_gameDate" id="create_game_gameDate">
+
+    {# Time #}
+    <label for="create_game_gameTime">Time: </label>
+    <input type="time" name="create_game_gameTime" id="create_game_gameTime">
+
+    {# Game type #}
+    <label for="create_game_gameType">Game Type: </label>
+    <select name="create_game_gameType" id="create_game_gameType" required>
+        <option value="NULL" selected>Type</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
+
+    {# Game status #}
+    <label for="create_game_gameStatus">Status: </label>
+    <select name="create_game_gameStatus" id="create_game_gameStatus" required>
+        <option value="NULL" selected>Status</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
 
     <input type="submit">
 </form>
 
 {# UPDATE form #}
-<h2>Update a Person</h2>
-<form class="cuForm" id="update_person_form">
-    <label for="update_person_id">Person to Update: </label>
-    <select name="update_person_id" id="update_person_id" required>
-        <option value="" disabled selected>Select a Person</option>
-        {% for person in people %}
-        <option value="{{person['id']}}" required>
-            {{person['id']}}
+<h2>Update game</h2>
+<form class="cuForm" id="update_game_form">
+
+    {# Game to update #}
+    <label for="update_game_gameID">Game to Update: </label>
+    <select name="update_game_gameID" id="update_game_gameID" required>
+        <option value="" disabled selected>Select a game</option>
+        {% for game in games %}
+        <option value="{{game['id']}}" required>
+            {{game['gameID']}}
             -
-            {{person['fname']}}
-            {{person['lname']}}
+            {{game['homeTeamName']}} (H) vs.
+            {{game['awayTeamName']}} (A)
+            -
+            {{game['gameDate']}}
+            -
+            {{game['gameTime']}}
         </option>
         {% endfor %}
     </select>
 
-    <label for="update_person_homeworld">Homeworld: </label>
-    <select name="update_person_homeworld" id="update_person_homeworld" required>
-        <option value="NULL" selected>Select a Planet</option>
+    <label for="update_game_homeTeam">Home Team: </label>
+    <select name="update_game_homeTeamID" id="update_game_homeTeamID" required>
+        <option value="NULL" selected>Select a Team</option>
         <option value="NULL">&lt; None &gt;</option>
-        {% for homeworld in homeworlds %}
-        <option value="{{homeworld['id']}}" required>
-            {{homeworld['name']}}
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
         </option>
         {% endfor %}
     </select>
 
-    <label for="update_person_age">Age: </label>
-    <input type="number" name="update_person_age" id="update_person_age" min="0">
+    <label for="update_game_awayTeamID">Away Team: </label>
+    <select name="update_game_awayTeamID" id="update_game_awayTeamID" required>
+        <option value="NULL" selected>Select a Team</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_game_facility">Facility: </label>
+    <select name="update_game_facilityID" id="update_game_facilityID" required>
+        <option value="NULL" selected>Select a Facility</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for facility in facilities %}
+        <option value="{{facility['facilityID']}}" required>
+            {{facility['facilityName']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_game_gameDate">Date: </label>
+    <input type="date" name="update_game_gameDate" id="update_game_gameDate">
+
+    <label for="update_game_gameTime">Time: </label>
+    <input type="time" name="update_game_gameTime" id="update_game_gameTime">
+
+    {# Game type #}
+    <label for="update_game_gameType">Game Type: </label>
+    <select name="update_game_gameType" id="update_game_gameType" required>
+        <option value="NULL" selected>Type</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
+
+    {# Game status #}
+    <label for="update_game_gameStatus">Status: </label>
+    <select name="udpate_game_gameStatus" id="update_game_gameStatus" required>
+        <option value="NULL" selected>Status</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
 
     <input type="submit">
 </form>

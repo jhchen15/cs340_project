@@ -11,6 +11,7 @@
             {% for key in players[0].keys() %}
             <th>{{ key }}</th>
             {% endfor %}
+            <th></th>
         </tr>
     </thead>
 
@@ -20,6 +21,8 @@
         {% for player in players %}
         <tr>
             <td>{{ player.playerID }}</td>
+            <td>{{ player.athleteID }}</td>
+            <td>{{ player.teamID }}</td>
             <td>{{ player.firstName }}</td>
             <td>{{ player.lastName }}</td>
             <td>{{ player.schoolName }}</td>
@@ -46,108 +49,107 @@
 </table>
 
 {# CREATE form #}
-<h2>Create a player</h2>
+<h2>Create Player</h2>
 <form class="cuForm" id="create_player_form">
-    {# School Name #}
-    <label for="create_player_schoolName">School: </label>
-    <select name="create_player_schoolName" id="create_player_schoolName" required>
-        <option value="NULL" selected>Select a School</option>
+
+    {# Athlete #}
+    <label for="create_player_athleteID">Athlete: </label>
+    <select name="create_player_athleteID" id="create_player_schoolathleteID" required>
+        <option value="NULL" disabled selected>Select an Athlete</option>
         <option value="NULL">&lt; None &gt;</option>
-{#        {% for school in schools %}#}
-{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
-{#        {% endfor %}#}
     </select>
 
-    {# Sport #}
-    <label for="create_player_sportType">Sport: </label>
-    <select name="create_player_sportType" id="create_player_sportType" required>
-        <option value="NULL" selected>Select a Sport</option>
+    {# Team #}
+    <label for="create_player_teamID">Team: </label>
+    <select name="create_player_teamID" id="create_player_teamID" required>
+        <option value="NULL" disabled selected>Select a Team</option>
         <option value="NULL">&lt; None &gt;</option>
-{#        {% for school in schools %}#}
-{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
-{#        {% endfor %}#}
     </select>
 
-    {# Level #}
-    <label for="create_player_varsityJv">Level: </label>
-    <select name="create_player_varsityJv" id="create_player_varsityJv" required>
-        <option value="NULL" selected>Varsity or JV</option>
-        <option value="NULL">&lt; None &gt;</option>
-{#        {% for school in schools %}#}
-{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
-{#        {% endfor %}#}
-    </select>
-
-    {# Year #}
-    <label for="create_player_academicYear">Academic Year: </label>
-    <select name="create_player_academicYear" id="create_player_academicYear" required>
-        <option value="NULL" selected>Year</option>
-        <option value="NULL">&lt; None &gt;</option>
-{#        {% for school in schools %}#}
-{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
-{#        {% endfor %}#}
-    </select>
-
-    {# Name -- Will be a drop down displaying concat of first and last names identified by ID#}
-    <label for="create_player_playerName">Name: </label>
-    <select name="create_player_playerName" id="create_player_playerName" required>
-        <option value="NULL" selected>Name</option>
-        <option value="NULL">&lt; None &gt;</option>
-{#        {% for school in schools %}#}
-{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
-{#        {% endfor %}#}
-    </select>
-
-{#    <label for="create_player_firstName">First Name: </label>#}
-{#    <input type="text" name="create_player_firstName" id="create_player_firstName" required>#}
-{##}
-{#    <label for="create_player_lastName">Last Name: </label>#}
-{#    <input type="text" name="create_player_lastName" id="create_player_lastName">#}
-{##}
-{#    <label for="create_player_homeworld">Homeworld: </label>#}
-{#    <select name="create_player_homeworld" id="create_player_homeworld" required>#}
-{#        <option value="NULL" selected>Select a Planet</option>#}
+    {# School Name dropdown #}
+{#    <label for="create_player_schoolName">School: </label>#}
+{#    <select name="create_player_schoolName" id="create_player_schoolName" required>#}
+{#        <option value="NULL" disabled selected>Select a School</option>#}
 {#        <option value="NULL">&lt; None &gt;</option>#}
-{#        {% for homeworld in homeworlds %}#}
-{#        <option value="{{homeworld['id']}}" required>{{homeworld['name']}}</option>#}
+{#        {% for school in schools %}#}
+{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
 {#        {% endfor %}#}
 {#    </select>#}
 {##}
-{#    <label for="create_player_age">Age: </label>#}
-{#    <input type="number" name="create_player_age" id="create_player_age" min="0">#}
+    {# Sport dropdown #}
+{#    <label for="create_player_sportType">Sport: </label>#}
+{#    <select name="create_player_sportType" id="create_player_sportType" required>#}
+{#        <option value="NULL" disabled selected>Select a Sport</option>#}
+{#        <option value="NULL">&lt; None &gt;</option>#}
+{#        {% for school in schools %}#}
+{#        <option value="{{school['sportType']}}" required>{{school['sportType']}}</option>#}
+{#        {% endfor %}#}
+{#    </select>#}
+{##}
+    {# Level dropdown #}
+{#    <label for="create_player_varsityJv">Level: </label>#}
+{#    <select name="create_player_varsityJv" id="create_player_varsityJv" required>#}
+{#        <option value="NULL" disabled selected>Varsity/JV</option>#}
+{#        <option value="NULL">&lt; None &gt;</option>#}
+{#        {% for school in schools %}#}
+{#        <option value="{{school['varsityJv']}}" required>{{school['varsityJv']}}</option>#}
+{#        {% endfor %}#}
+{#    </select>#}
+{##}
+    {# Year dropdown #}
+{#    <label for="create_player_academicYear">Academic Year: </label>#}
+{#    <select name="create_player_academicYear" id="create_player_academicYear" required>#}
+{#        <option value="NULL" disabled selected>Year</option>#}
+{#        <option value="NULL">&lt; None &gt;</option>#}
+{#        {% for school in schools %}#}
+{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
+{#        {% endfor %}#}
+{#    </select>#}
+{##}
+    {# Athlete Name #}
+{#    <label for="create_player_playerName">Name: </label>#}
+{#    <select name="create_player_playerName" id="create_player_playerName" required>#}
+{#        <option value="NULL" disabled selected>Name</option>#}
+{#        <option value="NULL">&lt; None &gt;</option>#}
+{#        {% for athlete in athletes %}#}
+{#        <option value="{{athlete['athleteID']}}" required>{{athlete['lastName']}}, {{athlete['firstName']}}</option>#}
+{#        {% endfor %}#}
+{#    </select>#}
 
     <input type="submit">
 </form>
 
 {# UPDATE form #}
-<h2>Update a player</h2>
+<h2>Update Player</h2>
 <form class="cuForm" id="update_player_form">
-    <label for="update_playerID">player to Update: </label>
+
+    <label for="update_playerID">Player to Update: </label>
     <select name="update_playerID" id="update_playerID" required>
         <option value="" disabled selected>Select a player</option>
-        {% for player in people %}
-        <option value="{{player['id']}}" required>
-            {{player['id']}}
-            -
-            {{player['firstName']}}
-            {{player['lastName']}}
-        </option>
-        {% endfor %}
+{#        {% for player in people %}#}
+{#        <option value="{{player['id']}}" required>#}
+{#            {{player['id']}}#}
+{#            -#}
+{#            {{player['firstName']}}#}
+{#            {{player['lastName']}}#}
+{#        </option>#}
+{#        {% endfor %}#}
     </select>
 
-    <label for="update_player_homeworld">Homeworld: </label>
-    <select name="update_player_homeworld" id="update_player_homeworld" required>
-        <option value="NULL" selected>Select a Planet</option>
+    <label for="update_player_teamID">Team: </label>
+    <select name="update_player_teamID" id="update_player_teamID" required>
+        <option value="NULL" disabled selected>Select a Team</option>
         <option value="NULL">&lt; None &gt;</option>
-        {% for homeworld in homeworlds %}
-        <option value="{{homeworld['id']}}" required>
-            {{homeworld['name']}}
-        </option>
-        {% endfor %}
+{#        {% for team in teams %}#}
+{#        <option value="{{team['teamID']}}" required>#}
+{#            {{team['teamID']}}#}
+{#            {{team['schoolID']}}#}
+{#            {{team['sportType']}}#}
+{#            {{team['varsityJv']}}#}
+{#            {{team['academicYear']}}#}
+{#        </option>#}
+{#        {% endfor %}#}
     </select>
-
-    <label for="update_player_age">Age: </label>
-    <input type="number" name="update_player_age" id="update_player_age" min="0">
 
     <input type="submit">
 </form>
