@@ -1,0 +1,150 @@
+{% extends "main.j2" %}
+{% block content %}
+
+<h1>Teams</h1>
+
+{# READ table #}
+<table>
+    <thead>
+        {# For the table header row, we print the DB attribute names #}
+        <tr>
+            {% for key in teams[0].keys() %}
+            <th>{{ key }}</th>
+            {% endfor %}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {# For each row, print all team attributes #}
+        {% for team in teams %}
+        <tr>
+            <td>{{ team.teamID }}</td>
+            <td>{{ team.school | default('', true) }}</td>
+            <td>{{ team.teamName | default('', true) }}</td>
+            <td>{{ team.sportType | default('', true) }}</td>
+            <td>{{ team.varsityJv | default('', true) }}</td>
+            <td>{{ team.seasonName | default('', true) }}</td>
+            <td>{{ team.academicYear | default('', true) }}</td>
+
+            {# DELETE form #}
+            <form id="delete_team_form">
+                <input type="hidden" name="delete_team_id" value="{{ team.teamID }}">
+                <input type="hidden" name="delete_team_name" value="{{ team.teamName }} - {{ team.sportType }}">
+                <td>
+                    <button type="submit">
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{# CREATE form #}
+<h2>Create a Team</h2>
+<form class="cuForm" id="create_team_form">
+    <label for="create_team_school">School: </label>
+    <select name="create_team_school" id="create_team_school" required>
+        <option value="" disabled selected>Select a School</option>
+        {% for school in schools %}
+        <option value="{{school['schoolID']}}" required>{{school['name']}}</option>
+        {% endfor %}
+    </select>
+
+    <label for="create_team_name">Team Name: </label>
+    <input type="text" name="create_team_name" id="create_team_name" required>
+
+    <label for="create_team_sportType">Sport Type: </label>
+    <select name="create_team_sportType" id="create_team_sportType" required>
+        <option value="" disabled selected>Select a Sport</option>
+        <option value="football">Football</option>
+        <option value="volleyball">Volleyball</option>
+        <option value="basketball">Basketball</option>
+        <option value="soccer">Soccer</option>
+        <option value="baseball">Baseball</option>
+        <option value="tennis">Tennis</option>
+    </select>
+
+    <label for="create_team_varsityJv">Varsity/JV: </label>
+    <select name="create_team_varsityJv" id="create_team_varsityJv" required>
+        <option value="" disabled selected>Select Level</option>
+        <option value="varsity">Varsity</option>
+        <option value="jv">JV</option>
+    </select>
+
+    <label for="create_team_seasonName">Season: </label>
+    <select name="create_team_seasonName" id="create_team_seasonName" required>
+        <option value="" disabled selected>Select Season</option>
+        <option value="fall">Fall</option>
+        <option value="winter">Winter</option>
+        <option value="spring">Spring</option>
+    </select>
+
+    <label for="create_team_academicYear">Academic Year: </label>
+    <input type="number" name="create_team_academicYear" id="create_team_academicYear" min="2020" max="2030" required>
+
+    <input type="submit">
+</form>
+
+{# UPDATE form #}
+<h2>Update a Team</h2>
+<form class="cuForm" id="update_team_form">
+    <label for="update_team_id">Team to Update: </label>
+    <select name="update_team_id" id="update_team_id" required>
+        <option value="" disabled selected>Select a Team</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamID']}}
+            -
+            {{team['teamName']}}
+            ({{team['sportType']}} - {{team['school']}})
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_team_school">School: </label>
+    <select name="update_team_school" id="update_team_school" required>
+        <option value="" disabled selected>Select a School</option>
+        {% for school in schools %}
+        <option value="{{school['schoolID']}}" required>{{school['name']}}</option>
+        {% endfor %}
+    </select>
+
+    <label for="update_team_name">Team Name: </label>
+    <input type="text" name="update_team_name" id="update_team_name" required>
+
+    <label for="update_team_sportType">Sport Type: </label>
+    <select name="update_team_sportType" id="update_team_sportType" required>
+        <option value="" disabled selected>Select a Sport</option>
+        <option value="football">Football</option>
+        <option value="volleyball">Volleyball</option>
+        <option value="basketball">Basketball</option>
+        <option value="soccer">Soccer</option>
+        <option value="baseball">Baseball</option>
+        <option value="tennis">Tennis</option>
+    </select>
+
+    <label for="update_team_varsityJv">Varsity/JV: </label>
+    <select name="update_team_varsityJv" id="update_team_varsityJv" required>
+        <option value="" disabled selected>Select Level</option>
+        <option value="varsity">Varsity</option>
+        <option value="jv">JV</option>
+    </select>
+
+    <label for="update_team_seasonName">Season: </label>
+    <select name="update_team_seasonName" id="update_team_seasonName" required>
+        <option value="" disabled selected>Select Season</option>
+        <option value="fall">Fall</option>
+        <option value="winter">Winter</option>
+        <option value="spring">Spring</option>
+    </select>
+
+    <label for="update_team_academicYear">Academic Year: </label>
+    <input type="number" name="update_team_academicYear" id="update_team_academicYear" min="2020" max="2030" required>
+
+    <input type="submit">
+</form>
+
+{% endblock %}

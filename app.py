@@ -22,25 +22,89 @@ def home():
         return "An error occurred while rendering the page.", 500
 
 
-@app.route("/bsg-people", methods=["GET"])
-def bsg_people():
+@app.route("/facilities", methods=["GET"])
+def facilities():
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
         # Create and execute our queries
         # In query1, we use a JOIN clause to display the names of the homeworlds,
         #       instead of just ID values
-        query1 = "SELECT bsg_people.id, bsg_people.fname, bsg_people.lname, \
-            bsg_planets.name AS 'homeworld', bsg_people.age FROM bsg_people \
-            LEFT JOIN bsg_planets ON bsg_people.homeworld = bsg_planets.id;"
-        query2 = "SELECT * FROM bsg_planets;"
-        people = db.query(dbConnection, query1).fetchall()
-        homeworlds = db.query(dbConnection, query2).fetchall()
+        query1 = "SELECT Facilities.facilityID, Schools.name as 'school', \
+            Facilities.facilityName, Facilities.capacity FROM Facilities \
+            LEFT JOIN Schools ON Facilities.schoolID = Schools.schoolID;"
+        query2 = "SELECT * FROM Schools;"
+        facilities = db.query(dbConnection, query1).fetchall()
+        schools = db.query(dbConnection, query2).fetchall()
 
-        # Render the bsg-people.j2 file, and also send the renderer
-        # a couple objects that contains bsg_people and bsg_homeworld information
+        # Render the facilities.j2 file, and also send the renderer
+        # a couple objects that contains facilities and schools information
         return render_template(
-            "bsg-people.j2", people=people, homeworlds=homeworlds
+            "facilities.j2", facilities=facilities, schools=schools
+        )
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/athletes", methods=["GET"])
+def athletes():
+    try:
+        dbConnection = db.connectDB()  # Open our database connection
+
+        # Create and execute our queries
+        # In query1, we use a JOIN clause to display the names of the homeworlds,
+        #       instead of just ID values
+        query1 = "SELECT Athletes.athleteID, Schools.name as 'school', \
+            Athletes.firstName, Athletes.lastName, Athletes.gradeLevel, \
+            Athletes.isEligible, Athletes.isActive, Athletes.emergencyContact FROM Athletes \
+            LEFT JOIN Schools ON Athletes.schoolID = Schools.schoolID;"
+        query2 = "SELECT * FROM Schools;"
+        athletes = db.query(dbConnection, query1).fetchall()
+        schools = db.query(dbConnection, query2).fetchall()
+
+        # Render the athletes.j2 file, and also send the renderer
+        # a couple objects that contains athletes and schools information
+        return render_template(
+            "athletes.j2", athletes=athletes, schools=schools
+        )
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+            
+
+@app.route("/teams", methods=["GET"])
+def teams():
+    try:
+        dbConnection = db.connectDB()  # Open our database connection
+
+        # Create and execute our queries
+        # In query1, we use a JOIN clause to display the names of the homeworlds,
+        #       instead of just ID values
+        query1 = "SELECT Teams.teamID, Schools.name as 'school', \
+            Teams.teamName, Teams.sportType, Teams.varsityJv, \
+            Teams.seasonName, Teams.academicYear FROM Teams \
+            LEFT JOIN Schools ON Teams.schoolID = Schools.schoolID;"
+        query2 = "SELECT * FROM Schools;"
+        teams = db.query(dbConnection, query1).fetchall()
+        schools = db.query(dbConnection, query2).fetchall()
+
+        # Render the athletes.j2 file, and also send the renderer
+        # a couple objects that contains teams and schools information
+        return render_template(
+            "teams.j2", teams=teams, schools=schools
         )
 
     except Exception as e:
