@@ -53,8 +53,8 @@ def players():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve list of Players with their Athlete / Team / School info
-        query1 = ("SELECT p.playerID, a.athleteID, t.teamID, a.firstName, a.lastName, "
-                 "s.name AS schoolName, t.sportType, t.varsityJv, t.seasonName, "
+        query1 = ("SELECT p.playerID, a.firstName, a.lastName, "
+                 "s.name AS schoolName, t.sportType, t.varsityJv, "
                  "t.academicYear, a.isEligible, a.isActive "
                  "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                  "JOIN Teams AS t ON p.teamID = t.teamID "
@@ -82,9 +82,9 @@ def games():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve scheduled games list with associated details
-        query1 = ("SELECT g.gameID, g.homeTeamID, g.awayTeamID, "
+        query1 = ("SELECT g.gameID, "
                   "ht.teamName AS homeTeamName, at.teamName AS awayTeamName, "
-                  "g.facilityID, s.name AS facilitySchool, f.facilityName, "
+                  "s.name AS facilitySchool, f.facilityName, "
                   "g.gameDate, g.gameTime, g.gameType, g.status "
                   "FROM Games AS g JOIN Teams AS ht ON g.homeTeamID = ht.teamID "
                   "JOIN Teams AS at ON g.awayTeamID = at.teamID "

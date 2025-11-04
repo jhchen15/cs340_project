@@ -21,14 +21,11 @@
         {% for player in players %}
         <tr>
             <td>{{ player.playerID }}</td>
-            <td>{{ player.athleteID }}</td>
-            <td>{{ player.teamID }}</td>
             <td>{{ player.firstName }}</td>
             <td>{{ player.lastName }}</td>
             <td>{{ player.schoolName }}</td>
             <td>{{ player.sportType }}</td>
             <td>{{ player.varsityJv }}</td>
-            <td>{{ player.seasonName }}</td>
             <td>{{ player.academicYear | default('', true) }}</td>
             <td>{{ player.isEligible }}</td>
             <td>{{ player.isActive }}</td>
