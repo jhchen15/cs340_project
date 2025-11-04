@@ -4,7 +4,7 @@
 from flask import Flask, render_template, request, redirect
 import database.db_connector as db
 
-PORT = 65534
+PORT = 65519
 
 app = Flask(__name__)
 
@@ -22,25 +22,21 @@ def home():
         return "An error occurred while rendering the page.", 500
 
 
-@app.route("/bsg-people", methods=["GET"])
-def bsg_people():
+@app.route("/schools", methods=["GET"])
+def schools():
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
         # Create and execute our queries
         # In query1, we use a JOIN clause to display the names of the homeworlds,
         #       instead of just ID values
-        query1 = "SELECT bsg_people.id, bsg_people.fname, bsg_people.lname, \
-            bsg_planets.name AS 'homeworld', bsg_people.age FROM bsg_people \
-            LEFT JOIN bsg_planets ON bsg_people.homeworld = bsg_planets.id;"
-        query2 = "SELECT * FROM bsg_planets;"
-        people = db.query(dbConnection, query1).fetchall()
-        homeworlds = db.query(dbConnection, query2).fetchall()
+        query = ("SELECT schoolID AS 'ID', name AS 'Name', address AS 'Address', phone AS 'Phone' "
+                 "FROM Schools;")
+        schools = db.query(dbConnection, query).fetchall()
 
-        # Render the bsg-people.j2 file, and also send the renderer
-        # a couple objects that contains bsg_people and bsg_homeworld information
+        # Render schools.j2 file, and send school query results
         return render_template(
-            "bsg-people.j2", people=people, homeworlds=homeworlds
+            "schools.j2", schools=schools
         )
 
     except Exception as e:
@@ -52,6 +48,36 @@ def bsg_people():
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
+
+@app.route("/players", methods=["GET"])
+def players():
+    try:
+        dbConnection = db.connectDB()  # Open our database connection
+
+        # Create and execute our queries
+        # In query1, we use a JOIN clause to display the names of the homeworlds,
+        #       instead of just ID values
+        query = ("SELECT p.playerID, a.firstName, a.lastName, "
+                 "s.name AS schoolName, t.sportType, t.varsityJv, t.seasonName, "
+                 "t.academicYear, a.isEligible, a.isActive "
+                 "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
+                 "JOIN Teams AS t ON p.teamID = t.teamID "
+                 "JOIN Schools AS s ON s.schoolID = a.schoolID ;")
+        players = db.query(dbConnection, query).fetchall()
+
+        # Render schools.j2 file, and send school query results
+        return render_template(
+            "players.j2", players=players
+        )
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
 
 
 # ########################################

@@ -1,0 +1,155 @@
+{% extends "main.j2" %}
+{% block content %}
+
+<h1>Players</h1>
+
+{# READ table #}
+<table>
+    <thead>
+        {# Table attribute names #}
+        <tr>
+            {% for key in players[0].keys() %}
+            <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {# For each row, print the playerID, firstName, lastName, school, sport, level,
+        season, year, active status, and eligibility status#}
+        {% for player in players %}
+        <tr>
+            <td>{{ player.playerID }}</td>
+            <td>{{ player.firstName }}</td>
+            <td>{{ player.lastName }}</td>
+            <td>{{ player.schoolName }}</td>
+            <td>{{ player.sportType }}</td>
+            <td>{{ player.varsityJv }}</td>
+            <td>{{ player.seasonName }}</td>
+            <td>{{ player.academicYear | default('', true) }}</td>
+            <td>{{ player.isEligible }}</td>
+            <td>{{ player.isActive }}</td>
+
+            {# DELETE form #}
+            <form id="delete_player_form">
+                <input type="hidden" name="delete_playerID" value="{{ player.playerID }}">
+                <input type="hidden" name="delete_player_name" value="{{ player.firstName }} {{ player.lastName }}">
+                <td>
+                    <button type="submit">
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{# CREATE form #}
+<h2>Create a player</h2>
+<form class="cuForm" id="create_player_form">
+    {# School Name #}
+    <label for="create_player_schoolName">School: </label>
+    <select name="create_player_schoolName" id="create_player_schoolName" required>
+        <option value="NULL" selected>Select a School</option>
+        <option value="NULL">&lt; None &gt;</option>
+{#        {% for school in schools %}#}
+{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
+{#        {% endfor %}#}
+    </select>
+
+    {# Sport #}
+    <label for="create_player_sportType">Sport: </label>
+    <select name="create_player_sportType" id="create_player_sportType" required>
+        <option value="NULL" selected>Select a Sport</option>
+        <option value="NULL">&lt; None &gt;</option>
+{#        {% for school in schools %}#}
+{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
+{#        {% endfor %}#}
+    </select>
+
+    {# Level #}
+    <label for="create_player_varsityJv">Level: </label>
+    <select name="create_player_varsityJv" id="create_player_varsityJv" required>
+        <option value="NULL" selected>Varsity or JV</option>
+        <option value="NULL">&lt; None &gt;</option>
+{#        {% for school in schools %}#}
+{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
+{#        {% endfor %}#}
+    </select>
+
+    {# Year #}
+    <label for="create_player_academicYear">Academic Year: </label>
+    <select name="create_player_academicYear" id="create_player_academicYear" required>
+        <option value="NULL" selected>Year</option>
+        <option value="NULL">&lt; None &gt;</option>
+{#        {% for school in schools %}#}
+{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
+{#        {% endfor %}#}
+    </select>
+
+    {# Name -- Will be a drop down displaying concat of first and last names identified by ID#}
+    <label for="create_player_playerName">Name: </label>
+    <select name="create_player_playerName" id="create_player_playerName" required>
+        <option value="NULL" selected>Name</option>
+        <option value="NULL">&lt; None &gt;</option>
+{#        {% for school in schools %}#}
+{#        <option value="{{school['schoolID']}}" required>{{school['schoolName']}}</option>#}
+{#        {% endfor %}#}
+    </select>
+
+{#    <label for="create_player_firstName">First Name: </label>#}
+{#    <input type="text" name="create_player_firstName" id="create_player_firstName" required>#}
+{##}
+{#    <label for="create_player_lastName">Last Name: </label>#}
+{#    <input type="text" name="create_player_lastName" id="create_player_lastName">#}
+{##}
+{#    <label for="create_player_homeworld">Homeworld: </label>#}
+{#    <select name="create_player_homeworld" id="create_player_homeworld" required>#}
+{#        <option value="NULL" selected>Select a Planet</option>#}
+{#        <option value="NULL">&lt; None &gt;</option>#}
+{#        {% for homeworld in homeworlds %}#}
+{#        <option value="{{homeworld['id']}}" required>{{homeworld['name']}}</option>#}
+{#        {% endfor %}#}
+{#    </select>#}
+{##}
+{#    <label for="create_player_age">Age: </label>#}
+{#    <input type="number" name="create_player_age" id="create_player_age" min="0">#}
+
+    <input type="submit">
+</form>
+
+{# UPDATE form #}
+<h2>Update a player</h2>
+<form class="cuForm" id="update_player_form">
+    <label for="update_playerID">player to Update: </label>
+    <select name="update_playerID" id="update_playerID" required>
+        <option value="" disabled selected>Select a player</option>
+        {% for player in people %}
+        <option value="{{player['id']}}" required>
+            {{player['id']}}
+            -
+            {{player['firstName']}}
+            {{player['lastName']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_player_homeworld">Homeworld: </label>
+    <select name="update_player_homeworld" id="update_player_homeworld" required>
+        <option value="NULL" selected>Select a Planet</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for homeworld in homeworlds %}
+        <option value="{{homeworld['id']}}" required>
+            {{homeworld['name']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_player_age">Age: </label>
+    <input type="number" name="update_player_age" id="update_player_age" min="0">
+
+    <input type="submit">
+</form>
+
+{% endblock %}
