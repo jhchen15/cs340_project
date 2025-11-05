@@ -35,7 +35,7 @@ CREATE TABLE Teams
     sportType    ENUM ('football', 'volleyball', 'basketball', 'soccer', 'baseball', 'tennis') NOT NULL,
     varsityJv    ENUM ('varsity', 'jv')                                                        NOT NULL,
     seasonName   ENUM ('fall', 'winter', 'spring')                                             NOT NULL,
-    academicYear YEAR,
+    academicYear YEAR                                                                          NOT NULL,
     PRIMARY KEY (teamID),
     FOREIGN KEY (schoolID)
         REFERENCES Schools (schoolID)
@@ -102,7 +102,7 @@ CREATE TABLE Players
     FOREIGN KEY (athleteID) REFERENCES Athletes (athleteID)
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
-    CONSTRAINT unique_players UNIQUE (playerID, teamID)
+    CONSTRAINT unique_players UNIQUE (athleteID, teamID)
 );
 
 
