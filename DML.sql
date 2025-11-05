@@ -48,7 +48,7 @@ WHERE playerID = @playerIdInput;
 *****************/
 
 -- Create
-INSERT INTO Games
+INSERT INTO Games (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status)
 VALUES (@homeTeamIdInput, @awayTeamIdInput, @facilityIdInput, @gameDateInput, @gameTimeInput, @gameTypeInput, @statusInput);
 
 -- Read: Retrieves the list of games and relevant details to display
