@@ -1,0 +1,30 @@
+{% extends "main.j2" %}
+{% block content %}
+
+<h1>Valleyview District Schools</h1>
+
+{# READ table #}
+<table>
+    <thead>
+        {# Table attribute names #}
+        <tr>
+            {% for key in schools[0].keys() %}
+            <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {# Display the schoolID, name, address and phone #}
+        {% for school in schools %}
+        <tr>
+            <td>{{ school.ID }}</td>
+            <td>{{ school.Name }}</td>
+            <td>{{ school.Address | default('', true) }}</td>
+            <td>{{ school.Phone | default('', true)  }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
