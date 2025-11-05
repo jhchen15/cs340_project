@@ -1,0 +1,30 @@
+{% extends "main.j2" %}
+{% block content %}
+
+<h1>Facilities</h1>
+
+{# READ table #}
+<table>
+    <thead>
+        {# For the table header row, we print the DB attribute names #}
+        <tr>
+            {% for key in facilities[0].keys() %}
+            <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {# For each row, print the facilityID, school, facilityName, and capacity #}
+        {% for facility in facilities %}
+        <tr>
+            <td>{{ facility.facilityID }}</td>
+            <td>{{ facility.school | default('', true) }}</td>
+            <td>{{ facility.facilityName | default('', true) }}</td>
+            <td>{{ facility.capacity | default('', true) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

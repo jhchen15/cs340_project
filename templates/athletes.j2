@@ -1,0 +1,136 @@
+{% extends "main.j2" %}
+{% block content %}
+
+<h1>Athletes</h1>
+
+{# READ table #}
+<table>
+    <thead>
+        {# For the table header row, we print the DB attribute names #}
+        <tr>
+            {% for key in athletes[0].keys() %}
+            <th>{{ key }}</th>
+            {% endfor %}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {# For each row, print all athlete attributes #}
+        {% for athlete in athletes %}
+        <tr>
+            <td>{{ athlete.athleteID }}</td>
+            <td>{{ athlete.school | default('', true) }}</td>
+            <td>{{ athlete.firstName | default('', true) }}</td>
+            <td>{{ athlete.lastName | default('', true) }}</td>
+            <td>{{ athlete.gradeLevel | default('', true) }}</td>
+            <td>{{ 'Yes' if athlete.isEligible else 'No' }}</td>
+            <td>{{ 'Yes' if athlete.isActive else 'No' }}</td>
+            <td>{{ athlete.emergencyContact | default('', true) }}</td>
+
+            {# DELETE form #}
+            <form id="delete_athlete_form">
+                <input type="hidden" name="delete_athlete_id" value="{{ athlete.athleteID }}">
+                <input type="hidden" name="delete_athlete_name" value="{{ athlete.firstName }} {{ athlete.lastName }}">
+                <td>
+                    <button type="submit">
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{# CREATE form #}
+<h2>Create an Athlete</h2>
+<form class="cuForm" id="create_athlete_form">
+    <label for="create_athlete_school">School: </label>
+    <select name="create_athlete_school" id="create_athlete_school" required>
+        <option value="" disabled selected>Select a School</option>
+        {% for school in schools %}
+        <option value="{{school['schoolID']}}" required>{{school['name']}}</option>
+        {% endfor %}
+    </select>
+
+    <label for="create_athlete_firstName">First Name: </label>
+    <input type="text" name="create_athlete_firstName" id="create_athlete_firstName" required>
+
+    <label for="create_athlete_lastName">Last Name: </label>
+    <input type="text" name="create_athlete_lastName" id="create_athlete_lastName" required>
+
+    <label for="create_athlete_gradeLevel">Grade Level: </label>
+    <input type="number" name="create_athlete_gradeLevel" id="create_athlete_gradeLevel" min="9" max="12" required>
+
+    <label for="create_athlete_isEligible">Is Eligible: </label>
+    <select name="create_athlete_isEligible" id="create_athlete_isEligible" required>
+        <option value="1" selected>Yes</option>
+        <option value="0">No</option>
+    </select>
+
+    <label for="create_athlete_isActive">Is Active: </label>
+    <select name="create_athlete_isActive" id="create_athlete_isActive" required>
+        <option value="1" selected>Yes</option>
+        <option value="0">No</option>
+    </select>
+
+    <label for="create_athlete_emergencyContact">Emergency Contact: </label>
+    <input type="text" name="create_athlete_emergencyContact" id="create_athlete_emergencyContact">
+
+    <input type="submit">
+</form>
+
+{# UPDATE form #}
+<h2>Update an Athlete</h2>
+<form class="cuForm" id="update_athlete_form">
+    <label for="update_athlete_id">Athlete to Update: </label>
+    <select name="update_athlete_id" id="update_athlete_id" required>
+        <option value="" disabled selected>Select an Athlete</option>
+        {% for athlete in athletes %}
+        <option value="{{athlete['athleteID']}}" required>
+            {{athlete['athleteID']}}
+            -
+            {{athlete['firstName']}}
+            {{athlete['lastName']}}
+            ({{athlete['school']}})
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_athlete_school">School: </label>
+    <select name="update_athlete_school" id="update_athlete_school" required>
+        <option value="" disabled selected>Select a School</option>
+        {% for school in schools %}
+        <option value="{{school['schoolID']}}" required>{{school['name']}}</option>
+        {% endfor %}
+    </select>
+
+    <label for="update_athlete_firstName">First Name: </label>
+    <input type="text" name="update_athlete_firstName" id="update_athlete_firstName" required>
+
+    <label for="update_athlete_lastName">Last Name: </label>
+    <input type="text" name="update_athlete_lastName" id="update_athlete_lastName" required>
+
+    <label for="update_athlete_gradeLevel">Grade Level: </label>
+    <input type="number" name="update_athlete_gradeLevel" id="update_athlete_gradeLevel" min="9" max="12" required>
+
+    <label for="update_athlete_isEligible">Is Eligible: </label>
+    <select name="update_athlete_isEligible" id="update_athlete_isEligible" required>
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+    </select>
+
+    <label for="update_athlete_isActive">Is Active: </label>
+    <select name="update_athlete_isActive" id="update_athlete_isActive" required>
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+    </select>
+
+    <label for="update_athlete_emergencyContact">Emergency Contact: </label>
+    <input type="text" name="update_athlete_emergencyContact" id="update_athlete_emergencyContact">
+
+    <input type="submit">
+</form>
+
+{% endblock %}
