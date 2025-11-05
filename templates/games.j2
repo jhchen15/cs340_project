@@ -1,0 +1,193 @@
+{% extends "main.j2" %}
+{% block content %}
+
+<h1>Scheduled Games</h1>
+
+{# READ table #}
+<table>
+    <thead>
+        {# Table attribute names #}
+        <tr>
+            {% for key in games[0].keys() %}
+            <th>{{ key }}</th>
+            {% endfor %}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {# For each row, print the id, fname, lname, homeworld and age #}
+        {% for game in games %}
+        <tr>
+            <td>{{ game.gameID }}</td>
+            <td>{{ game.homeTeamName }}</td>
+            <td>{{ game.awayTeamName }}</td>
+            <td>{{ game.facilitySchool }}</td>
+            <td>{{ game.facilityName }}</td>
+            <td>{{ game.gameDate }}</td>
+            <td>{{ game.gameTime }}</td>
+            <td>{{ game.gameType }}</td>
+            <td>{{ game.status }}</td>
+
+            {# DELETE form #}
+            <form id="delete_game_form">
+                <input type="hidden" name="delete_game_id" value="{{ game.id }}">
+                <td>
+                    <button type="submit">
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{# CREATE form #}
+<h2>Create game</h2>
+<form class="cuForm" id="create_game_form">
+
+    {# Home team #}
+    <label for="create_game_homeTeam">Home Team: </label>
+    <select name="create_game_homeTeam" id="create_game_homeTeam" required>
+        <option value="NULL" selected>Select a Team</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
+            -
+            {{team['varsityJv'].upper()}}
+            -
+            {{ team['academicYear'] }}</option>
+        {% endfor %}
+    </select>
+
+    {# Away team #}
+    <label for="create_game_awayTeam">Away Team: </label>
+    <select name="create_game_awayTeam" id="create_game_awayTeam" required>
+        <option value="NULL" selected>Select a Team</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
+            -
+            {{team['varsityJv'].upper()}}
+            -
+            {{ team['academicYear'] }}</option>
+        {% endfor %}
+    </select>
+
+    {# Facility #}
+    <label for="create_game_facility">Facility: </label>
+    <select name="create_game_facility" id="create_game_facility" required>
+        <option value="NULL" selected>Select a Facility</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for facility in facilities %}
+        <option value="{{facility['facilityID']}}" required>{{facility['facilityName']}}</option>
+        {% endfor %}
+    </select>
+
+    {# Date #}
+    <label for="create_game_gameDate">Date: </label>
+    <input type="date" name="create_game_gameDate" id="create_game_gameDate">
+
+    {# Time #}
+    <label for="create_game_gameTime">Time: </label>
+    <input type="time" name="create_game_gameTime" id="create_game_gameTime">
+
+    {# Game type #}
+    <label for="create_game_gameType">Game Type: </label>
+    <select name="create_game_gameType" id="create_game_gameType" required>
+        <option value="NULL" selected>Type</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
+
+    {# Game status #}
+    <label for="create_game_gameStatus">Status: </label>
+    <select name="create_game_gameStatus" id="create_game_gameStatus" required>
+        <option value="NULL" selected>Status</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
+
+    <input type="submit">
+</form>
+
+{# UPDATE form #}
+<h2>Update game</h2>
+<form class="cuForm" id="update_game_form">
+
+    {# Game to update #}
+    <label for="update_game_gameID">Game to Update: </label>
+    <select name="update_game_gameID" id="update_game_gameID" required>
+        <option value="" disabled selected>Select a game</option>
+        {% for game in games %}
+        <option value="{{game['id']}}" required>
+            {{game['gameID']}}
+            -
+            {{game['homeTeamName']}} (H) vs.
+            {{game['awayTeamName']}} (A)
+            -
+            {{game['gameDate']}}
+            -
+            {{game['gameTime']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_game_homeTeam">Home Team: </label>
+    <select name="update_game_homeTeamID" id="update_game_homeTeamID" required>
+        <option value="NULL" selected>Select a Team</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_game_awayTeamID">Away Team: </label>
+    <select name="update_game_awayTeamID" id="update_game_awayTeamID" required>
+        <option value="NULL" selected>Select a Team</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamName']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_game_facility">Facility: </label>
+    <select name="update_game_facilityID" id="update_game_facilityID" required>
+        <option value="NULL" selected>Select a Facility</option>
+        <option value="NULL">&lt; None &gt;</option>
+        {% for facility in facilities %}
+        <option value="{{facility['facilityID']}}" required>
+            {{facility['facilityName']}}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="update_game_gameDate">Date: </label>
+    <input type="date" name="update_game_gameDate" id="update_game_gameDate">
+
+    <label for="update_game_gameTime">Time: </label>
+    <input type="time" name="update_game_gameTime" id="update_game_gameTime">
+
+    {# Game type #}
+    <label for="update_game_gameType">Game Type: </label>
+    <select name="update_game_gameType" id="update_game_gameType" required>
+        <option value="NULL" selected>Type</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
+
+    {# Game status #}
+    <label for="update_game_gameStatus">Status: </label>
+    <select name="udpate_game_gameStatus" id="update_game_gameStatus" required>
+        <option value="NULL" selected>Status</option>
+        <option value="NULL">&lt; None &gt;</option>
+    </select>
+
+    <input type="submit">
+</form>
+
+{% endblock %}
