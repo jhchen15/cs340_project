@@ -110,7 +110,7 @@ CREATE TABLE Players
     FOREIGN KEY (academicYear) REFERENCES TEAMS (academicYear)
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
-    CONSTRAINT unique_players UNIQUE (playerID, teamID),
+    CONSTRAINT unique_players UNIQUE (athleteID, teamID),
     CONSTRAINT one_sport_per_athlete_per_season UNIQUE (playerID, seasonName, academicYear)
 );
 
