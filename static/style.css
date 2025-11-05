@@ -1,4 +1,4 @@
-h1, h2 { margin-left: 16px;}
+h1, h2, h3 { margin-left: 16px;}
 table {border-collapse: collapse;margin-left: 32px;}
 th, td {
     border: 1px solid #ddd;
@@ -12,3 +12,7 @@ input, select { margin-bottom: 4px;margin-right: 12px;}
 nav {background-color: #cecece;padding: 16px;}
 a {margin-left: 16px;}
 .homepageDescription {margin-left: 32px;}
+footer {
+    margin-left:32px;
+    font-weight:bold;
+}
