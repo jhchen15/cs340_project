@@ -1,3 +1,10 @@
+-- Group 57
+-- Humza Hussain, James Chen
+-- This file contains the DML SQL Statements for Valleyview Athletics UI
+-- @{attribute}Input indicates the variable that will have data passed from the backend
+-- (e.g., @firstNameInput for first name of an athlete)
+
+
 /****************
   Schools Table
 *****************/
