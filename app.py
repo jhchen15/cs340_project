@@ -1,7 +1,7 @@
 # ########################################
 # ########## SETUP
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 import database.db_connector as db
 
 PORT = 3097
@@ -148,17 +148,23 @@ def players():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve list of Players with their Athlete / Team / School info
-        query1 = ("SELECT p.playerID, a.firstName, a.lastName, "
-                 "s.name AS schoolName, t.sportType, t.varsityJv, "
-                 "t.academicYear, a.isEligible, a.isActive "
-                 "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
-                 "JOIN Teams AS t ON p.teamID = t.teamID "
-                 "JOIN Schools AS s ON s.schoolID = a.schoolID ;")
+        query1 = ("SELECT p.playerID AS 'player_id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
+                  "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'is_eligible', "
+                  "IF(a.isActive, 'Yes', 'No') AS 'is_active' "
+                  "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
+                  "JOIN Teams AS t ON p.teamID = t.teamID "
+                  "JOIN Schools AS s ON s.schoolID = a.schoolID ;")
         players = db.query(dbConnection, query1).fetchall()
+
+        query2 = ("SELECT a.athleteID, a.firstName, a.lastName, s.schoolID, s.name AS 'schoolName' "
+                  "FROM Athletes as a "
+                  "JOIN Schools as s ON s.schoolID = a.schoolID ")
+        athletes = db.query(dbConnection, query2).fetchall()
 
         # Render schools.j2 file, and send school query results
         return render_template(
-            "players.j2", players=players
+            "players.j2", players=players, athletes=athletes
         )
 
     except Exception as e:
@@ -169,6 +175,28 @@ def players():
         # Close the DB connection, if it exists
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
+
+
+@app.route("/players/teams", methods=["GET"])
+def players_fetch_teams():
+    try:
+        dbConnection = db.connectDB()
+        schoolID = request.args.get("schoolID")
+        query = ("SELECT teamID, teamName, sportType, varsityJv, academicYear "
+                 "FROM Schools as s JOIN Teams as t ON s.schoolID = t.schoolID "
+                 "WHERE schoolID = %s")
+        teams_list = db.query(dbConnection, query, (schoolID,)).fetchall()
+        return jsonify(teams_list)
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
 
 @app.route("/games", methods=["GET"])
 def games():

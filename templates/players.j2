@@ -9,7 +9,7 @@
         {# Table attribute names #}
         <tr>
             {% for key in players[0].keys() %}
-            <th>{{ key }}</th>
+            <th>{{ key.replace('_', ' ').title() }}</th>
             {% endfor %}
             <th></th>
         </tr>
@@ -20,47 +20,43 @@
         season, year, active status, and eligibility status#}
         {% for player in players %}
         <tr>
-            <td>{{ player.playerID }}</td>
-            <td>{{ player.firstName }}</td>
-            <td>{{ player.lastName }}</td>
-            <td>{{ player.schoolName }}</td>
-            <td>{{ player.sportType }}</td>
-            <td>{{ player.varsityJv }}</td>
-            <td>{{ player.academicYear | default('', true) }}</td>
-            <td>{{ player.isEligible }}</td>
-            <td>{{ player.isActive }}</td>
-
+            {% for value in player.values() %}
+                <td>{{ value | title }}</td>
+            {% endfor %}
             {# DELETE form #}
-            <form id="delete_player_form">
-                <input type="hidden" name="delete_playerID" value="{{ player.playerID }}">
-                <input type="hidden" name="delete_player_name" value="{{ player.firstName }} {{ player.lastName }}">
-                <td>
-                    <button type="submit">
-                        Delete
-                    </button>
-                </td>
-            </form>
+                <form id="delete_player_form">
+                    <input type="hidden" name="delete_playerID" value="{{ player.playerID }}">
+                    <input type="hidden" name="delete_player_name" value="{{ player.firstName }} {{ player.lastName }}">
+                    <td>
+                        <button type="submit">
+                            Delete
+                        </button>
+                    </td>
+                </form>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
 {# CREATE form #}
-<h2>Create Player</h2>
+<h2>Add Player to Roster</h2>
 <form class="cuForm" id="create_player_form">
 
     {# Athlete #}
-    <label for="create_player_athleteID">Athlete: </label>
-    <select name="create_player_athleteID" id="create_player_schoolathleteID" required>
-        <option value="NULL" disabled selected>Select an Athlete</option>
-        <option value="NULL">&lt; None &gt;</option>
+    <label for="create_player_athlete">Athlete: </label>
+    <select name="create_player_athlete" id="create_player_athlete">
+{#        <option value="NULL" disabled selected>Select an Athlete</option>#}
+        {% for athlete in athletes %}
+            <option value="{{athlete.athleteID}}">
+            {{ athlete['athleteID']}} - {{ athlete['firstName'] }} {{ athlete['lastName'] }}
+            </option>
+        {% endfor %}
     </select>
 
     {# Team #}
-    <label for="create_player_teamID">Team: </label>
-    <select name="create_player_teamID" id="create_player_teamID" required>
-        <option value="NULL" disabled selected>Select a Team</option>
-        <option value="NULL">&lt; None &gt;</option>
+    <label for="create_player_team">Team: </label>
+    <select name="create_player_team" id="create_player_team" required>
+        <option value="">Select a Team</option>
     </select>
 
     {# School Name dropdown #}
@@ -117,12 +113,12 @@
 </form>
 
 {# UPDATE form #}
-<h2>Update Player</h2>
+<h2>Update Athlete Team Assignment</h2>
 <form class="cuForm" id="update_player_form">
 
     <label for="update_playerID">Player to Update: </label>
     <select name="update_playerID" id="update_playerID" required>
-        <option value="" disabled selected>Select a player</option>
+        <option value="" disabled selected>Select a Player</option>
 {#        {% for player in people %}#}
 {#        <option value="{{player['id']}}" required>#}
 {#            {{player['id']}}#}
@@ -152,3 +148,47 @@
 </form>
 
 {% endblock %}
+
+<script>
+    const playerSel = document.getElementById('create_player_athlete')
+    const teamSel = document.getElementById('create_player_team')
+
+    function renderTeams(teams) {
+        teamSel.innerHTML = '';
+        if (!teams || teams.length === 0) {
+            teamSel.innerHTML = '<option value="">No teams available</option>';
+            teamSel.disabled = true;
+            return;
+        }
+        teamSel.insertAdjacentHTML('beforeend', '<option value="">Select Team</option>');
+        teams.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.teamID;
+            opt.textContent = t.teamName;
+            teamSel.appendChild(opt);
+        });
+        teamSel.disabled = false;
+    }
+
+    playerSel.addEventListener('change', async() => {
+        {#const selected = playerSel.selectedOptions[0];#}
+        const schoolID = playerSel.value;
+
+        const url = `/players/teams?schoolID=${encodeURIComponent(schoolID)}`;
+
+        teamSel.disabled = true;
+        teamSel.innerHTML = '<option>Loading...</option>';
+
+        try {
+            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
+            if (!res.ok) throw new Error('HTTP ${res.status}');
+            const teams = await res.json();
+            renderTeams(teams);
+        } catch (err) {
+            console.error(err);
+            teamSel.innerHTML = '<option value="">Error loading teams</option>';
+            teamSel.disabled = true;
+        }
+
+    });
+</script>
