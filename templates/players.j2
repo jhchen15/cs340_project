@@ -43,9 +43,9 @@
 <form class="cuForm" id="create_player_form">
 
     {# Athlete #}
-    <label for="create_player_athlete">Athlete: </label>
-    <select name="create_player_athlete" id="create_player_athlete">
-{#        <option value="NULL" disabled selected>Select an Athlete</option>#}
+    <label for="create_player_athlete_select">Athlete: </label>
+    <select name="athleteID" id="create_player_athlete_select">
+        <option value="NULL" disabled selected>Select an Athlete</option>
         {% for athlete in athletes %}
             <option value="{{athlete.athleteID}}">
             {{ athlete['athleteID']}} - {{ athlete['firstName'] }} {{ athlete['lastName'] }}
@@ -54,8 +54,8 @@
     </select>
 
     {# Team #}
-    <label for="create_player_team">Team: </label>
-    <select name="create_player_team" id="create_player_team" required>
+    <label for="create_player_team_select">Team: </label>
+    <select name="create_player_team_select" id="create_player_team_select" required>
         <option value="">Select a Team</option>
     </select>
 
@@ -150,8 +150,8 @@
 {% endblock %}
 
 <script>
-    const playerSel = document.getElementById('create_player_athlete')
-    const teamSel = document.getElementById('create_player_team')
+    const playerSel = document.getElementById('create_player_athlete_select')
+    const teamSel = document.getElementById('create_player_team_select')
 
     function renderTeams(teams) {
         teamSel.innerHTML = '';
@@ -172,9 +172,9 @@
 
     playerSel.addEventListener('change', async() => {
         {#const selected = playerSel.selectedOptions[0];#}
-        const schoolID = playerSel.value;
+        const athleteID = playerSel.value;
 
-        const url = `/players/teams?schoolID=${encodeURIComponent(schoolID)}`;
+        const url = `/players/teams?athleteID=${encodeURIComponent(athleteID)}`;
 
         teamSel.disabled = true;
         teamSel.innerHTML = '<option>Loading...</option>';

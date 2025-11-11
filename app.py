@@ -181,11 +181,13 @@ def players():
 def players_fetch_teams():
     try:
         dbConnection = db.connectDB()
-        schoolID = request.args.get("schoolID")
+        athleteID = request.args.get("athleteID")
         query = ("SELECT teamID, teamName, sportType, varsityJv, academicYear "
-                 "FROM Schools as s JOIN Teams as t ON s.schoolID = t.schoolID "
-                 "WHERE schoolID = %s")
-        teams_list = db.query(dbConnection, query, (schoolID,)).fetchall()
+                 "FROM Schools as s "
+                 "JOIN Teams as t ON s.schoolID = t.schoolID "
+                 "JOIN Athletes as a ON a.schoolID = s.schoolID "
+                 "WHERE a.athleteID = %s")
+        teams_list = db.query(dbConnection, query, (athleteID,)).fetchall()
         return jsonify(teams_list)
 
     except Exception as e:
