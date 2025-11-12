@@ -55,9 +55,9 @@ def facilities():
         # Create and execute our queries
         # In query1, we use a JOIN clause to display the names of the homeworlds,
         #       instead of just ID values
-        query1 = "SELECT Facilities.facilityID, Schools.name as 'school', \
-            Facilities.facilityName, Facilities.capacity FROM Facilities \
-            LEFT JOIN Schools ON Facilities.schoolID = Schools.schoolID;"
+        query1 = "SELECT f.facilityID as 'Id', s.name as 'School', \
+            f.facilityName as 'Name', f.capacity as 'Capacity' FROM Facilities f \
+            LEFT JOIN Schools s ON f.schoolID = s.schoolID;"
         query2 = "SELECT * FROM Schools;"
         facilities = db.query(dbConnection, query1).fetchall()
         schools = db.query(dbConnection, query2).fetchall()
@@ -86,10 +86,11 @@ def athletes():
         # Create and execute our queries
         # In query1, we use a JOIN clause to display the names of the homeworlds,
         #       instead of just ID values
-        query1 = "SELECT Athletes.athleteID, Schools.name as 'school', \
-            Athletes.firstName, Athletes.lastName, Athletes.gradeLevel, \
-            Athletes.isEligible, Athletes.isActive, Athletes.emergencyContact FROM Athletes \
-            LEFT JOIN Schools ON Athletes.schoolID = Schools.schoolID;"
+        query1 = "SELECT a.athleteID as 'Id', s.name as 'School', \
+            a.firstName as 'First Name', a.lastName as 'Last Name', a.gradeLevel as 'Grade Level', \
+            IF(a.isEligible, '✓', '✗') AS 'Eligible', IF(a.isActive, '✓', '✗') as 'Active', \
+            a.emergencyContact as 'Emergency Contact' FROM Athletes a \
+            LEFT JOIN Schools s ON a.schoolID = s.schoolID;"
         query2 = "SELECT * FROM Schools;"
         athletes = db.query(dbConnection, query1).fetchall()
         schools = db.query(dbConnection, query2).fetchall()
@@ -118,10 +119,10 @@ def teams():
         # Create and execute our queries
         # In query1, we use a JOIN clause to display the names of the homeworlds,
         #       instead of just ID values
-        query1 = "SELECT Teams.teamID, Schools.name as 'school', \
-            Teams.teamName, Teams.sportType, Teams.varsityJv, \
-            Teams.seasonName, Teams.academicYear FROM Teams \
-            LEFT JOIN Schools ON Teams.schoolID = Schools.schoolID;"
+        query1 = "SELECT t.teamID as 'Id', s.name as 'School', \
+            t.teamName as 'Team Name', t.sportType as 'Sport Type', t.varsityJv as 'Varsity / JV', \
+            t.seasonName as 'Season Name', t.academicYear as 'Academic Year' FROM Teams t \
+            LEFT JOIN Schools s ON t.schoolID = s.schoolID;"
         query2 = "SELECT * FROM Schools;"
         teams = db.query(dbConnection, query1).fetchall()
         schools = db.query(dbConnection, query2).fetchall()

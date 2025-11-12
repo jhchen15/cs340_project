@@ -19,14 +19,9 @@
         {# For each row, print all athlete attributes #}
         {% for athlete in athletes %}
         <tr>
-            <td>{{ athlete.athleteID }}</td>
-            <td>{{ athlete.school | default('', true) }}</td>
-            <td>{{ athlete.firstName | default('', true) }}</td>
-            <td>{{ athlete.lastName | default('', true) }}</td>
-            <td>{{ athlete.gradeLevel | default('', true) }}</td>
-            <td>{{ 'Yes' if athlete.isEligible else 'No' }}</td>
-            <td>{{ 'Yes' if athlete.isActive else 'No' }}</td>
-            <td>{{ athlete.emergencyContact | default('', true) }}</td>
+            {% for value in athlete.values() %}
+                <td>{{ value | title }}</td>
+            {% endfor %}
 
             {# DELETE form #}
             <form id="delete_athlete_form">
