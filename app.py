@@ -162,9 +162,13 @@ def players():
                   "JOIN Schools as s ON s.schoolID = a.schoolID ")
         athletes = db.query(dbConnection, query2).fetchall()
 
+        query3 = ("SELECT DISTINCT t.teamID, s.name as schoolName, t.sportType, t.varsityJv, t.academicYear "
+                  "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID ")
+        teams = db.query(dbConnection, query3).fetchall()
+
         # Render schools.j2 file, and send school query results
         return render_template(
-            "players.j2", players=players, athletes=athletes
+            "players.j2", players=players, athletes=athletes, teams=teams
         )
 
     except Exception as e:
@@ -200,16 +204,43 @@ def players_fetch_teams():
             dbConnection.close()
 
 
+@app.route("/players/roster", methods=["GET"])
+def players_fetch_roster():
+    try:
+        dbConnection = db.connectDB()
+        teamID = request.args.get("teamID")
+        query1 = ("SELECT p.playerID AS 'player_id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
+                  "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'is_eligible', "
+                  "IF(a.isActive, 'Yes', 'No') AS 'is_active' "
+                  "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
+                  "JOIN Teams AS t ON p.teamID = t.teamID "
+                  "JOIN Schools AS s ON s.schoolID = a.schoolID ")
+        if teamID:
+            query1 += f"WHERE t.teamID = {teamID};"
+        roster = db.query(dbConnection, query1).fetchall()
+        return jsonify(roster)
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
 @app.route("/games", methods=["GET"])
 def games():
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve scheduled games list with associated details
-        query1 = ("SELECT g.gameID, "
-                  "ht.teamName AS homeTeamName, at.teamName AS awayTeamName, "
-                  "s.name AS facilitySchool, f.facilityName, "
-                  "g.gameDate, g.gameTime, g.gameType, g.status "
+        query1 = ("SELECT g.gameID AS game_id, "
+                  "ht.teamName AS home_team, at.teamName AS away_team, "
+                  "s.name AS facility_location, f.facilityName AS facility_name, "
+                  "g.gameDate AS game_date, g.gameTime as game_time, g.gameType as game_type, g.status "
                   "FROM Games AS g JOIN Teams AS ht ON g.homeTeamID = ht.teamID "
                   "JOIN Teams AS at ON g.awayTeamID = at.teamID "
                   "JOIN Facilities AS f ON g.facilityID = f.facilityID "
@@ -226,10 +257,37 @@ def games():
                   "FROM Facilities")
         facilities = db.query(dbConnection, query3).fetchall()
 
+        # Retrieve list of sport types
+        query4 = "SELECT DISTINCT sportType FROM Teams"
+        sportTypes = db.query(dbConnection, query4).fetchall()
+
         # Render games.j2 file, and send game query results
         return render_template(
-            "games.j2", games=games, teams=teams, facilities=facilities
+            "games.j2", games=games, teams=teams, facilities=facilities, sportTypes=sportTypes
         )
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/games/teams", methods=["GET"])
+def games_fetch_teams():
+    try:
+        dbConnection = db.connectDB()
+        sportType = request.args.get("sportType")
+        homeTeamID = request.args.get("teamID")
+        query = ("SELECT t.teamID, s.name AS 'schoolName', t.varsityJv, t.academicYear "
+                 "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID "
+                 "WHERE t.sportType = %s")
+
+        teams_list = db.query(dbConnection, query, (sportType,)).fetchall()
+        return jsonify(teams_list)
 
     except Exception as e:
         print(f"Error executing queries: {e}")
