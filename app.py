@@ -163,7 +163,8 @@ def players():
         athletes = db.query(dbConnection, query2).fetchall()
 
         query3 = ("SELECT DISTINCT t.teamID, s.name as schoolName, t.sportType, t.varsityJv, t.academicYear "
-                  "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID ")
+                  "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID "
+                  "ORDER BY t.teamID;")
         teams = db.query(dbConnection, query3).fetchall()
 
         # Render schools.j2 file, and send school query results
@@ -186,12 +187,24 @@ def players_fetch_teams():
     try:
         dbConnection = db.connectDB()
         athleteID = request.args.get("athleteID")
-        query = ("SELECT teamID, teamName, sportType, varsityJv, academicYear "
-                 "FROM Schools as s "
-                 "JOIN Teams as t ON s.schoolID = t.schoolID "
-                 "JOIN Athletes as a ON a.schoolID = s.schoolID "
-                 "WHERE a.athleteID = %s")
-        teams_list = db.query(dbConnection, query, (athleteID,)).fetchall()
+        playerID = request.args.get("playerID")
+
+        if athleteID:
+            query = ("SELECT t.teamID, t.teamName, t.sportType, t.varsityJv, t.academicYear "
+                     "FROM Schools as s "
+                     "JOIN Teams as t ON s.schoolID = t.schoolID "
+                     "JOIN Athletes as a ON a.schoolID = s.schoolID "
+                     "WHERE a.athleteID = %s")
+            teams_list = db.query(dbConnection, query, (athleteID,)).fetchall()
+        if playerID:
+            query = ("SELECT t.teamID, t.teamName, t.sportType, t.varsityJv, t.academicYear "
+                     "FROM Schools as s "
+                     "JOIN Teams as t ON s.schoolID = t.schoolID "
+                     "JOIN Athletes as a ON a.schoolID = s.schoolID "
+                     "JOIN Players as p ON p.athleteID = a.athleteID "
+                     "WHERE p.playerID = %s")
+            teams_list = db.query(dbConnection, query, (playerID,)).fetchall()
+
         return jsonify(teams_list)
 
     except Exception as e:
@@ -208,7 +221,7 @@ def players_fetch_teams():
 def players_fetch_roster():
     try:
         dbConnection = db.connectDB()
-        teamID = request.args.get("teamID")
+        teamID = request.args.get("teamID", type=int)
         query1 = ("SELECT p.playerID AS 'player_id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
                   "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'is_eligible', "
