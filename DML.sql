@@ -1,12 +1,20 @@
+-- Group 57
+-- Humza Hussain, James Chen
+-- This file contains the DML SQL Statements for Valleyview Athletics UI
+-- @{attribute}Input indicates the variable that will have data passed from the backend
+-- (e.g., @firstNameInput for first name of an athlete)
+
+
 /****************
   Schools Table
 *****************/
 
 -- Read only: school details are considered static
-SELECT schoolID AS 'ID',
-       name AS 'Name',
-       address AS 'Address',
-       phone AS 'Phone'
+SELECT 
+  schoolID,
+  name,
+  address,
+  phone
 FROM Schools;
 
 /****************
@@ -14,7 +22,11 @@ FROM Schools;
 *****************/
 
 -- Read only: facility details are considered static
-SELECT Facilities.facilityID, Schools.name as 'school', Facilities.facilityName, Facilities.capacity 
+SELECT 
+  Facilities.facilityID, 
+  Schools.name as 'school', 
+  Facilities.facilityName, 
+  Facilities.capacity 
 FROM Facilities
 LEFT JOIN Schools ON Facilities.schoolID = Schools.schoolID;
 
@@ -27,20 +39,28 @@ INSERT INTO Athletes (firstName, lastName, schoolID, gradeLevel, isEligible, isA
 VALUES (@firstNameInput, @lastNameInput, @schoolIdInput, @gradeLevelInput, @isEligibleInput, @isActiveInput, @emergencyContactInput);
 
 -- Read: retrieves identifying athlete details for all athletes
-SELECT Athletes.athleteID, Schools.name as 'school', Athletes.firstName, Athletes.lastName, Athletes.gradeLevel, 
-          Athletes.isEligible, Athletes.isActive, Athletes.emergencyContact 
+SELECT 
+  Athletes.athleteID, 
+  Schools.name as 'school', 
+  Athletes.firstName, 
+  Athletes.lastName, 
+  Athletes.gradeLevel, 
+  Athletes.isEligible, 
+  Athletes.isActive, 
+  Athletes.emergencyContact 
 FROM Athletes
 LEFT JOIN Schools ON Athletes.schoolID = Schools.schoolID;
 
 -- Update: An athlete's details can be modified
 UPDATE Athletes
-SET firstName = @firstNameInput,
-    lastName = @lastNameInput,
-    schoolID = @schoolIdInput,
-    gradeLevel = @gradeLevelInput,
-    isEligible = @isEligibleInput,
-    isActive = @isActiveInput,
-    emergencyContact = @emergencyContactInput
+SET 
+  firstName = @firstNameInput,
+  lastName = @lastNameInput,
+  schoolID = @schoolIdInput,
+  gradeLevel = @gradeLevelInput,
+  isEligible = @isEligibleInput,
+  isActive = @isActiveInput,
+  emergencyContact = @emergencyContactInput
 WHERE athleteID = @athleteIdInput;
 
 -- Delete
@@ -56,19 +76,26 @@ INSERT INTO Teams (teamName, schoolID, sportType, varsityJv, seasonName, academi
 VALUES (@teamNameInput, @schoolIdInput, @sportTypeInput, @varsityJvInput, @seasonNameInput, @academicYearInput);
 
 -- Read: retrieves identifying team details for all teams
-SELECT Teams.teamID, Schools.name as 'school', Teams.teamName, Teams.sportType, Teams.varsityJv,
-          Teams.seasonName, Teams.academicYear 
+SELECT 
+  Teams.teamID, 
+  Schools.name as 'school', 
+  Teams.teamName, 
+  Teams.sportType, 
+  Teams.varsityJv,
+  Teams.seasonName, 
+  Teams.academicYear 
 FROM Teams
 LEFT JOIN Schools ON Teams.schoolID = Schools.schoolID;
 
 -- Update: An existing team's details can be modified
 UPDATE Teams
-SET teamName = @teamNameInput,
-    schoolID = @schoolIdInput,
-    sportType = @sportTypeInput,
-    varsityJv = @varsityJvInput,
-    seasonName = @seasonNameInput,
-    academicYear = @academicYearInput
+SET 
+  teamName = @teamNameInput,
+  schoolID = @schoolIdInput,
+  sportType = @sportTypeInput,
+  varsityJv = @varsityJvInput,
+  seasonName = @seasonNameInput,
+  academicYear = @academicYearInput
 WHERE teamID = @teamIdInput;
 
 -- Delete
@@ -84,15 +111,16 @@ INSERT INTO Players (teamID, athleteID)
 VALUES (@teamIdInput, @athleteIdInput);
 
 -- Read: retrieves identifying athlete details for each player, and associated team information
-SELECT p.playerID,
-       a.firstName,
-       a.lastName,
-       s.name AS schoolName,
-       t.sportType,
-       t.varsityJv,
-       t.academicYear,
-       a.isEligible,
-       a.isActive
+SELECT 
+  p.playerID,
+  a.firstName,
+  a.lastName,
+  s.name AS schoolName,
+  t.sportType,
+  t.varsityJv,
+  t.academicYear,
+  a.isEligible,
+  a.isActive
 FROM Players AS p
 JOIN Athletes AS a ON p.athleteID = a.athleteID
 JOIN Teams AS t ON p.teamID = t.teamID
@@ -118,15 +146,16 @@ VALUES (@homeTeamIdInput, @awayTeamIdInput, @facilityIdInput, @gameDateInput, @g
 
 -- Read: Retrieves the list of games and relevant details to display
 -- including team names, location details, times, type and status
-SELECT g.gameID,
-       ht.teamName AS homeTeamName,
-       at.teamName AS awayTeamName,
-       s.name AS facilitySchool,
-       f.facilityName,
-       g.gameDate,
-       g.gameTime,
-       g.gameType,
-       g.status
+SELECT 
+  g.gameID,
+  ht.teamName AS homeTeamName,
+  at.teamName AS awayTeamName,
+  s.name AS facilitySchool,
+  f.facilityName,
+  g.gameDate,
+  g.gameTime,
+  g.gameType,
+  g.status
 FROM Games AS g
 JOIN Teams AS ht ON g.homeTeamID = ht.teamID
 JOIN Teams AS at ON g.awayTeamID = at.teamID
@@ -135,13 +164,14 @@ JOIN Schools AS s ON s.schoolID = f.schoolID;
 
 -- Update
 UPDATE Games
-SET homeTeamID = @homeTeamIdInput,
-    awayTeamID = @awayTeamIdInput,
-    facilityID = @facilityIdInput,
-    gameDate = @gameDateInput,
-    gameTime = @gameTimeInput,
-    gameType = @gameTypeInput,
-    status = @statusInput
+SET 
+  homeTeamID = @homeTeamIdInput,
+  awayTeamID = @awayTeamIdInput,
+  facilityID = @facilityIdInput,
+  gameDate = @gameDateInput,
+  gameTime = @gameTimeInput,
+  gameType = @gameTypeInput,
+  status = @statusInput
 WHERE gameID = @gameIdInput;
 
 -- Delete

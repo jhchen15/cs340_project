@@ -6,9 +6,9 @@ load_dotenv()
 
 # Database credentials
 host = 'classmysql.engr.oregonstate.edu'    
-user = 'cs340_hussaihu'       
+user = 'cs340_chenjame'
 passwd = os.getenv('DB_PASSWORD')    
-db = 'cs340_hussaihu'   
+db = 'cs340_chenjame'
 
 def connectDB(host = host, user = user, passwd = passwd, db = db):
     '''

@@ -9,25 +9,19 @@
         {# Table attribute names #}
         <tr>
             {% for key in games[0].keys() %}
-            <th>{{ key }}</th>
+            <th>{{ key.replace('_', ' ').title() }}</th>
             {% endfor %}
             <th></th>
         </tr>
     </thead>
 
     <tbody>
-        {# For each row, print the id, fname, lname, homeworld and age #}
+    {# Display game id, home / away team names, facility location, facility name, date, time, type and status #}
         {% for game in games %}
         <tr>
-            <td>{{ game.gameID }}</td>
-            <td>{{ game.homeTeamName }}</td>
-            <td>{{ game.awayTeamName }}</td>
-            <td>{{ game.facilitySchool }}</td>
-            <td>{{ game.facilityName }}</td>
-            <td>{{ game.gameDate }}</td>
-            <td>{{ game.gameTime }}</td>
-            <td>{{ game.gameType }}</td>
-            <td>{{ game.status }}</td>
+            {% for value in game.values() %}
+                <td>{{ value | title }}</td>
+            {% endfor %}
 
             {# DELETE form #}
             <form id="delete_game_form">
@@ -47,41 +41,33 @@
 <h2>Create game</h2>
 <form class="cuForm" id="create_game_form">
 
+    {# Sport selection #}
+    <label for="create_game_sport">Sport: </label>
+    <select name="create_game_sport" id="create_game_sport" required>
+        <option value="NULL" selected disabled>Select a Sport</option>
+        {% for sport in sportTypes %}
+        <option value="{{ sport["sportType"] }}" required>
+            {{ sport["sportType"].title() }}
+        </option>
+        {% endfor %}
+    </select>
+
     {# Home team #}
     <label for="create_game_homeTeam">Home Team: </label>
     <select name="create_game_homeTeam" id="create_game_homeTeam" required>
-        <option value="NULL" selected>Select a Team</option>
-        <option value="NULL">&lt; None &gt;</option>
-        {% for team in teams %}
-        <option value="{{team['teamID']}}" required>
-            {{team['teamName']}}
-            -
-            {{team['varsityJv'].upper()}}
-            -
-            {{ team['academicYear'] }}</option>
-        {% endfor %}
+        <option value="NULL" selected disabled>Select a Team</option>
     </select>
 
     {# Away team #}
     <label for="create_game_awayTeam">Away Team: </label>
     <select name="create_game_awayTeam" id="create_game_awayTeam" required>
-        <option value="NULL" selected>Select a Team</option>
-        <option value="NULL">&lt; None &gt;</option>
-        {% for team in teams %}
-        <option value="{{team['teamID']}}" required>
-            {{team['teamName']}}
-            -
-            {{team['varsityJv'].upper()}}
-            -
-            {{ team['academicYear'] }}</option>
-        {% endfor %}
+        <option value="NULL" selected disabled>Select a Team</option>
     </select>
 
     {# Facility #}
     <label for="create_game_facility">Facility: </label>
     <select name="create_game_facility" id="create_game_facility" required>
-        <option value="NULL" selected>Select a Facility</option>
-        <option value="NULL">&lt; None &gt;</option>
+        <option value="NULL" selected disabled>Select a Facility</option>
         {% for facility in facilities %}
         <option value="{{facility['facilityID']}}" required>{{facility['facilityName']}}</option>
         {% endfor %}
@@ -98,15 +84,24 @@
     {# Game type #}
     <label for="create_game_gameType">Game Type: </label>
     <select name="create_game_gameType" id="create_game_gameType" required>
-        <option value="NULL" selected>Type</option>
-        <option value="NULL">&lt; None &gt;</option>
+        <option value="NULL" selected disabled>Type</option>
+        <option value="preseason">Preseason</option>
+        <option value="regular season">Regular Season</option>
+        <option value="playoff">Playoff</option>
+        <option value="tournament">Tournament</option>
+        <option value="exhibition">Exhibition</option>
     </select>
 
     {# Game status #}
     <label for="create_game_gameStatus">Status: </label>
     <select name="create_game_gameStatus" id="create_game_gameStatus" required>
-        <option value="NULL" selected>Status</option>
-        <option value="NULL">&lt; None &gt;</option>
+        <option value="NULL" selected disabled>Status</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="in progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="postponed">Postponed</option>
+        <option value="forfeited">Forfeited</option>
     </select>
 
     <input type="submit">
@@ -119,47 +114,44 @@
     {# Game to update #}
     <label for="update_game_gameID">Game to Update: </label>
     <select name="update_game_gameID" id="update_game_gameID" required>
-        <option value="" disabled selected>Select a game</option>
+        <option value="NULL" disabled selected>Select a game</option>
         {% for game in games %}
         <option value="{{game['id']}}" required>
-            {{game['gameID']}}
+            {{game['game_id']}}
             -
-            {{game['homeTeamName']}} (H) vs.
-            {{game['awayTeamName']}} (A)
+            {{game['home_team']}} (H) vs.
+            {{game['away_team']}} (A)
             -
-            {{game['gameDate']}}
+            {{game['game_date']}}
             -
-            {{game['gameTime']}}
+            {{game['game_time']}}
         </option>
         {% endfor %}
     </select>
-
-    <label for="update_game_homeTeam">Home Team: </label>
-    <select name="update_game_homeTeamID" id="update_game_homeTeamID" required>
-        <option value="NULL" selected>Select a Team</option>
-        <option value="NULL">&lt; None &gt;</option>
-        {% for team in teams %}
-        <option value="{{team['teamID']}}" required>
-            {{team['teamName']}}
-        </option>
-        {% endfor %}
-    </select>
-
-    <label for="update_game_awayTeamID">Away Team: </label>
-    <select name="update_game_awayTeamID" id="update_game_awayTeamID" required>
-        <option value="NULL" selected>Select a Team</option>
-        <option value="NULL">&lt; None &gt;</option>
-        {% for team in teams %}
-        <option value="{{team['teamID']}}" required>
-            {{team['teamName']}}
-        </option>
-        {% endfor %}
-    </select>
+{##}
+{#    <label for="update_game_homeTeam">Home Team: </label>#}
+{#    <select name="update_game_homeTeamID" id="update_game_homeTeamID" required>#}
+{#        <option value="NULL" selected>Select a Team</option>#}
+{#        {% for team in teams %}#}
+{#        <option value="{{team['teamID']}}" required>#}
+{#            {{team['teamName']}}#}
+{#        </option>#}
+{#        {% endfor %}#}
+{#    </select>#}
+{##}
+{#    <label for="update_game_awayTeamID">Away Team: </label>#}
+{#    <select name="update_game_awayTeamID" id="update_game_awayTeamID" required>#}
+{#        <option value="NULL" selected>Select a Team</option>#}
+{#        {% for team in teams %}#}
+{#        <option value="{{team['teamID']}}" required>#}
+{#            {{team['teamName']}}#}
+{#        </option>#}
+{#        {% endfor %}#}
+{#    </select>#}
 
     <label for="update_game_facility">Facility: </label>
     <select name="update_game_facilityID" id="update_game_facilityID" required>
         <option value="NULL" selected>Select a Facility</option>
-        <option value="NULL">&lt; None &gt;</option>
         {% for facility in facilities %}
         <option value="{{facility['facilityID']}}" required>
             {{facility['facilityName']}}
@@ -190,4 +182,59 @@
     <input type="submit">
 </form>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const sportSel = document.getElementById('create_game_sport')
+    const homeTeamSel = document.getElementById('create_game_homeTeam')
+    const awayTeamSel = document.getElementById('create_game_awayTeam')
+
+    function renderTeams(teams, teamElement) {
+        teamElement.innerHTML = "";
+        if (!teams || teams.length === 0) {
+            teamElement.innerHTML = `<option value="">No teams available</option>`
+            teamElement.disabled = true;
+            return;
+        }
+        teamElement.insertAdjacentHTML('beforeend', `<option value="">Select Team</option>`);
+        teams.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.teamID;
+            opt.textContent = `${t.teamID} ${t.schoolName} ${t.varsityJv} ${t.academicYear}`;
+            teamElement.appendChild(opt);
+        })
+        teamElement.disabled = false;
+    }
+
+    sportSel.addEventListener('change', async() => {
+        console.log('Adding sport selection event listener')
+        const sportType = sportSel.value;
+        const url = `/games/teams?sportType=${encodeURIComponent(sportType)}`
+
+        homeTeamSel.disabled = true;
+        homeTeamSel.innerHTML = `<option>Loading...</option>`;
+        awayTeamSel.disabled = true;
+        awayTeamSel.innerHTML = `<option>Loading...</option>`;
+
+        try {
+            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const teams = await res.json();
+            renderTeams(teams, homeTeamSel);
+            renderTeams(teams, awayTeamSel)
+        } catch (err) {
+            console.error(err)
+            homeTeamSel.innerHTML = (`<option value="">Error loading teams</option>`);
+            homeTeamSel.disabled = true;
+            awayTeamSel.innerHTML = (`<option value="">Error loading teams</option>`);
+            awayTeamSel.disabled = true;
+        }
+    })
+
+    homeTeamSel.addEventListener('change', async() => {
+        console.log('Adding home team selection event listener');
+        const homeTeamID = homeTeamSel.value;
+    })
+</script>
 {% endblock %}
