@@ -28,7 +28,7 @@ def schools():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve list of Schools and associated info
-        query = ("SELECT schoolID AS 'ID', name AS 'Name', address AS 'Address', phone AS 'Phone' "
+        query = ("SELECT schoolID AS 'Id', name AS 'Name', address AS 'Address', phone AS 'Phone' "
                  "FROM Schools;")
         schools = db.query(dbConnection, query).fetchall()
 
@@ -149,10 +149,10 @@ def players():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve list of Players with their Athlete / Team / School info
-        query1 = ("SELECT p.playerID AS 'player_id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
+        query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
-                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'is_eligible', "
-                  "IF(a.isActive, 'Yes', 'No') AS 'is_active' "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'is_eligible', "
+                  "IF(a.isActive, '✓', '✗') AS 'is_active' "
                   "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ;")
@@ -210,10 +210,10 @@ def players_fetch_roster():
     try:
         dbConnection = db.connectDB()
         teamID = request.args.get("teamID")
-        query1 = ("SELECT p.playerID AS 'player_id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
+        query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
-                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'is_eligible', "
-                  "IF(a.isActive, 'Yes', 'No') AS 'is_active' "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'eligible', "
+                  "IF(a.isActive, 'Yes', 'No') AS 'active' "
                   "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ")
@@ -238,7 +238,7 @@ def games():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve scheduled games list with associated details
-        query1 = ("SELECT g.gameID AS game_id, "
+        query1 = ("SELECT g.gameID AS id, "
                   "ht.teamName AS home_team, at.teamName AS away_team, "
                   "s.name AS facility_location, f.facilityName AS facility_name, "
                   "g.gameDate AS game_date, g.gameTime as game_time, g.gameType as game_type, g.status "
