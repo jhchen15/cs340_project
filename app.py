@@ -151,8 +151,8 @@ def players():
         # Retrieve list of Players with their Athlete / Team / School info
         query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
-                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'is_eligible', "
-                  "IF(a.isActive, '✓', '✗') AS 'is_active' "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'Eligible', "
+                  "IF(a.isActive, '✓', '✗') AS 'Active' "
                   "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ;")
