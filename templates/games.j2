@@ -38,7 +38,7 @@
 </table>
 
 {# CREATE form #}
-<h2>Create game</h2>
+<h2>Create Game</h2>
 <form class="cuForm" id="create_game_form">
 
     {# Sport selection #}
@@ -108,7 +108,7 @@
 </form>
 
 {# UPDATE form #}
-<h2>Update game</h2>
+<h2>Update Game</h2>
 <form class="cuForm" id="update_game_form">
 
     {# Game to update #}
@@ -117,7 +117,7 @@
         <option value="NULL" disabled selected>Select a game</option>
         {% for game in games %}
         <option value="{{game['id']}}" required>
-            {{game['game_id']}}
+            {{game['id']}}
             -
             {{game['home_team']}} (H) vs.
             {{game['away_team']}} (A)
@@ -168,16 +168,24 @@
     {# Game type #}
     <label for="update_game_gameType">Game Type: </label>
     <select name="update_game_gameType" id="update_game_gameType" required>
-        <option value="NULL" selected>Type</option>
-        <option value="NULL">&lt; None &gt;</option>
+        <option value="NULL" selected disabled>Type</option>
+        <option value="preseason">Preseason</option>
+        <option value="regular season">Regular Season</option>
+        <option value="playoff">Playoff</option>
+        <option value="tournament">Tournament</option>
+        <option value="exhibition">Exhibition</option>
     </select>
 
     {# Game status #}
     <label for="update_game_gameStatus">Status: </label>
     <select name="udpate_game_gameStatus" id="update_game_gameStatus" required>
-        <option value="NULL" selected>Status</option>
-        <option value="NULL">&lt; None &gt;</option>
-    </select>
+        <option value="NULL" selected disabled>Status</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="in progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="postponed">Postponed</option>
+        <option value="forfeited">Forfeited</option>    </select>
 
     <input type="submit">
 </form>
