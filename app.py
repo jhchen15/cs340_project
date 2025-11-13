@@ -164,7 +164,8 @@ def players():
         athletes = db.query(dbConnection, query2).fetchall()
 
         query3 = ("SELECT DISTINCT t.teamID, s.name as schoolName, t.sportType, t.varsityJv, t.academicYear "
-                  "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID ")
+                  "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID "
+                  "ORDER BY t.teamID ")
         teams = db.query(dbConnection, query3).fetchall()
 
         # Render schools.j2 file, and send school query results

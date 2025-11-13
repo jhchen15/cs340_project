@@ -84,29 +84,30 @@
     <label for="update_playerID">Player to Update: </label>
     <select name="update_playerID" id="update_playerID" required>
         <option value="" disabled selected>Select a Player</option>
-{#        {% for player in people %}#}
-{#        <option value="{{player['id']}}" required>#}
-{#            {{player['id']}}#}
-{#            -#}
-{#            {{player['firstName']}}#}
-{#            {{player['lastName']}}#}
-{#        </option>#}
-{#        {% endfor %}#}
+        {% for player in players %}
+        <option value="{{player['id']}}" required>
+            {{player['id']}}
+            -
+            {{player['first_name']}}
+            {{player['last_name']}}
+        </option>
+        {% endfor %}
     </select>
 
     <label for="update_player_teamID">Team: </label>
     <select name="update_player_teamID" id="update_player_teamID" required>
         <option value="NULL" disabled selected>Select a Team</option>
-        <option value="NULL">&lt; None &gt;</option>
-{#        {% for team in teams %}#}
-{#        <option value="{{team['teamID']}}" required>#}
-{#            {{team['teamID']}}#}
-{#            {{team['schoolID']}}#}
-{#            {{team['sportType']}}#}
-{#            {{team['varsityJv']}}#}
-{#            {{team['academicYear']}}#}
-{#        </option>#}
-{#        {% endfor %}#}
+        {% for team in teams %}
+        <option value="{{team['teamID']}}" required>
+            {{team['teamID']}}
+            -
+            {{team['schoolName']}}
+            -
+            {{team['sportType']}}
+            {{team['varsityJv']}}
+            {{team['academicYear']}}
+        </option>
+        {% endfor %}
     </select>
 
     <input type="submit">
