@@ -1,7 +1,7 @@
 {% extends "main.j2" %}
 {% block content %}
 
-<h1>Facilities</h1>
+<h1>Valleyview District Facilities</h1>
 
 {# READ table #}
 <table>
@@ -18,10 +18,9 @@
         {# For each row, print the facilityID, school, facilityName, and capacity #}
         {% for facility in facilities %}
         <tr>
-            <td>{{ facility.facilityID }}</td>
-            <td>{{ facility.school | default('', true) }}</td>
-            <td>{{ facility.facilityName | default('', true) }}</td>
-            <td>{{ facility.capacity | default('', true) }}</td>
+            {% for value in facility.values() %}
+                <td>{{ value | title }}</td>
+            {% endfor %}
         </tr>
         {% endfor %}
     </tbody>

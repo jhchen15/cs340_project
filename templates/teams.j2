@@ -19,13 +19,9 @@
         {# For each row, print all team attributes #}
         {% for team in teams %}
         <tr>
-            <td>{{ team.teamID }}</td>
-            <td>{{ team.school | default('', true) }}</td>
-            <td>{{ team.teamName | default('', true) }}</td>
-            <td>{{ team.sportType | default('', true) }}</td>
-            <td>{{ team.varsityJv | default('', true) }}</td>
-            <td>{{ team.seasonName | default('', true) }}</td>
-            <td>{{ team.academicYear | default('', true) }}</td>
+            {% for value in team.values() %}
+                <td>{{ value | title }}</td>
+            {% endfor %}
 
             {# DELETE form #}
             <form id="delete_team_form">

@@ -1,4 +1,3 @@
-database/db_connector.py
 .env
 venv/
 __pycache__/
