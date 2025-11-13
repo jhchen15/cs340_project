@@ -4,20 +4,22 @@
 <h1>Players</h1>
 
 {# READ table #}
-<label for="roster_team_select">Choose Team for Roster</label>
-<select id="roster_team_select">
-    <option value="NULL" selected>All teams</option>
-    {% for team in teams %}
-        <option value="{{ team.teamID }}">
-        {{ team.teamID }}
-        {{ team.schoolName }}
-        -
-        {{ team.sportType }}
-        {{ team.varsityJv }}
-        {{ team.academicYear }}
-        </option>
-    {% endfor %}
-</select>
+<div class="roster-selection">
+    <label for="roster_team_select">Choose Team for Roster</label>
+    <select id="roster_team_select">
+        <option value="NULL" selected>All teams</option>
+        {% for team in teams %}
+            <option value="{{ team.teamID }}">
+            {{ team.teamID }}
+            {{ team.schoolName }}
+            -
+            {{ team.sportType }}
+            {{ team.varsityJv }}
+            {{ team.academicYear }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
 <table>
     <thead>
         {# Table attribute names #}
