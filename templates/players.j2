@@ -4,11 +4,10 @@
 <h1>Players</h1>
 
 {# READ table #}
-<h2>View Rosters</h2>
-<form class="cuForm" id="select_roster_form">
+<div class="roster-selection">
     <label for="roster_team_select">Choose Team for Roster</label>
     <select id="roster_team_select">
-        <option value="" selected>All teams</option>
+        <option value="NULL" selected>All teams</option>
         {% for team in teams %}
             <option value="{{ team.teamID }}">
             {{ team.teamID }}
@@ -20,8 +19,7 @@
             </option>
         {% endfor %}
     </select>
-</form>
-
+</div>
 <table>
     <thead>
         {# Table attribute names #}
@@ -83,22 +81,23 @@
 <h2>Update Athlete Team Assignment</h2>
 <form class="cuForm" id="update_player_form">
 
-    <label for="update_player_select">Player to Update: </label>
-    <select name="update_player_select" id="update_player_select" required>
+    <label for="update_playerID">Player to Update: </label>
+    <select name="update_playerID" id="update_playerID" required>
         <option value="" disabled selected>Select a Player</option>
-        {% for player in players %}
-        <option value="{{player.player_id}}" required>
-            {{player.player_id}}
-            -
-            {{player.first_name}}
-            {{player.last_name}}
-        </option>
-        {% endfor %}
+{#        {% for player in people %}#}
+{#        <option value="{{player['id']}}" required>#}
+{#            {{player['id']}}#}
+{#            -#}
+{#            {{player['firstName']}}#}
+{#            {{player['lastName']}}#}
+{#        </option>#}
+{#        {% endfor %}#}
     </select>
 
     <label for="update_player_teamID">Team: </label>
     <select name="update_player_teamID" id="update_player_teamID" required>
         <option value="NULL" disabled selected>Select a Team</option>
+        <option value="NULL">&lt; None &gt;</option>
 {#        {% for team in teams %}#}
 {#        <option value="{{team['teamID']}}" required>#}
 {#            {{team['teamID']}}#}
@@ -117,86 +116,70 @@
 
 {% block scripts %}
 <script>
-    const athleteSel = document.getElementById('create_player_athlete_select')
+    const playerSel = document.getElementById('create_player_athlete_select')
     const teamSel = document.getElementById('create_player_team_select')
     const rosterSel = document.getElementById('roster_team_select')
     const roster = document.getElementById('players_tbody')
-    const playerSel = document.getElementById('update_player_select')
-    const playerTeamSel = document.getElementById('update_player_teamID')
 
-    function renderTeams(teams, element) {
-        element.innerHTML = '';
+    function renderTeams(teams) {
+        teamSel.innerHTML = '';
         if (!teams || teams.length === 0) {
-            element.innerHTML = '<option value="">No teams available</option>';
-            element.disabled = true;
+            teamSel.innerHTML = '<option value="">No teams available</option>';
+            teamSel.disabled = true;
             return;
         }
-        element.insertAdjacentHTML('beforeend', '<option value="">Select Team</option>');
+        teamSel.insertAdjacentHTML('beforeend', '<option value="">Select Team</option>');
         teams.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t.teamID;
             opt.textContent = `${t.teamID} - ${t.teamName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
-            element.appendChild(opt);
+            teamSel.appendChild(opt);
         });
-        element.disabled = false;
+        teamSel.disabled = false;
     };
+    {##}
+    {#function renderRoster(players) {#}
+    {#  roster.innerHTML = '';#}
+    {##}
+    {#  if(!players || players.length == 0) {#}
+    {#      return;#}
+    {#  }#}
+    {##}
+    {#  players.forEach(t => {#}
+    {#      const tr = document.createElement('tr');#}
+    {#      const cols = [#}
+    {#          t.player_id,#}
+    {#          t.first_name,#}
+    {#          t.last_name,#}
+    {#          t.school,#}
+    {#          t.sport,#}
+    {#          t.varsity_/_JV,#}
+    {#          t.academic_year,#}
+    {#          t.is_eligible,#}
+    {#          t.is_active#}
+    {#      ];#}
+    {##}
+    {#      cols.forEach(val => {#}
+    {#          const td = document.createElement('td');#}
+    {#          td.textContent = val ?? '';#}
+    {#          tr.appendChild(td);#}
+    {#      });#}
+    {##}
+    {#      const actionTd = document.createElement('td');#}
+    {#      actionTd.innerHTML = `#}
+    {#      <form method="POST" action="/players/delete" class="inline-form">#}
+    {#        <input type="hidden" name="playerID" value="${t.player_id}">#}
+    {#        <button type="submit" class="btn btn-danger">Delete</button>#}
+    {#      </form>#}
+    {#`;#}
+    {#tr.appendChild(actionTd);#}
+    {##}
+    {#roster.appendChild(tr);#}
+    {#  })#}
 
-    function renderRoster(players) {
-        roster.innerHTML = '';
 
-        if (!players || players.length === 0) {
-            return;
-        }
-
-        players.forEach(t => {
-            const tr = document.createElement('tr');
-            const cols = [
-                t.player_id,
-                t.first_name,
-                t.last_name,
-                t.school,
-                t.sport,
-                t['varsity_/_JV'],
-                t.academic_year,
-                t.is_eligible,
-                t.is_active
-            ];
-
-            cols.forEach(val => {
-                const td = document.createElement('td');
-                td.textContent = val ?? '';
-                tr.appendChild(td);
-            });
-
-            const actionTd = document.createElement('td');
-            actionTd.innerHTML = `
-          <form method="POST" action="/players/delete" class="inline-form">
-            <input type="hidden" name="playerID" value="${t.player_id}">
-            <button type="submit" class="btn btn-danger">Delete</button>
-          </form>
-          `;
-            tr.appendChild(actionTd);
-
-            roster.appendChild(tr);
-        })
-    };
-
-    rosterSel.addEventListener('change', async() => {
-        const teamID = rosterSel.value
-        const url = `/players/roster?teamID=${encodeURIComponent(teamID)}`
-
-        try {
-            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const players = await res.json();
-            renderRoster(players);
-        } catch (err) {
-            console.error(err);
-        }
-    });
-
-    athleteSel.addEventListener('change', async() => {
-        const athleteID = athleteSel.value;
+    playerSel.addEventListener('change', async() => {
+        const athleteID = playerSel.value;
         const url = `/players/teams?athleteID=${encodeURIComponent(athleteID)}`;
 
         teamSel.disabled = true;
@@ -206,7 +189,7 @@
             const res = await fetch(url, {headers: {'Accept': 'application/json'}});
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const teams = await res.json();
-            renderTeams(teams, teamSel);
+            renderTeams(teams);
         } catch (err) {
             console.error(err);
             teamSel.innerHTML = '<option value="">Error loading teams</option>';
@@ -215,25 +198,18 @@
 
     });
 
-    playerSel.addEventListener('change', async() => {
-        const playerID = playerSel.value;
-        const url = `/players/teams?playerID=${encodeURIComponent(playerID)}`;
-
-        playerTeamSel.disabled = true;
-        playerTeamSel.innerHTML = '<option>Loading...</option>';
-
-        try {
-            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const teams = await res.json();
-            renderTeams(teams, playerTeamSel)
-        } catch (err) {
-            console.error(err);
-            playerTeamSel.innerHTML = '<option value="">Error loading teams</option>';
-            playerTeamSel.disabled = true;
-        }
-    })
-
-
+    {#rosterSel.addEventListener('change', async() => {#}
+    {#    const teamID = rosterSel.value#}
+    {#    const url = `/players/roster?teamID=${encodeURIComponent(teamID)}`#}
+    {##}
+    {#    try {#}
+    {#        const res = await fetch(url, {headers: {'Accept': 'application/json'}});#}
+    {#        if (!res.ok) throw new Error(`HTTP ${res.status}`);#}
+    {#        const players = await res.json();#}
+    {#        renderRoster(players);#}
+    {#    } catch (err) {#}
+    {#        console.error(err);#}
+    {#    }#}
+    {#})#}
 </script>
 {% endblock %}
