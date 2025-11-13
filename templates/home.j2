@@ -1,18 +1,41 @@
 {% extends "main.j2" %}
 {% block content %}
 
-<h1>Valleyview Athletics Management System</h1>
-    <h3>Created by James Chen and Humza Hussain</h3>
-<div class="homepageDescription">
-    <p>Schools: Read information for schools</p>
-    <p>Facilities: Read information for athletic facilities</p>
-    <p>Athletes: Create, read, update, and delete student athletes</p>
-    <p>Teams: Create, read, update, and delete athletic teams</p>
-    <p>Players: Create, read, update, and delete players (a player is an athlete on a team roster)</p>
-    <p>Games: Create, read, update, and delete games between teams</p>
+<div class="home-container">
+    <h1>Valleyview Athletics Management System</h1>
+    <p>Manage schools, athletes, teams, facilities, and scheduled games all in one place. Navigate through the system using the links below.</p>
+    
+    <div class="home-links">
+        <a href="/schools" class="home-card">
+            <h3>🏫 Schools</h3>
+            <p>View and manage school information</p>
+        </a>
+        
+        <a href="/facilities" class="home-card">
+            <h3>🏟️ Facilities</h3>
+            <p>Track athletic facilities and venues</p>
+        </a>
+        
+        <a href="/athletes" class="home-card">
+            <h3>🏃 Athletes</h3>
+            <p>Manage athlete profiles and details</p>
+        </a>
+        
+        <a href="/teams" class="home-card">
+            <h3>👥 Teams</h3>
+            <p>Organize and view team rosters</p>
+        </a>
+        
+        <a href="/players" class="home-card">
+            <h3>⚽ Players</h3>
+            <p>Link athletes to their teams</p>
+        </a>
+        
+        <a href="/games" class="home-card">
+            <h3>📅 Games</h3>
+            <p>Schedule and track game information</p>
+        </a>
+    </div>
 </div>
 
-<footer>
-    <p></p>
-</footer>
 {% endblock %}
