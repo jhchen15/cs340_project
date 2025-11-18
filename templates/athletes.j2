@@ -24,9 +24,9 @@
             {% endfor %}
 
             {# DELETE form #}
-            <form id="delete_athlete_form">
-                <input type="hidden" name="delete_athlete_id" value="{{ athlete.athleteID }}">
-                <input type="hidden" name="delete_athlete_name" value="{{ athlete.firstName }} {{ athlete.lastName }}">
+            <form id="delete_athlete_form" method="POST" action="/athletes/delete">
+                <input type="hidden" name="delete_athlete_id" value="{{ athlete.Id }}">
+                <input type="hidden" name="delete_athlete_name" value="{{ athlete['First Name'] }} {{ athlete['Last Name'] }}">
                 <td>
                     <button type="submit">
                         Delete

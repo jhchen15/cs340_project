@@ -331,6 +331,76 @@ def reset_database():
             dbConnection.close()
 
 
+@app.route("/athletes/delete", methods=["POST"])
+def delete_athlete():
+    try:
+        dbConnection = db.connectDB()  # Open our database connection
+        cursor = dbConnection.cursor()
+
+        # Get form data
+        athlete_id = request.form["delete_athlete_id"]
+        athlete_name = request.form["delete_athlete_name"]
+
+        # Create and execute our queries
+        # Using parameterized queries (Prevents SQL injection attacks)
+        query1 = "CALL sp_DeleteAthlete(%s);"
+        cursor.execute(query1, (athlete_id,))
+
+        dbConnection.commit()  # commit the transaction
+
+        print(f"DELETE athlete. ID: {athlete_id} Name: {athlete_name}")
+
+        # Redirect the user to the updated webpage
+        return redirect("/athletes")
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return (
+            "An error occurred while executing the database queries.",
+            500,
+        )
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/teams/delete", methods=["POST"])
+def delete_team():
+    try:
+        dbConnection = db.connectDB()  # Open our database connection
+        cursor = dbConnection.cursor()
+
+        # Get form data
+        team_id = request.form["delete_team_id"]
+        team_name = request.form["delete_team_name"]
+
+        # Create and execute our queries
+        # Using parameterized queries (Prevents SQL injection attacks)
+        query1 = "CALL sp_DeleteTeam(%s);"
+        cursor.execute(query1, (team_id,))
+
+        dbConnection.commit()  # commit the transaction
+
+        print(f"DELETE team. ID: {team_id} Name: {team_name}")
+
+        # Redirect the user to the updated webpage
+        return redirect("/teams")
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return (
+            "An error occurred while executing the database queries.",
+            500,
+        )
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
 
 # ########################################
 # ########## LISTENER

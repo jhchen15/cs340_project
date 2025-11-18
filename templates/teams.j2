@@ -24,9 +24,9 @@
             {% endfor %}
 
             {# DELETE form #}
-            <form id="delete_team_form">
-                <input type="hidden" name="delete_team_id" value="{{ team.teamID }}">
-                <input type="hidden" name="delete_team_name" value="{{ team.teamName }} - {{ team.sportType }}">
+            <form id="delete_team_form" method="POST" action="/teams/delete">
+                <input type="hidden" name="delete_team_id" value="{{ team.Id }}">
+                <input type="hidden" name="delete_team_name" value="{{ team['Team Name'] }} - {{ team['Sport Type'] }}">
                 <td>
                     <button type="submit">
                         Delete
