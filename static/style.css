@@ -370,3 +370,27 @@ footer {
         padding: 0 1rem;
     }
 }
+
+/* ========================================
+   RESET BUTTON
+   ======================================== */
+
+.reset-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #ffffff;
+    color: #2c3e50;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-size: inherit;
+    margin-left: 0.5rem;
+}
+
+.reset-button:hover {
+    background-color: #ecf0f1;
+    transform: translateY(-1px);
+}

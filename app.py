@@ -4,7 +4,8 @@
 from flask import Flask, render_template, request, redirect, jsonify
 import database.db_connector as db
 
-PORT = 3097
+# 3097 is gunicorn port
+PORT = 3092 # Port to test the app on
 
 app = Flask(__name__)
 
@@ -295,6 +296,35 @@ def games_fetch_teams():
         print(f"Error executing queries: {e}")
         return "An error occurred while executing the database queries.", 500
 
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/reset-database", methods=["POST"])
+def reset_database():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Call the stored procedure to reset the database
+        query = "CALL sp_load_athleticsdb();"
+        cursor.execute(query)
+        
+        # Consume the result set (if any) before running the next query
+        cursor.nextset()  # Move to the next result set (for CALL statements)
+        
+        dbConnection.commit()  # commit the transaction
+
+        print("Database reset successfully!")
+
+        return redirect("/")
+        
+    except Exception as e:
+        print(f"Error resetting database: {e}")
+        return (f"An error occurred while resetting the database: {e}"), 500
+        
     finally:
         # Close the DB connection, if it exists
         if "dbConnection" in locals() and dbConnection:
