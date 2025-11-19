@@ -110,7 +110,7 @@ WHERE teamID = @teamIdInput;
 INSERT INTO Players (teamID, athleteID)
 VALUES (@teamIdInput, @athleteIdInput);
 
--- Read Players: retrieves full list of players with associated athlete and team information
+-- Read All Players: retrieves full list of players with associated athlete and team information
 SELECT 
   p.playerID as id,
   a.firstName as first_name,
@@ -125,6 +125,15 @@ FROM Players AS p
 JOIN Athletes AS a ON p.athleteID = a.athleteID
 JOIN Teams AS t ON p.teamID = t.teamID
 JOIN Schools AS s ON s.schoolID = a.schoolID;
+
+-- Update: An athlete can be assigned to a different team, but a player cannot be changed to a different athlete
+UPDATE Players
+SET teamID = @teamIdInput
+WHERE playerID = @playerIdInput;
+
+-- Delete
+DELETE FROM Players
+WHERE playerID = @playerIdInput;
 
 -- Read Athletes: retrieves athlete details for Player creation
 SELECT
@@ -163,12 +172,7 @@ JOIN Teams AS t ON p.teamID = t.teamID
 JOIN Schools AS s ON s.schoolID = a.schoolID
 WHERE a.athleteID = @athleteIdInput;
 
--- Update: An athlete can be assigned to a different team, but a player cannot be changed to a different athlete
-UPDATE Players
-SET teamID = @teamIdInput
-WHERE playerID = @playerIdInput;
-
--- Update Player / Team dropdown select: Filters teams in Player creation dropdown to Athlete's school
+-- Update Player / Team dropdown select: Filters teams in Player creation dropdown by selected Athlete's school
 SELECT
   teamID,
   teamName,
@@ -180,9 +184,6 @@ JOIN Teams as t ON s.schoolID = t.schoolID
 JOIN Athletes as a ON a.schoolID = s.schoolID
 WHERE a.athleteID = @teamIDInput;
 
--- Delete
-DELETE FROM Players
-WHERE playerID = @playerIdInput;
 
 
 /****************
@@ -209,6 +210,22 @@ FROM Games AS g JOIN Teams AS ht ON g.homeTeamID = ht.teamID
 JOIN Teams AS at ON g.awayTeamID = at.teamID
 JOIN Facilities AS f ON g.facilityID = f.facilityID
 JOIN Schools AS s ON s.schoolID = f.schoolID;
+
+-- Update
+UPDATE Games
+SET
+  homeTeamID = @homeTeamIdInput,
+  awayTeamID = @awayTeamIdInput,
+  facilityID = @facilityIdInput,
+  gameDate = @gameDateInput,
+  gameTime = @gameTimeInput,
+  gameType = @gameTypeInput,
+  status = @statusInput
+WHERE gameID = @gameIdInput;
+
+-- Delete
+DELETE FROM Games
+WHERE gameID = @gameIdInput;
 
 -- Read team list for create game dropdowns
 SELECT
@@ -242,19 +259,3 @@ SELECT
   t.academicYear
 FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID
 WHERE t.sportType = @sportTypeInput;
-
--- Update
-UPDATE Games
-SET 
-  homeTeamID = @homeTeamIdInput,
-  awayTeamID = @awayTeamIdInput,
-  facilityID = @facilityIdInput,
-  gameDate = @gameDateInput,
-  gameTime = @gameTimeInput,
-  gameType = @gameTypeInput,
-  status = @statusInput
-WHERE gameID = @gameIdInput;
-
--- Delete
-DELETE FROM Games
-WHERE gameID = @gameIdInput;
