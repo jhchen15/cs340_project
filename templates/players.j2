@@ -185,7 +185,8 @@
             const actionTd = document.createElement('td');
             actionTd.innerHTML = `
           <form method="POST" action="/players/delete" class="inline-form">
-            <input type="hidden" name="playerID" value="${t.player_id}">
+            <input type="hidden" name="delete_playerID" value="${t.id}">
+            <input type="hidden" name="delete_player_name" value="${ t.first_name } ${ t.last_name }">
             <button type="submit" class="btn btn-danger">Delete</button>
           </form>
     `;
