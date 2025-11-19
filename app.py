@@ -149,10 +149,10 @@ def players():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve list of Players with their Athlete / Team / School info
-        query1 = ("SELECT p.playerID AS 'player_id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
+        query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
-                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'is_eligible', "
-                  "IF(a.isActive, 'Yes', 'No') AS 'is_active' "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'eligible', "
+                  "IF(a.isActive, '✓', '✗') AS 'active' "
                   "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ;")
@@ -164,7 +164,8 @@ def players():
         athletes = db.query(dbConnection, query2).fetchall()
 
         query3 = ("SELECT DISTINCT t.teamID, s.name as schoolName, t.sportType, t.varsityJv, t.academicYear "
-                  "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID ")
+                  "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID "
+                  "ORDER BY t.teamID ")
         teams = db.query(dbConnection, query3).fetchall()
 
         # Render schools.j2 file, and send school query results
@@ -210,10 +211,10 @@ def players_fetch_roster():
     try:
         dbConnection = db.connectDB()
         teamID = request.args.get("teamID")
-        query1 = ("SELECT p.playerID AS 'player_id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
+        query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
-                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'is_eligible', "
-                  "IF(a.isActive, 'Yes', 'No') AS 'is_active' "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'eligible', "
+                  "IF(a.isActive, '✓', '✗') AS 'active' "
                   "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ")
@@ -238,7 +239,7 @@ def games():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve scheduled games list with associated details
-        query1 = ("SELECT g.gameID AS game_id, "
+        query1 = ("SELECT g.gameID AS id, "
                   "ht.teamName AS home_team, at.teamName AS away_team, "
                   "s.name AS facility_location, f.facilityName AS facility_name, "
                   "g.gameDate AS game_date, g.gameTime as game_time, g.gameType as game_type, g.status "
@@ -299,6 +300,33 @@ def games_fetch_teams():
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
+
+@app.route("/players/delete", methods=["POST"])
+def delete_player():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        playerID = request.form["delete_playerID"]
+        name = request.form["delete_player_name"]
+
+        # Construct query and call stored procedure
+        query = "CALL sp_DeletePlayer(%s)"
+        cursor.execute(query, (playerID,))
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"PlayerID: {playerID} Name: {name} deleted")
+        return redirect("/players")
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
 
 
 # ########################################
