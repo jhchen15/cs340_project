@@ -171,10 +171,20 @@
 
 {% block scripts %}
 <script>
+    {# Citation for use of AI tools #}
+    {# Date:  11/10/2025 #}
+    {# Prompts used to generate JS #}
+    {# How would one implement a drop down on a form field (such as Athlete) that dynamically
+    populates another field (such as Teams) based on the user’s selection?
+    How can I have a pre-populated table such as the list of Players updated based on the team
+    selected by the user? #}
+
+
     const sportSel = document.getElementById('create_game_sport')
     const homeTeamSel = document.getElementById('create_game_homeTeam')
     const awayTeamSel = document.getElementById('create_game_awayTeam')
 
+    {# Render teams in the dropdown selections #}
     function renderTeams(teams, teamElement) {
         teamElement.innerHTML = "";
         if (!teams || teams.length === 0) {
@@ -192,6 +202,7 @@
         teamElement.disabled = false;
     }
 
+    {# Event fires to render teams after sport selection #}
     sportSel.addEventListener('change', async() => {
         console.log('Adding sport selection event listener')
         const sportType = sportSel.value;
@@ -217,9 +228,5 @@
         }
     })
 
-    homeTeamSel.addEventListener('change', async() => {
-        console.log('Adding home team selection event listener');
-        const homeTeamID = homeTeamSel.value;
-    })
 </script>
 {% endblock %}

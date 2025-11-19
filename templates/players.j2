@@ -27,11 +27,9 @@
     <thead>
         {# Table attribute names #}
         <tr>
-{#            {% if players %}#}
-                {% for header in headers %}
-                <th>{{ header }}</th>
-                {% endfor %}
-{#            {% endif %}#}
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
             <th></th>
         </tr>
     </thead>
@@ -125,6 +123,14 @@
 
 {% block scripts %}
 <script>
+    {# Citation for use of AI tools #}
+    {# Date:  11/10/2025 #}
+    {# Prompts used to generate JS #}
+    {# How would one implement a drop down on a form field (such as Athlete) that dynamically
+    populates another field (such as Teams) based on the user’s selection?
+    How can I have a pre-populated table such as the list of Players updated based on the team
+    selected by the user? #}
+
     const athleteSel = document.getElementById('create_player_athlete_select')
     const teamSel = document.getElementById('create_player_team_select')
     const rosterSel = document.getElementById('roster_team_select')
