@@ -103,33 +103,82 @@ DELETE FROM Teams
 WHERE teamID = @teamIdInput;
 
 /****************
-  Players Table
+  Players Page
 *****************/
 
 -- Create: new player based on athlete and team
 INSERT INTO Players (teamID, athleteID)
 VALUES (@teamIdInput, @athleteIdInput);
 
--- Read: retrieves identifying athlete details for each player, and associated team information
+-- Read Players: retrieves full list of players with associated athlete and team information
 SELECT 
-  p.playerID,
-  a.firstName,
-  a.lastName,
-  s.name AS schoolName,
-  t.sportType,
-  t.varsityJv,
-  t.academicYear,
-  a.isEligible,
-  a.isActive
+  p.playerID as id,
+  a.firstName as first_name,
+  a.lastName as last_name,
+  s.name AS school,
+  t.sportType as sport,
+  t.varsityJv as 'varsity_/_JV',
+  t.academicYear as academic_year,
+  IF(a.isEligible, '✓', '✗') AS eligible,
+  IF(a.isActive, '✓', '✗') AS active
 FROM Players AS p
 JOIN Athletes AS a ON p.athleteID = a.athleteID
 JOIN Teams AS t ON p.teamID = t.teamID
 JOIN Schools AS s ON s.schoolID = a.schoolID;
 
+-- Read Athletes: retrieves athlete details for Player creation
+SELECT
+  a.athleteID,
+  a.firstName,
+  a.lastName,
+  s.schoolID,
+  s.name AS schoolName
+FROM Athletes as a
+JOIN Schools as s ON s.schoolID = a.schoolID;
+
+-- Read Teams: retrieves team details for Athlete assignment to create a Player
+SELECT DISTINCT
+  t.teamID,
+  s.name as schoolName,
+  t.sportType,
+  t.varsityJv,
+  t.academicYear
+FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID
+ORDER BY t.teamID;
+
+-- Read Roster: filtered version of Players list by team
+SELECT
+  p.playerID as id,
+  a.firstName as first_name,
+  a.lastName as last_name,
+  s.name AS school,
+  t.sportType as sport,
+  t.varsityJv as 'varsity_/_JV',
+  t.academicYear as academic_year,
+  IF(a.isEligible, '✓', '✗') AS eligible,
+  IF(a.isActive, '✓', '✗') AS active
+FROM Players AS p
+JOIN Athletes AS a ON p.athleteID = a.athleteID
+JOIN Teams AS t ON p.teamID = t.teamID
+JOIN Schools AS s ON s.schoolID = a.schoolID
+WHERE a.athleteID = @athleteIdInput;
+
 -- Update: An athlete can be assigned to a different team, but a player cannot be changed to a different athlete
 UPDATE Players
 SET teamID = @teamIdInput
 WHERE playerID = @playerIdInput;
+
+-- Update Player / Team dropdown select: Filters teams in Player creation dropdown to Athlete's school
+SELECT
+  teamID,
+  teamName,
+  sportType,
+  varsityJv,
+  academicYear
+FROM Schools as s
+JOIN Teams as t ON s.schoolID = t.schoolID
+JOIN Athletes as a ON a.schoolID = s.schoolID
+WHERE a.athleteID = @teamIDInput;
 
 -- Delete
 DELETE FROM Players
@@ -137,7 +186,7 @@ WHERE playerID = @playerIdInput;
 
 
 /****************
-  Games Table
+  Games Page
 *****************/
 
 -- Create
@@ -146,21 +195,53 @@ VALUES (@homeTeamIdInput, @awayTeamIdInput, @facilityIdInput, @gameDateInput, @g
 
 -- Read: Retrieves the list of games and relevant details to display
 -- including team names, location details, times, type and status
-SELECT 
-  g.gameID,
-  ht.teamName AS homeTeamName,
-  at.teamName AS awayTeamName,
-  s.name AS facilitySchool,
-  f.facilityName,
-  g.gameDate,
-  g.gameTime,
-  g.gameType,
+SELECT
+  g.gameID AS id,
+  ht.teamName AS home_team,
+  at.teamName AS away_team,
+  s.name AS facility_location,
+  f.facilityName AS facility_name,
+  g.gameDate AS game_date,
+  g.gameTime as game_time,
+  g.gameType as game_type,
   g.status
-FROM Games AS g
-JOIN Teams AS ht ON g.homeTeamID = ht.teamID
+FROM Games AS g JOIN Teams AS ht ON g.homeTeamID = ht.teamID
 JOIN Teams AS at ON g.awayTeamID = at.teamID
 JOIN Facilities AS f ON g.facilityID = f.facilityID
 JOIN Schools AS s ON s.schoolID = f.schoolID;
+
+-- Read team list for create game dropdowns
+SELECT
+  teamID,
+  schoolID,
+  teamName,
+  sportType,
+  varsityJv,
+  seasonName,
+  academicYear
+FROM Teams;
+
+-- Read facility list for create game dropdowns
+SELECT
+  facilityID,
+  schoolID,
+  facilityName,
+  capacity
+FROM Facilities;
+
+-- Read list of distinct sports based on teams created
+SELECT DISTINCT
+  sportType
+FROM Teams;
+
+-- Read list of teams based on sport selected
+SELECT
+  t.teamID,
+  s.name AS 'schoolName',
+  t.varsityJv,
+  t.academicYear
+FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID
+WHERE t.sportType = @sportTypeInput;
 
 -- Update
 UPDATE Games

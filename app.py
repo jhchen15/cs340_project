@@ -232,11 +232,38 @@ def players_fetch_roster():
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
+@app.route("/players/delete", methods=["POST"])
+def delete_player():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        playerID = request.form["delete_playerID"]
+        name = request.form["delete_player_name"]
+
+        # Construct query and call stored procedure
+        query = "CALL sp_DeletePlayer(%s)"
+        cursor.execute(query, (playerID,))
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"PlayerID: {playerID} Name: {name} deleted")
+        return redirect("/players")
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
 
 @app.route("/games", methods=["GET"])
 def games():
     try:
-        dbConnection = db.connectDB()  # Open our database connection
+        dbConnection = db.connectDB()  # Open database connection
 
         # Retrieve scheduled games list with associated details
         query1 = ("SELECT g.gameID AS id, "
@@ -301,33 +328,31 @@ def games_fetch_teams():
             dbConnection.close()
 
 
-@app.route("/players/delete", methods=["POST"])
-def delete_player():
+@app.route("/games/delete", methods=["POST"])
+def delete_game():
     try:
         dbConnection = db.connectDB()
         cursor = dbConnection.cursor()
 
-        playerID = request.form["delete_playerID"]
-        name = request.form["delete_player_name"]
+        gameID = request.form["delete_gameID"]
 
         # Construct query and call stored procedure
-        query = "CALL sp_DeletePlayer(%s)"
-        cursor.execute(query, (playerID,))
+        query = "CALL sp_DeleteGame(%s)"
+        cursor.execute(query, (gameID,))
         dbConnection.commit()
 
         # If successful, redirect back to page
-        print(f"PlayerID: {playerID} Name: {name} deleted")
-        return redirect("/players")
+        print(f"GameID: {gameID} deleted")
+        return redirect("/games")
 
     except Exception as e:
         print(f"Error executing queries: {e}")
         return "An error occurred while executing the database queries.", 500
 
     finally:
-        # Close the DB connection, if it exists
+        # Close the DB connection if it exists
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
-
 
 # ########################################
 # ########## LISTENER
