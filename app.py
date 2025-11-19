@@ -28,7 +28,7 @@ def schools():
         dbConnection = db.connectDB()  # Open our database connection
 
         # Retrieve list of Schools and associated info
-        query = ("SELECT schoolID AS 'ID', name AS 'Name', address AS 'Address', phone AS 'Phone' "
+        query = ("SELECT schoolID AS 'Id', name AS 'Name', address AS 'Address', phone AS 'Phone' "
                  "FROM Schools;")
         schools = db.query(dbConnection, query).fetchall()
 

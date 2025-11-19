@@ -18,7 +18,7 @@
         {# Display the schoolID, name, address and phone #}
         {% for school in schools %}
         <tr>
-            <td>{{ school.ID }}</td>
+            <td>{{ school.Id }}</td>
             <td>{{ school.Name }}</td>
             <td>{{ school.Address | default('', true) }}</td>
             <td>{{ school.Phone | default('', true)  }}</td>
