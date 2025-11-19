@@ -8,32 +8,37 @@
     <label for="roster_team_select">Choose Team for Roster</label>
     <select id="roster_team_select">
         <option value="NULL" selected>All teams</option>
-        {% for team in teams %}
-            <option value="{{ team.teamID }}">
-            {{ team.teamID }}
-            {{ team.schoolName }}
-            -
-            {{ team.sportType | title}}
-            -
-            {{ team.varsityJv | title }}
-            {{ team.academicYear }}
-            </option>
-        {% endfor %}
+        {% if teams %}
+            {% for team in teams %}
+                <option value="{{ team.teamID }}">
+                {{ team.teamID }}
+                {{ team.schoolName }}
+                -
+                {{ team.sportType | title}}
+                -
+                {{ team.varsityJv | title }}
+                {{ team.academicYear }}
+                </option>
+            {% endfor %}
+        {% endif %}
     </select>
 </div>
 <table>
     <thead>
         {# Table attribute names #}
         <tr>
-            {% for key in players[0].keys() %}
-            <th>{{ key.replace('_', ' ').title() }}</th>
-            {% endfor %}
+{#            {% if players %}#}
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
+{#            {% endif %}#}
             <th></th>
         </tr>
     </thead>
 
     <tbody id="players_tbody">
     {# Display playerID, firstName, lastName, school, sport, level, season, year, active status, and eligibility status #}
+    {% if players %}
         {% for player in players %}
         <tr>
             {% for value in player.values() %}
@@ -51,6 +56,7 @@
                 </form>
         </tr>
         {% endfor %}
+    {% endif %}
     </tbody>
 </table>
 

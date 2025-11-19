@@ -168,9 +168,12 @@ def players():
                   "ORDER BY t.teamID ")
         teams = db.query(dbConnection, query3).fetchall()
 
+        headers = ('Id', 'First Name', 'Last Name', 'School', 'Sport',
+                   'Varsity/JV', 'Academic Year', 'Eligible', 'Active')
+
         # Render schools.j2 file, and send school query results
         return render_template(
-            "players.j2", players=players, athletes=athletes, teams=teams
+            "players.j2", players=players, athletes=athletes, teams=teams, headers = headers
         )
 
     except Exception as e:
@@ -290,9 +293,13 @@ def games():
         query4 = "SELECT DISTINCT sportType FROM Teams"
         sportTypes = db.query(dbConnection, query4).fetchall()
 
+        headers = ('Id', 'Home Team', 'Away Team', 'Facility Location', 'Facility Name',
+                   'Game Date', 'Game Time', 'Game Type', 'Status')
+
         # Render games.j2 file, and send game query results
         return render_template(
-            "games.j2", games=games, teams=teams, facilities=facilities, sportTypes=sportTypes
+            "games.j2", games=games, teams=teams, facilities=facilities,
+            sportTypes=sportTypes, headers=headers
         )
 
     except Exception as e:

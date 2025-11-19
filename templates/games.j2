@@ -8,8 +8,8 @@
     <thead>
         {# Table attribute names #}
         <tr>
-            {% for key in games[0].keys() %}
-            <th>{{ key.replace('_', ' ').title() }}</th>
+            {% for header in headers %}
+            <th>{{ header }}</th>
             {% endfor %}
             <th></th>
         </tr>
@@ -17,6 +17,7 @@
 
     <tbody>
     {# Display game id, home / away team names, facility location, facility name, date, time, type and status #}
+    {% if games %}
         {% for game in games %}
         <tr>
             {% for value in game.values() %}
@@ -34,6 +35,7 @@
             </form>
         </tr>
         {% endfor %}
+    {% endif %}
     </tbody>
 </table>
 
