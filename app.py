@@ -169,7 +169,7 @@ def players():
         teams = db.query(dbConnection, query3).fetchall()
 
         headers = ('Id', 'First Name', 'Last Name', 'School', 'Sport',
-                   'Varsity/JV', 'Academic Year', 'Eligible', 'Active')
+                   'Varsity / JV', 'Academic Year', 'Eligible', 'Active')
 
         # Render schools.j2 file, and send school query results
         return render_template(
