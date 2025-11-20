@@ -21,33 +21,51 @@
     <thead>
         {# For the table header row, we print the DB attribute names #}
         <tr>
-            {% for key in athletes[0].keys() %}
-            <th>{{ key }}</th>
-            {% endfor %}
-            <th></th>
+            {% if athletes %}
+                {% for key in athletes[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+                <th></th>
+            {% else %}
+                <th>Id</th>
+                <th>School</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Grade Level</th>
+                <th>Eligible</th>
+                <th>Active</th>
+                <th>Emergency Contact</th>
+                <th></th>
+            {% endif %}
         </tr>
     </thead>
 
     <tbody>
         {# For each row, print all athlete attributes #}
-        {% for athlete in athletes %}
-        <tr>
-            {% for value in athlete.values() %}
-                <td>{{ value | title }}</td>
-            {% endfor %}
+        {% if athletes %}
+            {% for athlete in athletes %}
+            <tr>
+                {% for value in athlete.values() %}
+                    <td>{{ value | title }}</td>
+                {% endfor %}
 
-            {# DELETE form #}
-            <form id="delete_athlete_form" method="POST" action="/athletes/delete">
-                <input type="hidden" name="delete_athlete_id" value="{{ athlete.Id }}">
-                <input type="hidden" name="delete_athlete_name" value="{{ athlete['First Name'] }} {{ athlete['Last Name'] }}">
-                <td>
-                    <button type="submit">
-                        Delete
-                    </button>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
+                {# DELETE form #}
+                <form id="delete_athlete_form" method="POST" action="/athletes/delete">
+                    <input type="hidden" name="delete_athlete_id" value="{{ athlete.Id }}">
+                    <input type="hidden" name="delete_athlete_name" value="{{ athlete['First Name'] }} {{ athlete['Last Name'] }}">
+                    <td>
+                        <button type="submit">
+                            Delete
+                        </button>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center;">No athletes found</td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>
 

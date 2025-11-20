@@ -11,7 +11,7 @@ Source URL: https://canvas.oregonstate.edu/courses/2017561/pages/exploration-imp
 DROP PROCEDURE IF EXISTS sp_DeleteAthlete;
 
 DELIMITER //
-CREATE PROCEDURE sp_DeleteAthlete(IN p_athleteID INT)
+CREATE PROCEDURE sp_DeleteAthlete(IN a_ID INT)
 BEGIN
     DECLARE error_message VARCHAR(255); 
 
@@ -25,11 +25,11 @@ BEGIN
     END;
 
     START TRANSACTION;
-        DELETE FROM Athletes WHERE athleteID = p_athleteID;
+        DELETE FROM Athletes WHERE athleteID = a_ID;
 
         -- ROW_COUNT() returns the number of rows affected by the preceding statement.
         IF ROW_COUNT() = 0 THEN
-            set error_message = CONCAT('No matching record found in Athletes for athleteID: ', p_athleteID);
+            set error_message = CONCAT('No matching record found in Athletes for athleteID: ', a_ID);
             -- Trigger custom error, invoke EXIT HANDLER
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
         END IF;
@@ -45,7 +45,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_DeleteTeam;
 
 DELIMITER //
-CREATE PROCEDURE sp_DeleteTeam(IN p_teamID INT)
+CREATE PROCEDURE sp_DeleteTeam(IN t_ID INT)
 BEGIN
     DECLARE error_message VARCHAR(255); 
 
@@ -59,11 +59,11 @@ BEGIN
     END;
 
     START TRANSACTION;
-        DELETE FROM Teams WHERE teamID = p_teamID;
+        DELETE FROM Teams WHERE teamID = t_ID;
 
         -- ROW_COUNT() returns the number of rows affected by the preceding statement.
         IF ROW_COUNT() = 0 THEN
-            set error_message = CONCAT('No matching record found in Teams for teamID: ', p_teamID);
+            set error_message = CONCAT('No matching record found in Teams for teamID: ', t_ID);
             -- Trigger custom error, invoke EXIT HANDLER
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
         END IF;

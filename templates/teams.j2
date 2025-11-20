@@ -25,33 +25,50 @@
     <thead>
         {# For the table header row, we print the DB attribute names #}
         <tr>
-            {% for key in teams[0].keys() %}
-            <th>{{ key }}</th>
-            {% endfor %}
-            <th></th>
+            {% if teams %}
+                {% for key in teams[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+                <th></th>
+            {% else %}
+                <th>Id</th>
+                <th>School</th>
+                <th>Team Name</th>
+                <th>Sport Type</th>
+                <th>Varsity / JV</th>
+                <th>Season Name</th>
+                <th>Academic Year</th>
+                <th></th>
+            {% endif %}
         </tr>
     </thead>
 
     <tbody>
         {# For each row, print all team attributes #}
-        {% for team in teams %}
-        <tr>
-            {% for value in team.values() %}
-                <td>{{ value | title }}</td>
-            {% endfor %}
+        {% if teams %}
+            {% for team in teams %}
+            <tr>
+                {% for value in team.values() %}
+                    <td>{{ value | title }}</td>
+                {% endfor %}
 
-            {# DELETE form #}
-            <form id="delete_team_form" method="POST" action="/teams/delete">
-                <input type="hidden" name="delete_team_id" value="{{ team.Id }}">
-                <input type="hidden" name="delete_team_name" value="{{ team['Team Name'] }} - {{ team['Sport Type'] }}">
-                <td>
-                    <button type="submit">
-                        Delete
-                    </button>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
+                {# DELETE form #}
+                <form id="delete_team_form" method="POST" action="/teams/delete">
+                    <input type="hidden" name="delete_team_id" value="{{ team.Id }}">
+                    <input type="hidden" name="delete_team_name" value="{{ team['Team Name'] }} - {{ team['Sport Type'] }}">
+                    <td>
+                        <button type="submit">
+                            Delete
+                        </button>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center;">No teams found</td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>
 
