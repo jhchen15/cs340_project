@@ -270,7 +270,7 @@ def games():
 
         # Retrieve scheduled games list with associated details
         query1 = ("SELECT g.gameID AS id, "
-                  "ht.teamName AS home_team, at.teamName AS away_team, "
+                  "ht.teamName AS home_team, at.teamName AS away_team, ht.sportType AS sport_type, "
                   "s.name AS facility_location, f.facilityName AS facility_name, "
                   "g.gameDate AS game_date, g.gameTime as game_time, g.gameType as game_type, g.status "
                   "FROM Games AS g JOIN Teams AS ht ON g.homeTeamID = ht.teamID "
@@ -293,7 +293,7 @@ def games():
         query4 = "SELECT DISTINCT sportType FROM Teams"
         sportTypes = db.query(dbConnection, query4).fetchall()
 
-        headers = ('Id', 'Home Team', 'Away Team', 'Facility Location', 'Facility Name',
+        headers = ('Id', 'Home Team', 'Away Team', 'Sport Type', 'Facility Location', 'Facility Name',
                    'Game Date', 'Game Time', 'Game Type', 'Status')
 
         # Render games.j2 file, and send game query results
