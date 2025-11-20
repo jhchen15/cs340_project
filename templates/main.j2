@@ -15,10 +15,36 @@
         <a href="/teams">Teams</a>
         <a href="/players">Players</a>
         <a href="/games">Games</a>
+        <form id="reset-form" method="POST" action="/reset-database" style="display: inline;">
+            <button type="submit" id="reset-btn" class="reset-button">Reset Database</button>
+        </form>
     </nav>
 
     {% block content %}{% endblock %}
 
     {% block scripts %}{% endblock %}
+
+    <script>
+        // Reset database confirmation
+        document.addEventListener('DOMContentLoaded', function() {
+            const resetForm = document.getElementById('reset-form');
+            const resetBtn = document.getElementById('reset-btn');
+            
+            resetForm.addEventListener('submit', function(e) {
+                // Prevent the form from submitting immediately
+                e.preventDefault();
+                
+                // Show confirmation dialog
+                if (confirm('Are you sure you want to reset the database? This will delete all changes and restore original data.')) {
+                    // Show loading state
+                    resetBtn.textContent = 'Resetting...';
+                    resetBtn.disabled = true;
+                    
+                    // Submit the form
+                    this.submit();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

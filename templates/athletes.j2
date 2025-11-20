@@ -1,6 +1,19 @@
 {% extends "main.j2" %}
 {% block content %}
 
+{# Error messages from URL parameters #}
+{% if request.args.get('error') %}
+    <div class="error-message">
+        {% if request.args.get('error') == 'athlete_has_players' %}
+            This athlete cannot be deleted because they are currently assigned to one or more teams. Please remove the athlete from all teams first.
+        {% elif request.args.get('error') == 'athlete_constraint_error' %}
+            This athlete cannot be deleted due to existing references in the database.
+        {% elif request.args.get('error') == 'delete_failed' %}
+            An error occurred while deleting the athlete.
+        {% endif %}
+    </div>
+{% endif %}
+
 <h1>Athletes</h1>
 
 {# READ table #}
@@ -8,33 +21,51 @@
     <thead>
         {# For the table header row, we print the DB attribute names #}
         <tr>
-            {% for key in athletes[0].keys() %}
-            <th>{{ key }}</th>
-            {% endfor %}
-            <th></th>
+            {% if athletes %}
+                {% for key in athletes[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+                <th></th>
+            {% else %}
+                <th>Id</th>
+                <th>School</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Grade Level</th>
+                <th>Eligible</th>
+                <th>Active</th>
+                <th>Emergency Contact</th>
+                <th></th>
+            {% endif %}
         </tr>
     </thead>
 
     <tbody>
         {# For each row, print all athlete attributes #}
-        {% for athlete in athletes %}
-        <tr>
-            {% for value in athlete.values() %}
-                <td>{{ value | title }}</td>
-            {% endfor %}
+        {% if athletes %}
+            {% for athlete in athletes %}
+            <tr>
+                {% for value in athlete.values() %}
+                    <td>{{ value | title }}</td>
+                {% endfor %}
 
-            {# DELETE form #}
-            <form id="delete_athlete_form">
-                <input type="hidden" name="delete_athlete_id" value="{{ athlete.athleteID }}">
-                <input type="hidden" name="delete_athlete_name" value="{{ athlete.firstName }} {{ athlete.lastName }}">
-                <td>
-                    <button type="submit">
-                        Delete
-                    </button>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
+                {# DELETE form #}
+                <form id="delete_athlete_form" method="POST" action="/athletes/delete">
+                    <input type="hidden" name="delete_athlete_id" value="{{ athlete.Id }}">
+                    <input type="hidden" name="delete_athlete_name" value="{{ athlete['First Name'] }} {{ athlete['Last Name'] }}">
+                    <td>
+                        <button type="submit">
+                            Delete
+                        </button>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center;">No athletes found</td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>
 
