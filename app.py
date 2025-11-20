@@ -151,8 +151,8 @@ def players():
         # Retrieve list of Players with their Athlete / Team / School info
         query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
-                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'Eligible', "
-                  "IF(a.isActive, '✓', '✗') AS 'Active' "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'eligible', "
+                  "IF(a.isActive, '✓', '✗') AS 'active' "
                   "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ;")
@@ -168,9 +168,12 @@ def players():
                   "ORDER BY t.teamID ")
         teams = db.query(dbConnection, query3).fetchall()
 
+        headers = ('Id', 'First Name', 'Last Name', 'School', 'Sport',
+                   'Varsity / JV', 'Academic Year', 'Eligible', 'Active')
+
         # Render schools.j2 file, and send school query results
         return render_template(
-            "players.j2", players=players, athletes=athletes, teams=teams
+            "players.j2", players=players, athletes=athletes, teams=teams, headers = headers
         )
 
     except Exception as e:
@@ -213,8 +216,8 @@ def players_fetch_roster():
         teamID = request.args.get("teamID")
         query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
-                  "t.academicYear AS 'academic_year', IF(a.isEligible, 'Yes', 'No') AS 'eligible', "
-                  "IF(a.isActive, 'Yes', 'No') AS 'active' "
+                  "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'eligible', "
+                  "IF(a.isActive, '✓', '✗') AS 'active' "
                   "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ")
@@ -232,11 +235,38 @@ def players_fetch_roster():
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
+@app.route("/players/delete", methods=["POST"])
+def delete_player():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        playerID = request.form["delete_playerID"]
+        name = request.form["delete_player_name"]
+
+        # Construct query and call stored procedure
+        query = "CALL sp_DeletePlayer(%s)"
+        cursor.execute(query, (playerID,))
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"PlayerID: {playerID} Name: {name} deleted")
+        return redirect("/players")
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
 
 @app.route("/games", methods=["GET"])
 def games():
     try:
-        dbConnection = db.connectDB()  # Open our database connection
+        dbConnection = db.connectDB()  # Open database connection
 
         # Retrieve scheduled games list with associated details
         query1 = ("SELECT g.gameID AS id, "
@@ -263,9 +293,13 @@ def games():
         query4 = "SELECT DISTINCT sportType FROM Teams"
         sportTypes = db.query(dbConnection, query4).fetchall()
 
+        headers = ('Id', 'Home Team', 'Away Team', 'Facility Location', 'Facility Name',
+                   'Game Date', 'Game Time', 'Game Type', 'Status')
+
         # Render games.j2 file, and send game query results
         return render_template(
-            "games.j2", games=games, teams=teams, facilities=facilities, sportTypes=sportTypes
+            "games.j2", games=games, teams=teams, facilities=facilities,
+            sportTypes=sportTypes, headers=headers
         )
 
     except Exception as e:
@@ -301,6 +335,31 @@ def games_fetch_teams():
             dbConnection.close()
 
 
+@app.route("/games/delete", methods=["POST"])
+def delete_game():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        gameID = request.form["delete_gameID"]
+
+        # Construct query and call stored procedure
+        query = "CALL sp_DeleteGame(%s)"
+        cursor.execute(query, (gameID,))
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"GameID: {gameID} deleted")
+        return redirect("/games")
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
 
 # ########################################
 # ########## LISTENER

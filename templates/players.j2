@@ -8,24 +8,27 @@
     <label for="roster_team_select">Choose Team for Roster</label>
     <select id="roster_team_select">
         <option value="NULL" selected>All teams</option>
-        {% for team in teams %}
-            <option value="{{ team.teamID }}">
-            {{ team.teamID }}
-            {{ team.schoolName }}
-            -
-            {{ team.sportType }}
-            {{ team.varsityJv }}
-            {{ team.academicYear }}
-            </option>
-        {% endfor %}
+        {% if teams %}
+            {% for team in teams %}
+                <option value="{{ team.teamID }}">
+                {{ team.teamID }}
+                {{ team.schoolName }}
+                -
+                {{ team.sportType | title}}
+                -
+                {{ team.varsityJv | title }}
+                {{ team.academicYear }}
+                </option>
+            {% endfor %}
+        {% endif %}
     </select>
 </div>
 <table>
     <thead>
         {# Table attribute names #}
         <tr>
-            {% for key in players[0].keys() %}
-            <th>{{ key.replace('_', ' ').title() }}</th>
+            {% for header in headers %}
+            <th>{{ header }}</th>
             {% endfor %}
             <th></th>
         </tr>
@@ -33,15 +36,16 @@
 
     <tbody id="players_tbody">
     {# Display playerID, firstName, lastName, school, sport, level, season, year, active status, and eligibility status #}
+    {% if players %}
         {% for player in players %}
         <tr>
             {% for value in player.values() %}
                 <td>{{ value | title }}</td>
             {% endfor %}
             {# DELETE form #}
-                <form id="delete_player_form">
-                    <input type="hidden" name="delete_playerID" value="{{ player.playerID }}">
-                    <input type="hidden" name="delete_player_name" value="{{ player.firstName }} {{ player.lastName }}">
+                <form id="delete_player_form" action="/players/delete" method="POST">
+                    <input type="hidden" name="delete_playerID" value="{{ player.id }}">
+                    <input type="hidden" name="delete_player_name" value="{{ player.first_name }} {{ player.last_name }}">
                     <td>
                         <button type="submit">
                             Delete
@@ -50,14 +54,15 @@
                 </form>
         </tr>
         {% endfor %}
+    {% endif %}
     </tbody>
 </table>
 
-{# CREATE form #}
+{# CREATE PLAYER form #}
 <h2>Add Player to Roster</h2>
 <form class="cuForm" id="create_player_form">
 
-    {# Athlete #}
+    {# Athlete Select #}
     <label for="create_player_athlete_select">Athlete: </label>
     <select name="athleteID" id="create_player_athlete_select">
         <option value="NULL" disabled selected>Select an Athlete</option>
@@ -68,7 +73,7 @@
         {% endfor %}
     </select>
 
-    {# Team #}
+    {# Team Select #}
     <label for="create_player_team_select">Team: </label>
     <select name="create_player_team_select" id="create_player_team_select" required>
         <option value="NULL" disabled selected>Select a Team</option>
@@ -77,7 +82,7 @@
     <input type="submit">
 </form>
 
-{# UPDATE form #}
+{# UPDATE PLAYER form #}
 <h2>Update Athlete Team Assignment</h2>
 <form class="cuForm" id="update_player_form">
 
@@ -101,10 +106,11 @@
         <option value="{{team['teamID']}}" required>
             {{team['teamID']}}
             -
-            {{team['schoolName']}}
+            {{team['schoolName'] | title}}
             -
-            {{team['sportType']}}
-            {{team['varsityJv']}}
+            {{team['sportType'] | title}}
+            -
+            {{team['varsityJv'] | title}}
             {{team['academicYear']}}
         </option>
         {% endfor %}
@@ -117,11 +123,20 @@
 
 {% block scripts %}
 <script>
-    const playerSel = document.getElementById('create_player_athlete_select')
+    {# Citation for use of AI tools #}
+    {# Date:  11/10/2025 #}
+    {# Prompts used to generate JS #}
+    {# How would one implement a drop down on a form field (such as Athlete) that dynamically
+    populates another field (such as Teams) based on the user’s selection?
+    How can I have a pre-populated table such as the list of Players updated based on the team
+    selected by the user? #}
+
+    const athleteSel = document.getElementById('create_player_athlete_select')
     const teamSel = document.getElementById('create_player_team_select')
     const rosterSel = document.getElementById('roster_team_select')
     const roster = document.getElementById('players_tbody')
 
+    {# Renders teams in dropdown based on athlete selected #}
     function renderTeams(teams) {
         teamSel.innerHTML = '';
         if (!teams || teams.length === 0) {
@@ -138,49 +153,52 @@
         });
         teamSel.disabled = false;
     };
-    {##}
-    {#function renderRoster(players) {#}
-    {#  roster.innerHTML = '';#}
-    {##}
-    {#  if(!players || players.length == 0) {#}
-    {#      return;#}
-    {#  }#}
-    {##}
-    {#  players.forEach(t => {#}
-    {#      const tr = document.createElement('tr');#}
-    {#      const cols = [#}
-    {#          t.player_id,#}
-    {#          t.first_name,#}
-    {#          t.last_name,#}
-    {#          t.school,#}
-    {#          t.sport,#}
-    {#          t.varsity_/_JV,#}
-    {#          t.academic_year,#}
-    {#          t.is_eligible,#}
-    {#          t.is_active#}
-    {#      ];#}
-    {##}
-    {#      cols.forEach(val => {#}
-    {#          const td = document.createElement('td');#}
-    {#          td.textContent = val ?? '';#}
-    {#          tr.appendChild(td);#}
-    {#      });#}
-    {##}
-    {#      const actionTd = document.createElement('td');#}
-    {#      actionTd.innerHTML = `#}
-    {#      <form method="POST" action="/players/delete" class="inline-form">#}
-    {#        <input type="hidden" name="playerID" value="${t.player_id}">#}
-    {#        <button type="submit" class="btn btn-danger">Delete</button>#}
-    {#      </form>#}
-    {#`;#}
-    {#tr.appendChild(actionTd);#}
-    {##}
-    {#roster.appendChild(tr);#}
-    {#  })#}
 
+    {# Renders roster based on team selected #}
+    function renderRoster(players) {
+        roster.innerHTML = '';
 
-    playerSel.addEventListener('change', async() => {
-        const athleteID = playerSel.value;
+        if (!players || players.length == 0) {
+            return;
+        }
+
+        players.forEach(t => {
+            const tr = document.createElement('tr');
+            const cols = [
+                t.id,
+                t.first_name,
+                t.last_name,
+                t.school,
+                t.sport,
+                t['varsity_/_JV'],
+                t.academic_year,
+                t.eligible,
+                t.active
+            ];
+
+            cols.forEach(val => {
+                const td = document.createElement('td');
+                td.textContent = val ?? '';
+                tr.appendChild(td);
+            });
+
+            const actionTd = document.createElement('td');
+            actionTd.innerHTML = `
+          <form method="POST" action="/players/delete" class="inline-form">
+            <input type="hidden" name="delete_playerID" value="${t.id}">
+            <input type="hidden" name="delete_player_name" value="${ t.first_name } ${ t.last_name }">
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+    `;
+            tr.appendChild(actionTd);
+
+            roster.appendChild(tr);
+        })
+    };
+
+    {#  Event listener for athlete selector to add to roster #}
+    athleteSel.addEventListener('change', async() => {
+        const athleteID = athleteSel.value;
         const url = `/players/teams?athleteID=${encodeURIComponent(athleteID)}`;
 
         teamSel.disabled = true;
@@ -199,18 +217,20 @@
 
     });
 
-    {#rosterSel.addEventListener('change', async() => {#}
-    {#    const teamID = rosterSel.value#}
-    {#    const url = `/players/roster?teamID=${encodeURIComponent(teamID)}`#}
-    {##}
-    {#    try {#}
-    {#        const res = await fetch(url, {headers: {'Accept': 'application/json'}});#}
-    {#        if (!res.ok) throw new Error(`HTTP ${res.status}`);#}
-    {#        const players = await res.json();#}
-    {#        renderRoster(players);#}
-    {#    } catch (err) {#}
-    {#        console.error(err);#}
-    {#    }#}
-    {#})#}
+    {# Event listener for team selector to display roster #}
+    rosterSel.addEventListener('change', async() => {
+        const teamID = rosterSel.value
+        const url = `/players/roster?teamID=${encodeURIComponent(teamID)}`
+
+        try {
+            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const players = await res.json();
+            renderRoster(players);
+        } catch (err) {
+            console.error(err);
+        }
+    });
+
 </script>
 {% endblock %}
