@@ -25,10 +25,6 @@ BEGIN
     END;
 
     START TRANSACTION;
-        -- First delete from Players table (child table)
-        DELETE FROM Players WHERE athleteID = p_athleteID;
-        
-        -- Then delete from Athletes table
         DELETE FROM Athletes WHERE athleteID = p_athleteID;
 
         -- ROW_COUNT() returns the number of rows affected by the preceding statement.
@@ -63,13 +59,6 @@ BEGIN
     END;
 
     START TRANSACTION;
-        -- First delete from Players table (child table)
-        DELETE FROM Players WHERE teamID = p_teamID;
-        
-        -- Then delete from Games table where this team is either home or away team
-        DELETE FROM Games WHERE homeTeamID = p_teamID OR awayTeamID = p_teamID;
-        
-        -- Then delete from Teams table
         DELETE FROM Teams WHERE teamID = p_teamID;
 
         -- ROW_COUNT() returns the number of rows affected by the preceding statement.

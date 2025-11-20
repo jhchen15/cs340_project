@@ -1,6 +1,23 @@
 {% extends "main.j2" %}
 {% block content %}
 
+{# Error messages from URL parameters #}
+{% if request.args.get('error') %}
+    <div class="error-message">
+        {% if request.args.get('error') == 'team_has_players_and_games' %}
+            This team cannot be deleted because it has players assigned and games scheduled. Please remove all players and games first.
+        {% elif request.args.get('error') == 'team_has_players' %}
+            This team cannot be deleted because it has players assigned. Please remove all players from this team first.
+        {% elif request.args.get('error') == 'team_has_games' %}
+            This team cannot be deleted because it has games scheduled. Please remove or reassign all games first.
+        {% elif request.args.get('error') == 'team_constraint_error' %}
+            This team cannot be deleted due to existing references in the database.
+        {% elif request.args.get('error') == 'delete_failed' %}
+            An error occurred while deleting the team.
+        {% endif %}
+    </div>
+{% endif %}
+
 <h1>Teams</h1>
 
 {# READ table #}
