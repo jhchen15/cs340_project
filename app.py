@@ -4,8 +4,7 @@
 from flask import Flask, render_template, request, redirect, jsonify
 import database.db_connector as db
 
-# 3097 is gunicorn port
-PORT = 3092 # Port to test the app on
+PORT = 3097
 
 app = Flask(__name__)
 
