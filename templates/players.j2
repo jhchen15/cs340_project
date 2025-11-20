@@ -7,7 +7,7 @@
 <div class="roster-selection">
     <label for="roster_team_select">Choose Team for Roster</label>
     <select id="roster_team_select">
-        <option value="NULL" selected>All teams</option>
+        <option value="" selected>All teams</option>
         {% if teams %}
             {% for team in teams %}
                 <option value="{{ team.teamID }}">
