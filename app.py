@@ -4,7 +4,8 @@
 from flask import Flask, render_template, request, redirect, jsonify
 import database.db_connector as db
 
-PORT = 3097
+# 3097 is gunicorn port
+PORT = 3092 # Port to test the app on
 
 app = Flask(__name__)
 
@@ -109,6 +110,42 @@ def athletes():
         # Close the DB connection, if it exists
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
+
+
+@app.route("/athletes/delete", methods=["POST"])
+def delete_athlete():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        athlete_id = request.form["delete_athlete_id"]
+        athlete_name = request.form["delete_athlete_name"]
+
+        query1 = "CALL sp_DeleteAthlete(%s);"
+        cursor.execute(query1, (athlete_id,))
+
+        dbConnection.commit()
+        print(f"DELETE athlete. ID: {athlete_id} Name: {athlete_name}")
+        return redirect("/athletes")
+
+    except Exception as e:
+        dbConnection.rollback()
+        error_message = str(e)
+        print(f"Error executing queries: {error_message}")
+        
+        # Contraint error code 1451: Cannot delete or update a parent row: a foreign key constraint fails
+        if "1451" in error_message:
+            if "Players" in error_message:
+                error_param = "athlete_has_players"
+            else:
+                error_param = "athlete_constraint_error"
+            return redirect(f"/athletes?error={error_param}")
+        else:
+            return redirect(f"/athletes?error=delete_failed")
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
             
 
 @app.route("/teams", methods=["GET"])
@@ -139,6 +176,46 @@ def teams():
 
     finally:
         # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/teams/delete", methods=["POST"])
+def delete_team():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        team_id = request.form["delete_team_id"]
+        team_name = request.form["delete_team_name"]
+
+        query1 = "CALL sp_DeleteTeam(%s);"
+        cursor.execute(query1, (team_id,))
+
+        dbConnection.commit()
+        print(f"DELETE team. ID: {team_id} Name: {team_name}")
+        return redirect("/teams")
+
+    except Exception as e:
+        dbConnection.rollback()
+        error_message = str(e)
+        print(f"Error executing queries: {error_message}")
+        
+        # Contraint error code 1451: Cannot delete or update a parent row: a foreign key constraint fails
+        if "1451" in error_message:
+            if "Players" in error_message and "Games" in error_message:
+                error_param = "team_has_players_and_games"
+            elif "Players" in error_message:
+                error_param = "team_has_players"
+            elif "Games" in error_message:
+                error_param = "team_has_games"
+            else:
+                error_param = "team_constraint_error"
+            return redirect(f"/teams?error={error_param}")
+        else:
+            return redirect(f"/teams?error=delete_failed")
+
+    finally:
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
@@ -360,6 +437,38 @@ def delete_game():
         # Close the DB connection if it exists
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
+
+
+# RESET DB ROUTE
+@app.route("/reset-database", methods=["POST"])
+def reset_database():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Call the stored procedure to reset the database
+        query = "CALL sp_load_athleticsdb();"
+        cursor.execute(query)
+        
+        # Consume the result set (if any) before running the next query
+        cursor.nextset()  # Move to the next result set (for CALL statements)
+        
+        dbConnection.commit()  # commit the transaction
+
+        print("Database reset successfully!")
+
+        return redirect("/")
+        
+    except Exception as e:
+        print(f"Error resetting database: {e}")
+        return (f"An error occurred while resetting the database: {e}"), 500
+        
+    finally:
+        # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
 
 # ########################################
 # ########## LISTENER

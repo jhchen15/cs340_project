@@ -6,7 +6,7 @@
 
 
 /****************
-  Schools Table
+  Schools Page
 *****************/
 
 -- Read only: school details are considered static
@@ -18,7 +18,7 @@ SELECT
 FROM Schools;
 
 /****************
-  Facilities Table
+  Facilities Page
 *****************/
 
 -- Read only: facility details are considered static
@@ -31,7 +31,7 @@ FROM Facilities
 LEFT JOIN Schools ON Facilities.schoolID = Schools.schoolID;
 
 /****************
-  Athletes Table
+  Athletes Page
 *****************/
 
 -- Create: new athlete
@@ -68,7 +68,7 @@ DELETE FROM Athletes
 WHERE athleteID = @athleteIdInput;
 
 /****************
-  Teams Table
+  Teams Page
 *****************/
 
 -- Create: new team

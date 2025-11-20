@@ -1,6 +1,23 @@
 {% extends "main.j2" %}
 {% block content %}
 
+{# Error messages from URL parameters #}
+{% if request.args.get('error') %}
+    <div class="error-message">
+        {% if request.args.get('error') == 'team_has_players_and_games' %}
+            This team cannot be deleted because it has players assigned and games scheduled. Please remove all players and games first.
+        {% elif request.args.get('error') == 'team_has_players' %}
+            This team cannot be deleted because it has players assigned. Please remove all players from this team first.
+        {% elif request.args.get('error') == 'team_has_games' %}
+            This team cannot be deleted because it has games scheduled. Please remove or reassign all games first.
+        {% elif request.args.get('error') == 'team_constraint_error' %}
+            This team cannot be deleted due to existing references in the database.
+        {% elif request.args.get('error') == 'delete_failed' %}
+            An error occurred while deleting the team.
+        {% endif %}
+    </div>
+{% endif %}
+
 <h1>Teams</h1>
 
 {# READ table #}
@@ -8,33 +25,50 @@
     <thead>
         {# For the table header row, we print the DB attribute names #}
         <tr>
-            {% for key in teams[0].keys() %}
-            <th>{{ key }}</th>
-            {% endfor %}
-            <th></th>
+            {% if teams %}
+                {% for key in teams[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+                <th></th>
+            {% else %}
+                <th>Id</th>
+                <th>School</th>
+                <th>Team Name</th>
+                <th>Sport Type</th>
+                <th>Varsity / JV</th>
+                <th>Season Name</th>
+                <th>Academic Year</th>
+                <th></th>
+            {% endif %}
         </tr>
     </thead>
 
     <tbody>
         {# For each row, print all team attributes #}
-        {% for team in teams %}
-        <tr>
-            {% for value in team.values() %}
-                <td>{{ value | title }}</td>
-            {% endfor %}
+        {% if teams %}
+            {% for team in teams %}
+            <tr>
+                {% for value in team.values() %}
+                    <td>{{ value | title }}</td>
+                {% endfor %}
 
-            {# DELETE form #}
-            <form id="delete_team_form">
-                <input type="hidden" name="delete_team_id" value="{{ team.teamID }}">
-                <input type="hidden" name="delete_team_name" value="{{ team.teamName }} - {{ team.sportType }}">
-                <td>
-                    <button type="submit">
-                        Delete
-                    </button>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
+                {# DELETE form #}
+                <form id="delete_team_form" method="POST" action="/teams/delete">
+                    <input type="hidden" name="delete_team_id" value="{{ team.Id }}">
+                    <input type="hidden" name="delete_team_name" value="{{ team['Team Name'] }} - {{ team['Sport Type'] }}">
+                    <td>
+                        <button type="submit">
+                            Delete
+                        </button>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center;">No teams found</td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>
 
