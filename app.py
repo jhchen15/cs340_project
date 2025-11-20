@@ -1,7 +1,7 @@
 # ########################################
 # ########## SETUP
 
-from flask import Flask, render_template, request, redirect, jsonify, flash
+from flask import Flask, render_template, request, redirect, jsonify
 import database.db_connector as db
 
 # 3097 is gunicorn port
