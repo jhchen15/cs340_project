@@ -8,8 +8,8 @@
     <thead>
         {# Table attribute names #}
         <tr>
-            {% for key in games[0].keys() %}
-            <th>{{ key.replace('_', ' ').title() }}</th>
+            {% for header in headers %}
+            <th>{{ header }}</th>
             {% endfor %}
             <th></th>
         </tr>
@@ -17,6 +17,7 @@
 
     <tbody>
     {# Display game id, home / away team names, facility location, facility name, date, time, type and status #}
+    {% if games %}
         {% for game in games %}
         <tr>
             {% for value in game.values() %}
@@ -24,8 +25,8 @@
             {% endfor %}
 
             {# DELETE form #}
-            <form id="delete_game_form">
-                <input type="hidden" name="delete_game_id" value="{{ game.id }}">
+            <form id="delete_game_form" action="/games/delete" method="POST">
+                <input type="hidden" name="delete_gameID" value="{{ game.id }}">
                 <td>
                     <button type="submit">
                         Delete
@@ -34,6 +35,7 @@
             </form>
         </tr>
         {% endfor %}
+    {% endif %}
     </tbody>
 </table>
 
@@ -128,27 +130,8 @@
         </option>
         {% endfor %}
     </select>
-{##}
-{#    <label for="update_game_homeTeam">Home Team: </label>#}
-{#    <select name="update_game_homeTeamID" id="update_game_homeTeamID" required>#}
-{#        <option value="NULL" selected>Select a Team</option>#}
-{#        {% for team in teams %}#}
-{#        <option value="{{team['teamID']}}" required>#}
-{#            {{team['teamName']}}#}
-{#        </option>#}
-{#        {% endfor %}#}
-{#    </select>#}
-{##}
-{#    <label for="update_game_awayTeamID">Away Team: </label>#}
-{#    <select name="update_game_awayTeamID" id="update_game_awayTeamID" required>#}
-{#        <option value="NULL" selected>Select a Team</option>#}
-{#        {% for team in teams %}#}
-{#        <option value="{{team['teamID']}}" required>#}
-{#            {{team['teamName']}}#}
-{#        </option>#}
-{#        {% endfor %}#}
-{#    </select>#}
 
+    {# Update game facility #}
     <label for="update_game_facility">Facility: </label>
     <select name="update_game_facilityID" id="update_game_facilityID" required>
         <option value="NULL" selected>Select a Facility</option>
@@ -159,13 +142,15 @@
         {% endfor %}
     </select>
 
+    {# Update game date #}
     <label for="update_game_gameDate">Date: </label>
     <input type="date" name="update_game_gameDate" id="update_game_gameDate">
 
+    {# Update game time #}
     <label for="update_game_gameTime">Time: </label>
     <input type="time" name="update_game_gameTime" id="update_game_gameTime">
 
-    {# Game type #}
+    {# Update game type #}
     <label for="update_game_gameType">Game Type: </label>
     <select name="update_game_gameType" id="update_game_gameType" required>
         <option value="NULL" selected disabled>Type</option>
@@ -176,7 +161,7 @@
         <option value="exhibition">Exhibition</option>
     </select>
 
-    {# Game status #}
+    {# Update game status #}
     <label for="update_game_gameStatus">Status: </label>
     <select name="udpate_game_gameStatus" id="update_game_gameStatus" required>
         <option value="NULL" selected disabled>Status</option>
@@ -194,10 +179,20 @@
 
 {% block scripts %}
 <script>
+    {# Citation for use of AI tools #}
+    {# Date:  11/10/2025 #}
+    {# Prompts used to generate JS #}
+    {# How would one implement a drop down on a form field (such as Athlete) that dynamically
+    populates another field (such as Teams) based on the user’s selection?
+    How can I have a pre-populated table such as the list of Players updated based on the team
+    selected by the user? #}
+
+
     const sportSel = document.getElementById('create_game_sport')
     const homeTeamSel = document.getElementById('create_game_homeTeam')
     const awayTeamSel = document.getElementById('create_game_awayTeam')
 
+    {# Render teams in the dropdown selections #}
     function renderTeams(teams, teamElement) {
         teamElement.innerHTML = "";
         if (!teams || teams.length === 0) {
@@ -215,6 +210,7 @@
         teamElement.disabled = false;
     }
 
+    {# Event fires to render teams after sport selection #}
     sportSel.addEventListener('change', async() => {
         console.log('Adding sport selection event listener')
         const sportType = sportSel.value;
@@ -240,9 +236,5 @@
         }
     })
 
-    homeTeamSel.addEventListener('change', async() => {
-        console.log('Adding home team selection event listener');
-        const homeTeamID = homeTeamSel.value;
-    })
 </script>
 {% endblock %}
