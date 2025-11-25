@@ -1,6 +1,20 @@
 {% extends "main.j2" %}
 {% block content %}
 
+{# Error messages from URL parameters #}
+{% set msg = request.args.get('msg') %}
+{% set err = request.args.get('error') %}
+{% if msg == 'delete_ok' %}
+    <div class="success-message">
+    Player successfully deleted.
+    </div>
+{% endif %}
+{% if err == 'delete_unknown' %}
+    <div class="error-message">
+    Something went wrong while deleting that player. Please refresh the page and try again.
+    </div>
+{% endif %}
+
 <h1>Players</h1>
 
 {# READ table #}
@@ -47,7 +61,8 @@
                     <input type="hidden" name="delete_playerID" value="{{ player.id }}">
                     <input type="hidden" name="delete_player_name" value="{{ player.first_name }} {{ player.last_name }}">
                     <td>
-                        <button type="submit">
+                        <button type="submit"
+                                onclick="this.disabled=true; this.innerText=`Deleting...`; this.form.submit();">
                             Delete
                         </button>
                     </td>
@@ -159,6 +174,9 @@
         roster.innerHTML = '';
 
         if (!players || players.length == 0) {
+            const tr = document.createElement('tr');
+            tr.textContent = 'No players found in the database.';
+            roster.appendChild(tr);
             return;
         }
 

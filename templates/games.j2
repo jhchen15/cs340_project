@@ -1,6 +1,20 @@
 {% extends "main.j2" %}
 {% block content %}
 
+{# Error messages from URL parameters #}
+{% set msg = request.args.get('msg') %}
+{% set err = request.args.get('error') %}
+{% if msg == 'delete_ok' %}
+    <div class="success-message">
+    Game successfully deleted.
+    </div>
+{% endif %}
+{% if err == 'delete_unknown' %}
+    <div class="error-message">
+    Something went wrong while deleting that game. Please refresh the page and try again.
+    </div>
+{% endif %}
+
 <h1>Scheduled Games</h1>
 
 {# READ table #}
@@ -28,7 +42,8 @@
             <form id="delete_game_form" action="/games/delete" method="POST">
                 <input type="hidden" name="delete_gameID" value="{{ game.id }}">
                 <td>
-                    <button type="submit">
+                    <button type="submit"
+                            onclick="this.disabled=true; this.innerText=`Deleting...`; this.form.submit();">
                         Delete
                     </button>
                 </td>

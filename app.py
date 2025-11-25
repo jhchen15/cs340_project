@@ -1,7 +1,7 @@
 # ########################################
 # ########## SETUP
 
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, url_for
 import database.db_connector as db
 
 # 3097 is gunicorn port
@@ -291,6 +291,7 @@ def players_fetch_roster():
     try:
         dbConnection = db.connectDB()
         teamID = request.args.get("teamID")
+        params = []
         query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
                   "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'eligible', "
@@ -299,8 +300,9 @@ def players_fetch_roster():
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ")
         if teamID:
-            query1 += f"WHERE t.teamID = {teamID};"
-        roster = db.query(dbConnection, query1).fetchall()
+            query1 += f"WHERE t.teamID = %s;"
+            params.append(teamID)
+        roster = db.query(dbConnection, query1, params).fetchall()
         return jsonify(roster)
 
     except Exception as e:
@@ -311,6 +313,7 @@ def players_fetch_roster():
         # Close the DB connection, if it exists
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
+
 
 @app.route("/players/delete", methods=["POST"])
 def delete_player():
@@ -328,11 +331,11 @@ def delete_player():
 
         # If successful, redirect back to page
         print(f"PlayerID: {playerID} Name: {name} deleted")
-        return redirect("/players")
+        return redirect(url_for("players", msg=f"delete_ok"))
 
     except Exception as e:
         print(f"Error executing queries: {e}")
-        return "An error occurred while executing the database queries.", 500
+        return redirect(url_for("players", error="delete_unknown"))
 
     finally:
         # Close the DB connection if it exists
@@ -427,11 +430,11 @@ def delete_game():
 
         # If successful, redirect back to page
         print(f"GameID: {gameID} deleted")
-        return redirect("/games")
+        return redirect(url_for("games", msg="delete_ok"))
 
     except Exception as e:
         print(f"Error executing queries: {e}")
-        return "An error occurred while executing the database queries.", 500
+        return redirect(url_for("games", error="delete_unknown"))
 
     finally:
         # Close the DB connection if it exists
