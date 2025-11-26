@@ -1,10 +1,10 @@
 # ########################################
 # ########## SETUP
 
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, url_for
 import database.db_connector as db
 
-PORT = 3097
+PORT = 3092
 
 app = Flask(__name__)
 
@@ -125,7 +125,8 @@ def delete_athlete():
 
         dbConnection.commit()
         print(f"DELETE athlete. ID: {athlete_id} Name: {athlete_name}")
-        return redirect("/athletes")
+        # Return success message
+        return redirect("/athletes?msg=delete_ok")
 
     except Exception as e:
         dbConnection.rollback()
@@ -193,7 +194,8 @@ def delete_team():
 
         dbConnection.commit()
         print(f"DELETE team. ID: {team_id} Name: {team_name}")
-        return redirect("/teams")
+        # Return success message
+        return redirect("/teams?msg=delete_ok")
 
     except Exception as e:
         dbConnection.rollback()

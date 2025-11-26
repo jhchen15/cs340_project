@@ -408,3 +408,17 @@ footer {
     max-width: 1200px;
     font-weight: 500;
 }
+
+/* ========================================
+   Success messages
+   ======================================== */
+.success-message {
+    background-color: #daf8d7;
+    color: #24721c;
+    border: 1px solid #cbf5c6;
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem auto;
+    max-width: 1200px;
+    font-weight: 500;
+}
