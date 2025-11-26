@@ -28,24 +28,12 @@
 {# READ table #}
 <table>
     <thead>
-        {# For the table header row, we print the DB attribute names #}
+        {# Table attribute names using headers #}
         <tr>
-            {% if athletes %}
-                {% for key in athletes[0].keys() %}
-                <th>{{ key }}</th>
-                {% endfor %}
-                <th></th>
-            {% else %}
-                <th>Id</th>
-                <th>School</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Grade Level</th>
-                <th>Eligible</th>
-                <th>Active</th>
-                <th>Emergency Contact</th>
-                <th></th>
-            {% endif %}
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+            <th></th>
         </tr>
     </thead>
 
@@ -72,7 +60,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="9" style="text-align: center;">No athletes found</td>
+                <td colspan="{{ headers|length + 1 }}" style="text-align: center;">No athletes found</td>
             </tr>
         {% endif %}
     </tbody>

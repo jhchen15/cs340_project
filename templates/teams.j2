@@ -36,23 +36,12 @@
 {# READ table #}
 <table>
     <thead>
-        {# For the table header row, we print the DB attribute names #}
+        {# Table attribute names using headers #}
         <tr>
-            {% if teams %}
-                {% for key in teams[0].keys() %}
-                <th>{{ key }}</th>
-                {% endfor %}
-                <th></th>
-            {% else %}
-                <th>Id</th>
-                <th>School</th>
-                <th>Team Name</th>
-                <th>Sport Type</th>
-                <th>Varsity / JV</th>
-                <th>Season Name</th>
-                <th>Academic Year</th>
-                <th></th>
-            {% endif %}
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+            <th></th>
         </tr>
     </thead>
 
@@ -79,7 +68,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="8" style="text-align: center;">No teams found</td>
+                <td colspan="{{ headers|length + 1 }}" style="text-align: center;">No teams found</td>
             </tr>
         {% endif %}
     </tbody>
