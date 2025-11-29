@@ -241,3 +241,48 @@ BEGIN
     COMMIT;
 END //
 DELIMITER ;
+
+-- UPDATE procedure
+-- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+-- Date Accessed: 11/18/2025
+
+DROP PROCEDURE IF EXISTS sp_UpdateGame;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateGame(
+    IN g_id INT(11),
+    IN g_facility INT(11),
+    IN g_date DATE,
+    IN g_time TIME,
+    IN g_type ENUM ('preseason', 'regular season', 'playoff', 'tournament', 'exhibition'),
+    IN g_status ENUM ('scheduled', 'in progress', 'completed', 'cancelled', 'postponed', 'forfeited')
+)
+BEGIN
+    DECLARE error_message VARCHAR(255);
+
+    -- Exit handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            RESIGNAL;
+        END;
+
+    -- Update transaction
+    START TRANSACTION;
+        UPDATE Games
+        SET
+            facilityID = g_facility,
+            gameDate = g_date,
+            gameTime = g_time,
+            gameType = g_type,
+            status = g_status
+        WHERE gameID = g_id;
+
+        IF ROW_COUNT() = 0 THEN
+            SET error_message = CONCAT('Error updating game ID: ', g_id);
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+    COMMIT;
+END;
+
+DELIMITER ;

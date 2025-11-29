@@ -436,29 +436,6 @@ def games():
             dbConnection.close()
 
 
-@app.route("/games/teams", methods=["GET"])
-def games_fetch_teams():
-    try:
-        dbConnection = db.connectDB()
-        sportType = request.args.get("sportType")
-        homeTeamID = request.args.get("teamID")
-        query = ("SELECT t.teamID, s.name AS 'schoolName', t.varsityJv, t.academicYear "
-                 "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID "
-                 "WHERE t.sportType = %s")
-
-        teams_list = db.query(dbConnection, query, (sportType,)).fetchall()
-        return jsonify(teams_list)
-
-    except Exception as e:
-        print(f"Error executing queries: {e}")
-        return "An error occurred while executing the database queries.", 500
-
-    finally:
-        # Close the DB connection, if it exists
-        if "dbConnection" in locals() and dbConnection:
-            dbConnection.close()
-
-
 @app.route("/games/delete", methods=["POST"])
 def delete_game():
     try:
@@ -506,7 +483,7 @@ def create_game():
         # Call stored procedure to create a player
         query = "CALL sp_CreateGame(%s, %s, %s, %s, %s, %s, %s, @gameID)"
         cursor.execute(query, (homeTeamID, awayTeamID, facilityID,
-                                        gameDate, gameTime, gameType, status))
+                               gameDate, gameTime, gameType, status))
 
         # Retrieve and store new game ID
         cursor.execute("SELECT @gameID AS gameID")
@@ -526,6 +503,63 @@ def create_game():
 
     finally:
         # Close the DB connection
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/games/update", methods=["POST"])
+def update_game():
+    """
+    Updates a game with the provided information
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Retrieve updated game details
+        gameID = request.form["update_game_gameID"]
+        facilityID = request.form["update_game_facilityID"]
+        gameDate = request.form["update_game_gameDate"]
+        gameTime = request.form["update_game_gameTime"]
+        gameType = request.form["update_game_gameType"]
+        status = request.form["update_game_gameStatus"]
+
+        # Call update procedure
+        query = "CALL sp_UpdateGame(%s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (gameID, facilityID, gameDate, gameTime, gameType, status,))
+        dbConnection.commit()
+
+        print(f"Game successfully updated gameID = {gameID}")
+        return redirect(url_for("games", msg=f"update_ok"))
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("games", error="update_unknown"))
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/games/teams", methods=["GET"])
+def games_fetch_teams():
+    try:
+        dbConnection = db.connectDB()
+        sportType = request.args.get("sportType")
+        homeTeamID = request.args.get("teamID")
+        query = ("SELECT t.teamID, s.name AS 'schoolName', t.varsityJv, t.academicYear "
+                 "FROM Teams as t JOIN Schools as s ON t.schoolID = s.schoolID "
+                 "WHERE t.sportType = %s")
+
+        teams_list = db.query(dbConnection, query, (sportType,)).fetchall()
+        return jsonify(teams_list)
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return "An error occurred while executing the database queries.", 500
+
+    finally:
+        # Close the DB connection, if it exists
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 

@@ -14,6 +14,11 @@
     Game added to the schedule!
     </div>
 {% endif %}
+{% if msg == 'update_ok' %}
+    <div class="success-message">
+    Game details updated.
+    </div>
+{% endif %}
 {% if err == 'delete_unknown' %}
     <div class="error-message">
     Something went wrong while deleting that game. Please refresh the page and try again.
@@ -22,6 +27,12 @@
 {% if err == 'create_unknown' %}
     <div class="error-message">
     Something went wrong while creating that game.
+    Please make sure home and away teams are correct, and the facility is not already in use on that game date.
+    </div>
+{% endif %}
+{% if err == 'update_unknown' %}
+    <div class="error-message">
+    Something went wrong while updating that game.
     Please make sure home and away teams are correct, and the facility is not already in use on that game date.
     </div>
 {% endif %}
@@ -66,7 +77,7 @@
 </table>
 
 {# CREATE form #}
-<h2>Create Game</h2>
+<h2>Schedule a Game</h2>
 <form class="cuForm" id="create_game_form" action="/games/create" method="POST">
 
     {# Sport selection #}
@@ -132,12 +143,12 @@
         <option value="forfeited">Forfeited</option>
     </select>
 
-    <input type="submit">
+    <input type="submit" value="Schedule Game">
 </form>
 
 {# UPDATE form #}
-<h2>Update Game</h2>
-<form class="cuForm" id="update_game_form">
+<h2>Update a Game</h2>
+<form class="cuForm" id="update_game_form" action="/games/update" method="POST">
 
     {# Game to update #}
     <label for="update_game_gameID">Game to Update: </label>
@@ -170,11 +181,11 @@
 
     {# Update game date #}
     <label for="update_game_gameDate">Date: </label>
-    <input disabled type="date" name="update_game_gameDate" id="update_game_gameDate">
+    <input type="date" name="update_game_gameDate" id="update_game_gameDate">
 
     {# Update game time #}
     <label for="update_game_gameTime">Time: </label>
-    <input disabled ype="time" name="update_game_gameTime" id="update_game_gameTime">
+    <input type="time" name="update_game_gameTime" id="update_game_gameTime">
 
     {# Update game type #}
     <label for="update_game_gameType">Game Type: </label>
@@ -189,7 +200,7 @@
 
     {# Update game status #}
     <label for="update_game_gameStatus">Status: </label>
-    <select name=update_game_gameStatus" id="update_game_gameStatus" required>
+    <select name="update_game_gameStatus" id="update_game_gameStatus" required>
         <option value="NULL" selected disabled>Status</option>
         <option value="scheduled">Scheduled</option>
         <option value="in progress">In Progress</option>
@@ -199,7 +210,7 @@
         <option value="forfeited">Forfeited</option>
     </select>
 
-    <input type="submit">
+    <input type="submit" value="Update">
 </form>
 
 {% endblock %}
@@ -249,17 +260,47 @@
         if (!gameDetails || gameDetails.length === 0) {
             // Clear form
             updateFacility.value = "NULL";
-            updateDate.value = "NULL";
-            updateTime.value = "NULL";
+            updateDate.value = "";
+            updateTime.value = "";
             updateType.value = "NULL";
             updateStatus.value = "NULL";
+            return;
         }
 
-        if (gameDetails.facilityID !== undefined) {
-            console.log(`Populating facilityID with ID = ${gameDetails.facilityID}`);
-            updateFacility.value = gameDetails.facilityID;
-        }
+        if (gameDetails.facilityID !== undefined && gameDetails.facilityID !== null) {
+            const val = String(gameDetails.facilityID)
+            console.log(`Populating facilityID with ID = ${val}`);
+            updateFacility.value = val;
+            console.log("Facility after set:", updateFacility.value);
+        };
 
+        if (gameDetails.gameDate !== undefined && gameDetails.gameDate !== null) {
+            const val = String(gameDetails.gameDate)
+            console.log(`Populating gameDate with date = ${val}`);
+            updateDate.value = val;
+            console.log("Date after set:", updateDate.value);
+        };
+
+        if (gameDetails.gameTime !== undefined && gameDetails.gameTime !== null) {
+            const val = String(gameDetails.gameTime)
+            console.log(`Populating gameTime with time = ${val}`);
+            updateTime.value = val;
+            console.log("gameTime after set:", updateTime.value);
+        };
+
+        if (gameDetails.gameType !== undefined && gameDetails.gameType !== null) {
+            const val = String(gameDetails.gameType)
+            console.log(`Populating gameType with type = ${val}`);
+            updateType.value = val;
+            console.log("gameType after set:", updateType.value);
+        };
+
+        if (gameDetails.status !== undefined && gameDetails.status !== null) {
+            const val = String(gameDetails.status)
+            console.log(`Populating status = ${val}`);
+            updateStatus.value = val;
+            console.log("status after set:", updateStatus.value);
+        };
 
     }
 
@@ -292,17 +333,6 @@
         console.log('Adding game selection event listener')
         const gameID = updateGameSel.value;
         const url = `/games/details?gameID=${encodeURIComponent(gameID)}`;
-
-        updateFacility.disabled = true;
-        updateFacility.innerHTML = '<option>Loading...</option>';
-        updateDate.disabled = true;
-        updateDate.innerHTML = '<option>Loading...</option>';
-        updateTime.disabled = true;
-        updateTime.innerHTML = '<option>Loading...</option>';
-        updateType.disabled = true;
-        updateType.innerHTML = '<option>Loading...</option>';
-        updateStatus.disabled = true;
-        updateStatus.innerHTML = '<option>Loading...</option>';
 
         console.log('Retrieving update game details')
         try {
