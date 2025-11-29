@@ -480,6 +480,52 @@ def delete_game():
             dbConnection.close()
 
 
+@app.route("/games/create", methods=["POST"])
+def create_game():
+    """
+    Creates a new game
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        homeTeamID = request.form["homeTeamID"]
+        awayTeamID = request.form["awayTeamID"]
+        facilityID = request.form["facilityID"]
+        gameDate = request.form["gameDate"]
+        gameTime = request.form["gameTime"]
+        gameType = request.form["gameType"]
+        status = request.form["status"]
+
+        # Create variable to store new Game ID
+        cursor.execute("SET @new_game_ID = 0")
+
+        # Call stored procedure to create a player
+        query = "CALL sp_CreateGame(%s, %s, %s, %s, %s, %s, %s, @new_game_ID)"
+        cursor.execute(query, (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status,))
+
+        cursor.nextset()
+        cursor.execute("SELECT @new_game_ID")
+        result = cursor.fetchone()
+        gameID = result[0] if result else 0
+
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"Game successfully created gameID = {gameID}")
+        return redirect(url_for("games", msg=f"create_ok"))
+
+    except Exception as e:
+        # Pass game creation error message
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("games", error="create_unknown"))
+
+    finally:
+        # CLose the DB connection
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
 # RESET DB ROUTE
 @app.route("/reset-database", methods=["POST"])
 def reset_database():

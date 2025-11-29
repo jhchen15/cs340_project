@@ -137,7 +137,6 @@ CREATE PROCEDURE sp_CreatePlayer(
 )
 BEGIN
    DECLARE error_message VARCHAR(255);
-   DECLARE playerID INT(11);
 
     -- Exit handler
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -160,11 +159,55 @@ BEGIN
         SET playerID = LAST_INSERT_ID();
     COMMIT;
 END //
-# DELIMITER ;
+DELIMITER ;
 
 /****************
   Games Table
 *****************/
+
+-- CREATE procedure
+-- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+-- Date Accessed: 11/18/2025
+DROP PROCEDURE IF EXISTS sp_CreateGame;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateGame(
+    IN homeTeamID INT(11),
+    IN awayTeamID INT(11),
+    IN facilityID INT(11),
+    IN gameDate DATE,
+    IN gameTime TIME,
+    IN gameType ENUM ('preseason', 'regular season', 'playoff', 'tournament', 'exhibition'),
+    IN status ENUM ('scheduled', 'in progress', 'completed', 'cancelled', 'postponed', 'forfeited'),
+    OUT gameID INT(11)
+)
+BEGIN
+    DECLARE error_message VARCHAR(255);
+    DECLARE gameID INT(11);
+
+    -- Exit handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    -- Create game
+    START TRANSACTION;
+        INSERT INTO Games(homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status)
+        VALUES (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status);
+
+        -- Raise error if create fails
+        IF ROW_COUNT() = 0 THEN
+            SET error_message = 'Game was not created';
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+        SET gameID = LAST_INSERT_ID();
+    COMMIT;
+END //
+
+DELIMITER ;
 
 -- DELETE procedure
 -- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App

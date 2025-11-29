@@ -9,9 +9,20 @@
     Game successfully deleted.
     </div>
 {% endif %}
+{% if msg == 'create_ok' %}
+    <div class="success-message">
+    Game added to the schedule!
+    </div>
+{% endif %}
 {% if err == 'delete_unknown' %}
     <div class="error-message">
     Something went wrong while deleting that game. Please refresh the page and try again.
+    </div>
+{% endif %}
+{% if err == 'create_unknown' %}
+    <div class="error-message">
+    Something went wrong while creating that game.
+    Please make sure home and away teams are correct, and the facility is not already in use on that game date.
     </div>
 {% endif %}
 
@@ -56,7 +67,7 @@
 
 {# CREATE form #}
 <h2>Create Game</h2>
-<form class="cuForm" id="create_game_form">
+<form class="cuForm" id="create_game_form" action="/games/create" method="POST">
 
     {# Sport selection #}
     <label for="create_game_sport">Sport: </label>
@@ -71,19 +82,19 @@
 
     {# Home team #}
     <label for="create_game_homeTeam">Home Team: </label>
-    <select name="create_game_homeTeam" id="create_game_homeTeam" required>
+    <select name="homeTeamID" id="create_game_homeTeam" required>
         <option value="NULL" selected disabled>Select a Team</option>
     </select>
 
     {# Away team #}
     <label for="create_game_awayTeam">Away Team: </label>
-    <select name="create_game_awayTeam" id="create_game_awayTeam" required>
+    <select name="awayTeamID" id="create_game_awayTeam" required>
         <option value="NULL" selected disabled>Select a Team</option>
     </select>
 
     {# Facility #}
     <label for="create_game_facility">Facility: </label>
-    <select name="create_game_facility" id="create_game_facility" required>
+    <select name="facilityID" id="create_game_facility" required>
         <option value="NULL" selected disabled>Select a Facility</option>
         {% for facility in facilities %}
         <option value="{{facility['facilityID']}}" required>{{facility['facilityName']}}</option>
@@ -92,15 +103,15 @@
 
     {# Date #}
     <label for="create_game_gameDate">Date: </label>
-    <input type="date" name="create_game_gameDate" id="create_game_gameDate">
+    <input type="date" name="gameDate" id="create_game_gameDate">
 
     {# Time #}
     <label for="create_game_gameTime">Time: </label>
-    <input type="time" name="create_game_gameTime" id="create_game_gameTime">
+    <input type="time" name="gameTime" id="create_game_gameTime">
 
     {# Game type #}
     <label for="create_game_gameType">Game Type: </label>
-    <select name="create_game_gameType" id="create_game_gameType" required>
+    <select name="gameType" id="create_game_gameType" required>
         <option value="NULL" selected disabled>Type</option>
         <option value="preseason">Preseason</option>
         <option value="regular season">Regular Season</option>
@@ -111,7 +122,7 @@
 
     {# Game status #}
     <label for="create_game_gameStatus">Status: </label>
-    <select name="create_game_gameStatus" id="create_game_gameStatus" required>
+    <select name="status" id="create_game_gameStatus" required>
         <option value="NULL" selected disabled>Status</option>
         <option value="scheduled">Scheduled</option>
         <option value="in progress">In Progress</option>

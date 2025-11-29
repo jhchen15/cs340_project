@@ -19,7 +19,7 @@
     Something went wrong while creating a player. Please refresh the page and try again.
     </div>
 {% endif %}
-{% if err == 'create_ok' %}
+{% if msg == 'create_ok' %}
     <div class="success-message">
     Player successfully added!
     </div>
@@ -103,7 +103,6 @@
     <select name="teamID" id="create_player_team_select" required>
         <option value="NULL" disabled selected>Select a Team</option>
     </select>
-
     <input type="submit">
 </form>
 
@@ -172,7 +171,6 @@
         teamSel.insertAdjacentHTML('beforeend', '<option value="">Select Team</option>');
         teams.forEach(t => {
             const opt = document.createElement('option');
-            opt.name = "teamID";
             opt.value = t.teamID;
             opt.textContent = `${t.teamID} - ${t.teamName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
             teamSel.appendChild(opt);
