@@ -497,18 +497,9 @@ def create_game():
         gameType = request.form["gameType"]
         status = request.form["status"]
 
-        # Create variable to store new Game ID
-        cursor.execute("SET @new_game_ID = 0")
-
         # Call stored procedure to create a player
-        query = "CALL sp_CreateGame(%s, %s, %s, %s, %s, %s, %s, @new_game_ID)"
-        cursor.execute(query, (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status,))
-
-        cursor.nextset()
-        cursor.execute("SELECT @new_game_ID")
-        result = cursor.fetchone()
-        gameID = result[0] if result else 0
-
+        query = "CALL sp_CreateGame(%s, %s, %s, %s, %s, %s, %s, @gameID)"
+        gameID = cursor.execute(query, (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status,))
         dbConnection.commit()
 
         # If successful, redirect back to page
