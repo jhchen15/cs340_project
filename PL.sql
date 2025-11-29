@@ -123,6 +123,44 @@ BEGIN
 END //
 DELIMITER ;
 
+-- CREATE procedure
+-- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+-- Date Accessed: 11/18/2025
+
+DROP PROCEDURE IF EXISTS sp_CreatePlayer;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreatePlayer(
+    IN athleteID INT(11),
+    IN teamID INT(11),
+    OUT playerID INT(11)
+)
+BEGIN
+   DECLARE error_message VARCHAR(255);
+   DECLARE playerID INT(11);
+
+    -- Exit handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    -- Create player
+    START TRANSACTION;
+        INSERT INTO Players(athleteID, teamID)
+        VALUES(athleteID, teamID);
+
+        -- Raise error if create fails
+        IF ROW_COUNT() = 0 THEN
+            SET error_message = CONCAT('Player was not created for athleteID: ', athleteID, ' teamID: ', teamID);
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+        SET playerID = LAST_INSERT_ID();
+    COMMIT;
+END //
+# DELIMITER ;
 
 /****************
   Games Table

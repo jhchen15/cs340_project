@@ -222,6 +222,9 @@ def delete_team():
 
 @app.route("/players", methods=["GET"])
 def players():
+    """
+    Renders Players page, sends list of players, athletes, and teams
+    """
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
@@ -265,6 +268,9 @@ def players():
 
 @app.route("/players/teams", methods=["GET"])
 def players_fetch_teams():
+    """
+    Returns list of teams at a single school based on the athleteID provided
+    """
     try:
         dbConnection = db.connectDB()
         athleteID = request.args.get("athleteID")
@@ -288,6 +294,9 @@ def players_fetch_teams():
 
 @app.route("/players/roster", methods=["GET"])
 def players_fetch_roster():
+    """
+    Returns roster information for a single team based on the teamID provided
+    """
     try:
         dbConnection = db.connectDB()
         teamID = request.args.get("teamID")
@@ -339,6 +348,35 @@ def delete_player():
 
     finally:
         # Close the DB connection if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/players/create", methods=["POST"])
+def create_player():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        athleteID = request.form["athleteID"]
+        teamID = request.form["teamID"]
+
+        # Call stored procedure to create a player
+        query = "CALL sp_CreatePlayer(%s, %s)"
+        playerID = cursor.execute(query, (athleteID, teamID))
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"AthleteID {athleteID} added to TeamID = {teamID}, playerID = {playerID}")
+        return redirect(url_for("players", msg=f"create_ok"))
+
+    except Exception as e:
+        # Pass player creation error message
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("players", error="create_unknown"))
+
+    finally:
+        # CLose the DB connection
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 

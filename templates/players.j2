@@ -14,6 +14,16 @@
     Something went wrong while deleting that player. Please refresh the page and try again.
     </div>
 {% endif %}
+{% if err == 'create_unknown' %}
+    <div class="error-message">
+    Something went wrong while creating a player. Please refresh the page and try again.
+    </div>
+{% endif %}
+{% if err == 'create_ok' %}
+    <div class="success-message">
+    Player successfully added!
+    </div>
+{% endif %}
 
 <h1>Players</h1>
 
@@ -75,7 +85,7 @@
 
 {# CREATE PLAYER form #}
 <h2>Add Player to Roster</h2>
-<form class="cuForm" id="create_player_form">
+<form class="cuForm" id="create_player_form" action="/players/create" method="POST">
 
     {# Athlete Select #}
     <label for="create_player_athlete_select">Athlete: </label>
@@ -90,7 +100,7 @@
 
     {# Team Select #}
     <label for="create_player_team_select">Team: </label>
-    <select name="create_player_team_select" id="create_player_team_select" required>
+    <select name="teamID" id="create_player_team_select" required>
         <option value="NULL" disabled selected>Select a Team</option>
     </select>
 
@@ -162,6 +172,7 @@
         teamSel.insertAdjacentHTML('beforeend', '<option value="">Select Team</option>');
         teams.forEach(t => {
             const opt = document.createElement('option');
+            opt.name = "teamID";
             opt.value = t.teamID;
             opt.textContent = `${t.teamID} - ${t.teamName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
             teamSel.appendChild(opt);
