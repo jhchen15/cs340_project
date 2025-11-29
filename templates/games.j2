@@ -158,9 +158,9 @@
     </select>
 
     {# Update game facility #}
-    <label for="update_game_facility">Facility: </label>
+    <label for="update_game_facilityID">Facility: </label>
     <select name="update_game_facilityID" id="update_game_facilityID" required>
-        <option value="NULL" selected>Select a Facility</option>
+        <option value="NULL" disabled selected>Select a Facility</option>
         {% for facility in facilities %}
         <option value="{{facility['facilityID']}}" required>
             {{facility['facilityName']}}
@@ -170,11 +170,11 @@
 
     {# Update game date #}
     <label for="update_game_gameDate">Date: </label>
-    <input type="date" name="update_game_gameDate" id="update_game_gameDate">
+    <input disabled type="date" name="update_game_gameDate" id="update_game_gameDate">
 
     {# Update game time #}
     <label for="update_game_gameTime">Time: </label>
-    <input type="time" name="update_game_gameTime" id="update_game_gameTime">
+    <input disabled ype="time" name="update_game_gameTime" id="update_game_gameTime">
 
     {# Update game type #}
     <label for="update_game_gameType">Game Type: </label>
@@ -189,14 +189,15 @@
 
     {# Update game status #}
     <label for="update_game_gameStatus">Status: </label>
-    <select name="udpate_game_gameStatus" id="update_game_gameStatus" required>
+    <select name=update_game_gameStatus" id="update_game_gameStatus" required>
         <option value="NULL" selected disabled>Status</option>
         <option value="scheduled">Scheduled</option>
         <option value="in progress">In Progress</option>
         <option value="completed">Completed</option>
         <option value="cancelled">Cancelled</option>
         <option value="postponed">Postponed</option>
-        <option value="forfeited">Forfeited</option>    </select>
+        <option value="forfeited">Forfeited</option>
+    </select>
 
     <input type="submit">
 </form>
@@ -217,9 +218,15 @@
     const sportSel = document.getElementById('create_game_sport')
     const homeTeamSel = document.getElementById('create_game_homeTeam')
     const awayTeamSel = document.getElementById('create_game_awayTeam')
+    const updateGameSel = document.getElementById('update_game_gameID')
+    const updateFacility = document.getElementById('update_game_facilityID')
+    const updateDate = document.getElementById('update_game_gameDate')
+    const updateTime = document.getElementById('update_game_gameTime')
+    const updateType = document.getElementById('update_game_gameType')
+    const updateStatus = document.getElementById('update_game_gameStatus')
 
     {# Render teams in the dropdown selections #}
-    function renderTeams(teams, teamElement) {
+    function loadTeams(teams, teamElement) {
         teamElement.innerHTML = "";
         if (!teams || teams.length === 0) {
             teamElement.innerHTML = `<option value="">No teams available</option>`
@@ -236,11 +243,31 @@
         teamElement.disabled = false;
     }
 
+    {# Renders game details for update form #}
+    async function loadGameDetails(gameDetails) {
+        console.log('Loading game details')
+        if (!gameDetails || gameDetails.length === 0) {
+            // Clear form
+            updateFacility.value = "NULL";
+            updateDate.value = "NULL";
+            updateTime.value = "NULL";
+            updateType.value = "NULL";
+            updateStatus.value = "NULL";
+        }
+
+        if (gameDetails.facilityID !== undefined) {
+            console.log(`Populating facilityID with ID = ${gameDetails.facilityID}`);
+            updateFacility.value = gameDetails.facilityID;
+        }
+
+
+    }
+
     {# Event fires to render teams after sport selection #}
     sportSel.addEventListener('change', async() => {
         console.log('Adding sport selection event listener')
         const sportType = sportSel.value;
-        const url = `/games/teams?sportType=${encodeURIComponent(sportType)}`
+        const url = `/games/teams?sportType=${encodeURIComponent(sportType)}`;
 
         homeTeamSel.disabled = true;
         homeTeamSel.innerHTML = `<option>Loading...</option>`;
@@ -251,14 +278,47 @@
             const res = await fetch(url, {headers: {'Accept': 'application/json'}});
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const teams = await res.json();
-            renderTeams(teams, homeTeamSel);
-            renderTeams(teams, awayTeamSel)
+            loadTeams(teams, homeTeamSel);
+            loadTeams(teams, awayTeamSel)
         } catch (err) {
             console.error(err)
             homeTeamSel.innerHTML = (`<option value="">Error loading teams</option>`);
-            homeTeamSel.disabled = true;
             awayTeamSel.innerHTML = (`<option value="">Error loading teams</option>`);
-            awayTeamSel.disabled = true;
+        }
+    })
+
+    {# Event fires to render game details after update game selection #}
+    updateGameSel.addEventListener('change', async() => {
+        console.log('Adding game selection event listener')
+        const gameID = updateGameSel.value;
+        const url = `/games/details?gameID=${encodeURIComponent(gameID)}`;
+
+        updateFacility.disabled = true;
+        updateFacility.innerHTML = '<option>Loading...</option>';
+        updateDate.disabled = true;
+        updateDate.innerHTML = '<option>Loading...</option>';
+        updateTime.disabled = true;
+        updateTime.innerHTML = '<option>Loading...</option>';
+        updateType.disabled = true;
+        updateType.innerHTML = '<option>Loading...</option>';
+        updateStatus.disabled = true;
+        updateStatus.innerHTML = '<option>Loading...</option>';
+
+        console.log('Retrieving update game details')
+        try {
+            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            const gameDetails = await res.json();
+            await loadGameDetails(gameDetails);
+        } catch (err) {
+            console.error(err);
+            updateFacility.innerHTML = '<option>Error loading details</option>';
+            updateDate.innerHTML = '<option>Error loading details</option>';
+            updateTime.innerHTML = '<option>Error loading details</option>';
+            updateType.innerHTML = '<option>Error loading details</option>';
+            updateStatus.innerHTML = '<option>Error loading details</option>';
         }
     })
 

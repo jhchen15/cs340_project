@@ -183,7 +183,6 @@ CREATE PROCEDURE sp_CreateGame(
 )
 BEGIN
     DECLARE error_message VARCHAR(255);
-    DECLARE gameID INT(11);
 
     -- Exit handler
     DECLARE EXIT HANDLER FOR SQLEXCEPTION

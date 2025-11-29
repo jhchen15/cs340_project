@@ -362,12 +362,18 @@ def create_player():
         teamID = request.form["teamID"]
 
         # Call stored procedure to create a player
-        query = "CALL sp_CreatePlayer(%s, %s)"
+        query = "CALL sp_CreatePlayer(%s, %s, @newPlayerID)"
         playerID = cursor.execute(query, (athleteID, teamID))
+
+        # Retrieve new player ID from out variable
+        cursor.execute("SELECT @newPlayerID AS playerID")
+        row = cursor.fetchone()
+        playerID = row[0] if row else None
+
         dbConnection.commit()
 
         # If successful, redirect back to page
-        print(f"AthleteID {athleteID} added to TeamID = {teamID}, playerID = {playerID}")
+        print(f"AthleteID: {athleteID} added to TeamID: {teamID}, new playerID: {playerID}")
         return redirect(url_for("players", msg=f"create_ok"))
 
     except Exception as e:
@@ -499,7 +505,14 @@ def create_game():
 
         # Call stored procedure to create a player
         query = "CALL sp_CreateGame(%s, %s, %s, %s, %s, %s, %s, @gameID)"
-        gameID = cursor.execute(query, (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status,))
+        cursor.execute(query, (homeTeamID, awayTeamID, facilityID,
+                                        gameDate, gameTime, gameType, status))
+
+        # Retrieve and store new game ID
+        cursor.execute("SELECT @gameID AS gameID")
+        row = cursor.fetchone()
+        gameID = row[0] if row else None
+
         dbConnection.commit()
 
         # If successful, redirect back to page
@@ -512,7 +525,49 @@ def create_game():
         return redirect(url_for("games", error="create_unknown"))
 
     finally:
-        # CLose the DB connection
+        # Close the DB connection
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route('/games/details', methods=["GET"])
+def game_details():
+    """
+    Returns details of the requested gameID
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        gameID = request.args.get("gameID")
+        query = ("SELECT gameID, homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status "
+                 "FROM Games WHERE gameID = %s")
+        cursor.execute(query, (gameID,))
+        result = cursor.fetchone()
+
+        if not result:
+            return redirect(url_for("games", error="details_unknown"))
+
+        game = {
+            "gameID":       result[0],
+            "homeTeamID":   result[1],
+            "awayTeamID":   result[2],
+            "facilityID":   result[3],
+            "gameDate":     str(result[4]),
+            "gameTime":     str(result[5]),
+            "gameType":     result[6],
+            "status":       result[7]
+        }
+
+        return jsonify(game)
+
+    except Exception as e:
+        # Pass detail retrieval error message
+        print(f"Error retrieving game details: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        # Close the DB connection
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
