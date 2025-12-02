@@ -229,6 +229,9 @@ def delete_team():
 
 @app.route("/players", methods=["GET"])
 def players():
+    """
+    Renders Players page, sends list of players, athletes, and teams
+    """
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
@@ -272,6 +275,9 @@ def players():
 
 @app.route("/players/teams", methods=["GET"])
 def players_fetch_teams():
+    """
+    Returns list of teams at a single school based on the athleteID provided
+    """
     try:
         dbConnection = db.connectDB()
         athleteID = request.args.get("athleteID")
@@ -295,9 +301,13 @@ def players_fetch_teams():
 
 @app.route("/players/roster", methods=["GET"])
 def players_fetch_roster():
+    """
+    Returns roster information for a single team based on the teamID provided
+    """
     try:
         dbConnection = db.connectDB()
         teamID = request.args.get("teamID")
+        params = []
         query1 = ("SELECT p.playerID AS 'id', a.firstName AS 'first_name', a.lastName AS 'last_name', "
                   "s.name AS 'school', t.sportType AS 'sport', t.varsityJv AS 'varsity_/_JV', "
                   "t.academicYear AS 'academic_year', IF(a.isEligible, '✓', '✗') AS 'eligible', "
@@ -306,8 +316,9 @@ def players_fetch_roster():
                   "JOIN Teams AS t ON p.teamID = t.teamID "
                   "JOIN Schools AS s ON s.schoolID = a.schoolID ")
         if teamID:
-            query1 += f"WHERE t.teamID = {teamID};"
-        roster = db.query(dbConnection, query1).fetchall()
+            query1 += f"WHERE t.teamID = %s;"
+            params.append(teamID)
+        roster = db.query(dbConnection, query1, params).fetchall()
         return jsonify(roster)
 
     except Exception as e:
@@ -318,6 +329,7 @@ def players_fetch_roster():
         # Close the DB connection, if it exists
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
+
 
 @app.route("/players/delete", methods=["POST"])
 def delete_player():
@@ -335,14 +347,49 @@ def delete_player():
 
         # If successful, redirect back to page
         print(f"PlayerID: {playerID} Name: {name} deleted")
-        return redirect("/players")
+        return redirect(url_for("players", msg=f"delete_ok"))
 
     except Exception as e:
         print(f"Error executing queries: {e}")
-        return "An error occurred while executing the database queries.", 500
+        return redirect(url_for("players", error="delete_unknown"))
 
     finally:
         # Close the DB connection if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/players/create", methods=["POST"])
+def create_player():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        athleteID = request.form["athleteID"]
+        teamID = request.form["teamID"]
+
+        # Call stored procedure to create a player
+        query = "CALL sp_CreatePlayer(%s, %s, @newPlayerID)"
+        playerID = cursor.execute(query, (athleteID, teamID))
+
+        # Retrieve new player ID from out variable
+        cursor.execute("SELECT @newPlayerID AS playerID")
+        row = cursor.fetchone()
+        playerID = row[0] if row else None
+
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"AthleteID: {athleteID} added to TeamID: {teamID}, new playerID: {playerID}")
+        return redirect(url_for("players", msg=f"create_ok"))
+
+    except Exception as e:
+        # Pass player creation error message
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("players", error="create_unknown"))
+
+    finally:
+        # CLose the DB connection
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
@@ -353,8 +400,8 @@ def games():
         dbConnection = db.connectDB()  # Open database connection
 
         # Retrieve scheduled games list with associated details
-        query1 = ("SELECT g.gameID AS id, "
-                  "ht.teamName AS home_team, at.teamName AS away_team, ht.sportType AS sport_type, "
+        query1 = ("SELECT g.gameID AS id, ht.sportType as sport_type, "
+                  "ht.teamName AS home_team, at.teamName AS away_team, "
                   "s.name AS facility_location, f.facilityName AS facility_name, "
                   "g.gameDate AS game_date, g.gameTime as game_time, g.gameType as game_type, g.status "
                   "FROM Games AS g JOIN Teams AS ht ON g.homeTeamID = ht.teamID "
@@ -377,7 +424,7 @@ def games():
         query4 = "SELECT DISTINCT sportType FROM Teams"
         sportTypes = db.query(dbConnection, query4).fetchall()
 
-        headers = ('Id', 'Home Team', 'Away Team', 'Sport Type', 'Facility Location', 'Facility Name',
+        headers = ('Id', 'Sport', 'Home Team', 'Away Team', 'Facility Location', 'Facility Name',
                    'Game Date', 'Game Time', 'Game Type', 'Status')
 
         # Render games.j2 file, and send game query results
@@ -392,6 +439,111 @@ def games():
 
     finally:
         # Close the DB connection, if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/games/delete", methods=["POST"])
+def delete_game():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        gameID = request.form["delete_gameID"]
+
+        # Construct query and call stored procedure
+        query = "CALL sp_DeleteGame(%s)"
+        cursor.execute(query, (gameID,))
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"GameID: {gameID} deleted")
+        return redirect(url_for("games", msg="delete_ok"))
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("games", error="delete_unknown"))
+
+    finally:
+        # Close the DB connection if it exists
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/games/create", methods=["POST"])
+def create_game():
+    """
+    Creates a new game
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        homeTeamID = request.form["homeTeamID"]
+        awayTeamID = request.form["awayTeamID"]
+        facilityID = request.form["facilityID"]
+        gameDate = request.form["gameDate"]
+        gameTime = request.form["gameTime"]
+        gameType = request.form["gameType"]
+        status = request.form["status"]
+
+        # Call stored procedure to create a player
+        query = "CALL sp_CreateGame(%s, %s, %s, %s, %s, %s, %s, @gameID)"
+        cursor.execute(query, (homeTeamID, awayTeamID, facilityID,
+                               gameDate, gameTime, gameType, status))
+
+        # Retrieve and store new game ID
+        cursor.execute("SELECT @gameID AS gameID")
+        row = cursor.fetchone()
+        gameID = row[0] if row else None
+
+        dbConnection.commit()
+
+        # If successful, redirect back to page
+        print(f"Game successfully created gameID = {gameID}")
+        return redirect(url_for("games", msg=f"create_ok"))
+
+    except Exception as e:
+        # Pass game creation error message
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("games", error="create_unknown"))
+
+    finally:
+        # Close the DB connection
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/games/update", methods=["POST"])
+def update_game():
+    """
+    Updates a game with the provided information
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Retrieve updated game details
+        gameID = request.form["update_gameID"]
+        facilityID = request.form["update_facilityID"]
+        gameDate = request.form["update_gameDate"]
+        gameTime = request.form["update_gameTime"]
+        gameType = request.form["update_gameType"]
+        status = request.form["update_gameStatus"]
+
+        # Call update procedure
+        query = "CALL sp_UpdateGame(%s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (gameID, facilityID, gameDate, gameTime, gameType, status,))
+        dbConnection.commit()
+
+        print(f"Game successfully updated gameID = {gameID}")
+        return redirect(url_for("games", msg=f"update_ok"))
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("games", error="update_unknown"))
+
+    finally:
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 
@@ -419,29 +571,44 @@ def games_fetch_teams():
             dbConnection.close()
 
 
-@app.route("/games/delete", methods=["POST"])
-def delete_game():
+@app.route('/games/details', methods=["GET"])
+def game_details():
+    """
+    Returns details of the requested gameID
+    """
     try:
         dbConnection = db.connectDB()
         cursor = dbConnection.cursor()
 
-        gameID = request.form["delete_gameID"]
-
-        # Construct query and call stored procedure
-        query = "CALL sp_DeleteGame(%s)"
+        gameID = request.args.get("gameID")
+        query = ("SELECT gameID, homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status "
+                 "FROM Games WHERE gameID = %s")
         cursor.execute(query, (gameID,))
-        dbConnection.commit()
+        result = cursor.fetchone()
 
-        # If successful, redirect back to page
-        print(f"GameID: {gameID} deleted")
-        return redirect("/games")
+        if not result:
+            return redirect(url_for("games", error="details_unknown"))
+
+        game = {
+            "gameID":       result[0],
+            "homeTeamID":   result[1],
+            "awayTeamID":   result[2],
+            "facilityID":   result[3],
+            "gameDate":     str(result[4]),
+            "gameTime":     str(result[5]),
+            "gameType":     result[6],
+            "status":       result[7]
+        }
+
+        return jsonify(game)
 
     except Exception as e:
-        print(f"Error executing queries: {e}")
-        return "An error occurred while executing the database queries.", 500
+        # Pass detail retrieval error message
+        print(f"Error retrieving game details: {e}")
+        return jsonify({"error": str(e)}), 500
 
     finally:
-        # Close the DB connection if it exists
+        # Close the DB connection
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 

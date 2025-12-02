@@ -123,10 +123,90 @@ BEGIN
 END //
 DELIMITER ;
 
+-- CREATE procedure
+-- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+-- Date Accessed: 11/18/2025
+
+DROP PROCEDURE IF EXISTS sp_CreatePlayer;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreatePlayer(
+    IN athleteID INT(11),
+    IN teamID INT(11),
+    OUT playerID INT(11)
+)
+BEGIN
+   DECLARE error_message VARCHAR(255);
+
+    -- Exit handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    -- Create player
+    START TRANSACTION;
+        INSERT INTO Players(athleteID, teamID)
+        VALUES(athleteID, teamID);
+
+        -- Raise error if create fails
+        IF ROW_COUNT() = 0 THEN
+            SET error_message = CONCAT('Player was not created for athleteID: ', athleteID, ' teamID: ', teamID);
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+        SET playerID = LAST_INSERT_ID();
+    COMMIT;
+END //
+DELIMITER ;
 
 /****************
   Games Table
 *****************/
+
+-- CREATE procedure
+-- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+-- Date Accessed: 11/18/2025
+DROP PROCEDURE IF EXISTS sp_CreateGame;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateGame(
+    IN homeTeamID INT(11),
+    IN awayTeamID INT(11),
+    IN facilityID INT(11),
+    IN gameDate DATE,
+    IN gameTime TIME,
+    IN gameType ENUM ('preseason', 'regular season', 'playoff', 'tournament', 'exhibition'),
+    IN status ENUM ('scheduled', 'in progress', 'completed', 'cancelled', 'postponed', 'forfeited'),
+    OUT gameID INT(11)
+)
+BEGIN
+    DECLARE error_message VARCHAR(255);
+
+    -- Exit handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    -- Create game
+    START TRANSACTION;
+        INSERT INTO Games(homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status)
+        VALUES (homeTeamID, awayTeamID, facilityID, gameDate, gameTime, gameType, status);
+
+        -- Raise error if create fails
+        IF ROW_COUNT() = 0 THEN
+            SET error_message = 'Game was not created';
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+        SET gameID = LAST_INSERT_ID();
+    COMMIT;
+END //
+
+DELIMITER ;
 
 -- DELETE procedure
 -- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
@@ -160,4 +240,49 @@ BEGIN
 
     COMMIT;
 END //
+DELIMITER ;
+
+-- UPDATE procedure
+-- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+-- Date Accessed: 11/18/2025
+
+DROP PROCEDURE IF EXISTS sp_UpdateGame;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateGame(
+    IN g_id INT(11),
+    IN g_facility INT(11),
+    IN g_date DATE,
+    IN g_time TIME,
+    IN g_type ENUM ('preseason', 'regular season', 'playoff', 'tournament', 'exhibition'),
+    IN g_status ENUM ('scheduled', 'in progress', 'completed', 'cancelled', 'postponed', 'forfeited')
+)
+BEGIN
+    DECLARE error_message VARCHAR(255);
+
+    -- Exit handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            RESIGNAL;
+        END;
+
+    -- Update transaction
+    START TRANSACTION;
+        UPDATE Games
+        SET
+            facilityID = g_facility,
+            gameDate = g_date,
+            gameTime = g_time,
+            gameType = g_type,
+            status = g_status
+        WHERE gameID = g_id;
+
+        IF ROW_COUNT() = 0 THEN
+            SET error_message = CONCAT('Error updating game ID: ', g_id);
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+    COMMIT;
+END;
+
 DELIMITER ;

@@ -1,6 +1,42 @@
 {% extends "main.j2" %}
 {% block content %}
 
+{# Error messages from URL parameters #}
+{% set msg = request.args.get('msg') %}
+{% set err = request.args.get('error') %}
+{% if msg == 'delete_ok' %}
+    <div class="success-message">
+    Game successfully deleted.
+    </div>
+{% endif %}
+{% if msg == 'create_ok' %}
+    <div class="success-message">
+    Game added to the schedule!
+    </div>
+{% endif %}
+{% if msg == 'update_ok' %}
+    <div class="success-message">
+    Game details updated.
+    </div>
+{% endif %}
+{% if err == 'delete_unknown' %}
+    <div class="error-message">
+    Something went wrong while deleting that game. Please refresh the page and try again.
+    </div>
+{% endif %}
+{% if err == 'create_unknown' %}
+    <div class="error-message">
+    Something went wrong while creating that game.
+    Please make sure home and away teams are correct, and the facility is not already in use on that game date.
+    </div>
+{% endif %}
+{% if err == 'update_unknown' %}
+    <div class="error-message">
+    Something went wrong while updating that game.
+    Please make sure home and away teams are correct, and the facility is not already in use on that game date.
+    </div>
+{% endif %}
+
 <h1>Scheduled Games</h1>
 
 {# READ table #}
@@ -28,7 +64,8 @@
             <form id="delete_game_form" action="/games/delete" method="POST">
                 <input type="hidden" name="delete_gameID" value="{{ game.id }}">
                 <td>
-                    <button type="submit">
+                    <button type="submit"
+                            onclick="this.disabled=true; this.innerText=`Deleting...`; this.form.submit();">
                         Delete
                     </button>
                 </td>
@@ -40,8 +77,8 @@
 </table>
 
 {# CREATE form #}
-<h2>Create Game</h2>
-<form class="cuForm" id="create_game_form">
+<h2>Schedule a Game</h2>
+<form class="cuForm" id="create_game_form" action="/games/create" method="POST">
 
     {# Sport selection #}
     <label for="create_game_sport">Sport: </label>
@@ -56,19 +93,19 @@
 
     {# Home team #}
     <label for="create_game_homeTeam">Home Team: </label>
-    <select name="create_game_homeTeam" id="create_game_homeTeam" required>
+    <select name="homeTeamID" id="create_game_homeTeam" required>
         <option value="NULL" selected disabled>Select a Team</option>
     </select>
 
     {# Away team #}
     <label for="create_game_awayTeam">Away Team: </label>
-    <select name="create_game_awayTeam" id="create_game_awayTeam" required>
+    <select name="awayTeamID" id="create_game_awayTeam" required>
         <option value="NULL" selected disabled>Select a Team</option>
     </select>
 
     {# Facility #}
     <label for="create_game_facility">Facility: </label>
-    <select name="create_game_facility" id="create_game_facility" required>
+    <select name="facilityID" id="create_game_facility" required>
         <option value="NULL" selected disabled>Select a Facility</option>
         {% for facility in facilities %}
         <option value="{{facility['facilityID']}}" required>{{facility['facilityName']}}</option>
@@ -77,15 +114,15 @@
 
     {# Date #}
     <label for="create_game_gameDate">Date: </label>
-    <input type="date" name="create_game_gameDate" id="create_game_gameDate">
+    <input type="date" name="gameDate" id="create_game_gameDate">
 
     {# Time #}
     <label for="create_game_gameTime">Time: </label>
-    <input type="time" name="create_game_gameTime" id="create_game_gameTime">
+    <input type="time" name="gameTime" id="create_game_gameTime">
 
     {# Game type #}
     <label for="create_game_gameType">Game Type: </label>
-    <select name="create_game_gameType" id="create_game_gameType" required>
+    <select name="gameType" id="create_game_gameType" required>
         <option value="NULL" selected disabled>Type</option>
         <option value="preseason">Preseason</option>
         <option value="regular season">Regular Season</option>
@@ -96,7 +133,7 @@
 
     {# Game status #}
     <label for="create_game_gameStatus">Status: </label>
-    <select name="create_game_gameStatus" id="create_game_gameStatus" required>
+    <select name="status" id="create_game_gameStatus" required>
         <option value="NULL" selected disabled>Status</option>
         <option value="scheduled">Scheduled</option>
         <option value="in progress">In Progress</option>
@@ -106,16 +143,16 @@
         <option value="forfeited">Forfeited</option>
     </select>
 
-    <input type="submit">
+    <input type="submit" value="Schedule Game">
 </form>
 
 {# UPDATE form #}
-<h2>Update Game</h2>
-<form class="cuForm" id="update_game_form">
+<h2>Update a Game</h2>
+<form class="cuForm" id="update_game_form" action="/games/update" method="POST">
 
     {# Game to update #}
-    <label for="update_game_gameID">Game to Update: </label>
-    <select name="update_game_gameID" id="update_game_gameID" required>
+    <label for="update_gameID">Game to Update: </label>
+    <select name="update_gameID" id="update_gameID" required>
         <option value="NULL" disabled selected>Select a game</option>
         {% for game in games %}
         <option value="{{game['id']}}" required>
@@ -132,9 +169,9 @@
     </select>
 
     {# Update game facility #}
-    <label for="update_game_facility">Facility: </label>
-    <select name="update_game_facilityID" id="update_game_facilityID" required>
-        <option value="NULL" selected>Select a Facility</option>
+    <label for="update_facilityID">Facility: </label>
+    <select name="update_facilityID" id="update_facilityID" required>
+        <option value="NULL" disabled selected>Select a Facility</option>
         {% for facility in facilities %}
         <option value="{{facility['facilityID']}}" required>
             {{facility['facilityName']}}
@@ -143,16 +180,16 @@
     </select>
 
     {# Update game date #}
-    <label for="update_game_gameDate">Date: </label>
-    <input type="date" name="update_game_gameDate" id="update_game_gameDate">
+    <label for="update_gameDate">Date: </label>
+    <input type="date" name="update_gameDate" id="update_gameDate">
 
     {# Update game time #}
-    <label for="update_game_gameTime">Time: </label>
-    <input type="time" name="update_game_gameTime" id="update_game_gameTime">
+    <label for="update_gameTime">Time: </label>
+    <input type="time" name="update_gameTime" id="update_gameTime">
 
     {# Update game type #}
-    <label for="update_game_gameType">Game Type: </label>
-    <select name="update_game_gameType" id="update_game_gameType" required>
+    <label for="update_gameType">Game Type: </label>
+    <select name="update_gameType" id="update_gameType" required>
         <option value="NULL" selected disabled>Type</option>
         <option value="preseason">Preseason</option>
         <option value="regular season">Regular Season</option>
@@ -162,17 +199,18 @@
     </select>
 
     {# Update game status #}
-    <label for="update_game_gameStatus">Status: </label>
-    <select name="udpate_game_gameStatus" id="update_game_gameStatus" required>
+    <label for="update_gameStatus">Status: </label>
+    <select name="update_gameStatus" id="update_gameStatus" required>
         <option value="NULL" selected disabled>Status</option>
         <option value="scheduled">Scheduled</option>
         <option value="in progress">In Progress</option>
         <option value="completed">Completed</option>
         <option value="cancelled">Cancelled</option>
         <option value="postponed">Postponed</option>
-        <option value="forfeited">Forfeited</option>    </select>
+        <option value="forfeited">Forfeited</option>
+    </select>
 
-    <input type="submit">
+    <input type="submit" value="Update">
 </form>
 
 {% endblock %}
@@ -191,9 +229,15 @@
     const sportSel = document.getElementById('create_game_sport')
     const homeTeamSel = document.getElementById('create_game_homeTeam')
     const awayTeamSel = document.getElementById('create_game_awayTeam')
+    const updateGameSel = document.getElementById('update_gameID')
+    const updateFacility = document.getElementById('update_facilityID')
+    const updateDate = document.getElementById('update_gameDate')
+    const updateTime = document.getElementById('update_gameTime')
+    const updateType = document.getElementById('update_gameType')
+    const updateStatus = document.getElementById('update_gameStatus')
 
     {# Render teams in the dropdown selections #}
-    function renderTeams(teams, teamElement) {
+    function loadTeams(teams, teamElement) {
         teamElement.innerHTML = "";
         if (!teams || teams.length === 0) {
             teamElement.innerHTML = `<option value="">No teams available</option>`
@@ -210,11 +254,61 @@
         teamElement.disabled = false;
     }
 
+    {# Renders game details for update form #}
+    async function loadGameDetails(gameDetails) {
+        console.log('Loading game details')
+        if (!gameDetails || gameDetails.length === 0) {
+            // Clear form
+            updateFacility.value = "NULL";
+            updateDate.value = "";
+            updateTime.value = "";
+            updateType.value = "NULL";
+            updateStatus.value = "NULL";
+            return;
+        }
+
+        if (gameDetails.facilityID !== undefined && gameDetails.facilityID !== null) {
+            const val = String(gameDetails.facilityID)
+            console.log(`Populating facilityID with ID = ${val}`);
+            updateFacility.value = val;
+            console.log("Facility after set:", updateFacility.value);
+        };
+
+        if (gameDetails.gameDate !== undefined && gameDetails.gameDate !== null) {
+            const val = String(gameDetails.gameDate)
+            console.log(`Populating gameDate with date = ${val}`);
+            updateDate.value = val;
+            console.log("Date after set:", updateDate.value);
+        };
+
+        if (gameDetails.gameTime !== undefined && gameDetails.gameTime !== null) {
+            const val = String(gameDetails.gameTime)
+            console.log(`Populating gameTime with time = ${val}`);
+            updateTime.value = val;
+            console.log("gameTime after set:", updateTime.value);
+        };
+
+        if (gameDetails.gameType !== undefined && gameDetails.gameType !== null) {
+            const val = String(gameDetails.gameType)
+            console.log(`Populating gameType with type = ${val}`);
+            updateType.value = val;
+            console.log("gameType after set:", updateType.value);
+        };
+
+        if (gameDetails.status !== undefined && gameDetails.status !== null) {
+            const val = String(gameDetails.status)
+            console.log(`Populating status = ${val}`);
+            updateStatus.value = val;
+            console.log("status after set:", updateStatus.value);
+        };
+
+    }
+
     {# Event fires to render teams after sport selection #}
     sportSel.addEventListener('change', async() => {
         console.log('Adding sport selection event listener')
         const sportType = sportSel.value;
-        const url = `/games/teams?sportType=${encodeURIComponent(sportType)}`
+        const url = `/games/teams?sportType=${encodeURIComponent(sportType)}`;
 
         homeTeamSel.disabled = true;
         homeTeamSel.innerHTML = `<option>Loading...</option>`;
@@ -225,14 +319,36 @@
             const res = await fetch(url, {headers: {'Accept': 'application/json'}});
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const teams = await res.json();
-            renderTeams(teams, homeTeamSel);
-            renderTeams(teams, awayTeamSel)
+            loadTeams(teams, homeTeamSel);
+            loadTeams(teams, awayTeamSel)
         } catch (err) {
             console.error(err)
             homeTeamSel.innerHTML = (`<option value="">Error loading teams</option>`);
-            homeTeamSel.disabled = true;
             awayTeamSel.innerHTML = (`<option value="">Error loading teams</option>`);
-            awayTeamSel.disabled = true;
+        }
+    })
+
+    {# Event fires to render game details after update game selection #}
+    updateGameSel.addEventListener('change', async() => {
+        console.log('Adding game selection event listener')
+        const gameID = updateGameSel.value;
+        const url = `/games/details?gameID=${encodeURIComponent(gameID)}`;
+
+        console.log('Retrieving update game details')
+        try {
+            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            const gameDetails = await res.json();
+            await loadGameDetails(gameDetails);
+        } catch (err) {
+            console.error(err);
+            updateFacility.innerHTML = '<option>Error loading details</option>';
+            updateDate.innerHTML = '<option>Error loading details</option>';
+            updateTime.innerHTML = '<option>Error loading details</option>';
+            updateType.innerHTML = '<option>Error loading details</option>';
+            updateStatus.innerHTML = '<option>Error loading details</option>';
         }
     })
 
