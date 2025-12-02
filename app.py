@@ -1,7 +1,7 @@
 # ########################################
 # ########## SETUP
 
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, url_for
 import database.db_connector as db
 
 PORT = 3097
@@ -95,10 +95,13 @@ def athletes():
         athletes = db.query(dbConnection, query1).fetchall()
         schools = db.query(dbConnection, query2).fetchall()
 
+        headers = ('Id', 'School', 'First Name', 'Last Name', 'Grade Level', 
+                   'Eligible', 'Active', 'Emergency Contact')
+
         # Render the athletes.j2 file, and also send the renderer
         # a couple objects that contains athletes and schools information
         return render_template(
-            "athletes.j2", athletes=athletes, schools=schools
+            "athletes.j2", athletes=athletes, schools=schools, headers=headers
         )
 
     except Exception as e:
@@ -125,7 +128,8 @@ def delete_athlete():
 
         dbConnection.commit()
         print(f"DELETE athlete. ID: {athlete_id} Name: {athlete_name}")
-        return redirect("/athletes")
+        # Return success message
+        return redirect("/athletes?msg=delete_ok")
 
     except Exception as e:
         dbConnection.rollback()
@@ -163,10 +167,13 @@ def teams():
         teams = db.query(dbConnection, query1).fetchall()
         schools = db.query(dbConnection, query2).fetchall()
 
+        headers = ('Id', 'School', 'Team Name', 'Sport Type', 'Varsity / JV', 
+                   'Season Name', 'Academic Year')
+
         # Render the athletes.j2 file, and also send the renderer
         # a couple objects that contains teams and schools information
         return render_template(
-            "teams.j2", teams=teams, schools=schools
+            "teams.j2", teams=teams, schools=schools, headers=headers
         )
 
     except Exception as e:
@@ -193,7 +200,8 @@ def delete_team():
 
         dbConnection.commit()
         print(f"DELETE team. ID: {team_id} Name: {team_name}")
-        return redirect("/teams")
+        # Return success message
+        return redirect("/teams?msg=delete_ok")
 
     except Exception as e:
         dbConnection.rollback()
