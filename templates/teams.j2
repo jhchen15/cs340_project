@@ -2,19 +2,32 @@
 {% block content %}
 
 {# Error messages from URL parameters #}
-{% if request.args.get('error') %}
+{% set msg = request.args.get('msg') %}
+{% set err = request.args.get('error') %}
+{% if msg == 'delete_ok' %}
+    <div class="success-message">
+    Team successfully deleted.
+    </div>
+{% endif %}
+{% if err == 'team_has_players_and_games' %}
     <div class="error-message">
-        {% if request.args.get('error') == 'team_has_players_and_games' %}
-            This team cannot be deleted because it has players assigned and games scheduled. Please remove all players and games first.
-        {% elif request.args.get('error') == 'team_has_players' %}
-            This team cannot be deleted because it has players assigned. Please remove all players from this team first.
-        {% elif request.args.get('error') == 'team_has_games' %}
-            This team cannot be deleted because it has games scheduled. Please remove or reassign all games first.
-        {% elif request.args.get('error') == 'team_constraint_error' %}
-            This team cannot be deleted due to existing references in the database.
-        {% elif request.args.get('error') == 'delete_failed' %}
-            An error occurred while deleting the team.
-        {% endif %}
+    This team cannot be deleted because it has players assigned and games scheduled. Please remove all players and games first.
+    </div>
+{% elif err == 'team_has_players' %}
+    <div class="error-message">
+    This team cannot be deleted because it has players assigned. Please remove all players from this team first.
+    </div>
+{% elif err == 'team_has_games' %}
+    <div class="error-message">
+    This team cannot be deleted because it has games scheduled. Please remove or reassign all games first.
+    </div>
+{% elif err == 'team_constraint_error' %}
+    <div class="error-message">
+    This team cannot be deleted due to existing references in the database.
+    </div>
+{% elif err == 'delete_failed' %}
+    <div class="error-message">
+    An error occurred while deleting the team.
     </div>
 {% endif %}
 
@@ -23,23 +36,12 @@
 {# READ table #}
 <table>
     <thead>
-        {# For the table header row, we print the DB attribute names #}
+        {# Table attribute names using headers #}
         <tr>
-            {% if teams %}
-                {% for key in teams[0].keys() %}
-                <th>{{ key }}</th>
-                {% endfor %}
-                <th></th>
-            {% else %}
-                <th>Id</th>
-                <th>School</th>
-                <th>Team Name</th>
-                <th>Sport Type</th>
-                <th>Varsity / JV</th>
-                <th>Season Name</th>
-                <th>Academic Year</th>
-                <th></th>
-            {% endif %}
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+            <th></th>
         </tr>
     </thead>
 
@@ -66,7 +68,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="8" style="text-align: center;">No teams found</td>
+                <td colspan="{{ headers|length + 1 }}" style="text-align: center;">No teams found</td>
             </tr>
         {% endif %}
     </tbody>
