@@ -151,8 +151,8 @@
 <form class="cuForm" id="update_game_form" action="/games/update" method="POST">
 
     {# Game to update #}
-    <label for="update_game_gameID">Game to Update: </label>
-    <select name="update_game_gameID" id="update_game_gameID" required>
+    <label for="update_gameID">Game to Update: </label>
+    <select name="update_gameID" id="update_gameID" required>
         <option value="NULL" disabled selected>Select a game</option>
         {% for game in games %}
         <option value="{{game['id']}}" required>
@@ -169,8 +169,8 @@
     </select>
 
     {# Update game facility #}
-    <label for="update_game_facilityID">Facility: </label>
-    <select name="update_game_facilityID" id="update_game_facilityID" required>
+    <label for="update_facilityID">Facility: </label>
+    <select name="update_facilityID" id="update_facilityID" required>
         <option value="NULL" disabled selected>Select a Facility</option>
         {% for facility in facilities %}
         <option value="{{facility['facilityID']}}" required>
@@ -180,16 +180,16 @@
     </select>
 
     {# Update game date #}
-    <label for="update_game_gameDate">Date: </label>
-    <input type="date" name="update_game_gameDate" id="update_game_gameDate">
+    <label for="update_gameDate">Date: </label>
+    <input type="date" name="update_gameDate" id="update_gameDate">
 
     {# Update game time #}
-    <label for="update_game_gameTime">Time: </label>
-    <input type="time" name="update_game_gameTime" id="update_game_gameTime">
+    <label for="update_gameTime">Time: </label>
+    <input type="time" name="update_gameTime" id="update_gameTime">
 
     {# Update game type #}
-    <label for="update_game_gameType">Game Type: </label>
-    <select name="update_game_gameType" id="update_game_gameType" required>
+    <label for="update_gameType">Game Type: </label>
+    <select name="update_gameType" id="update_gameType" required>
         <option value="NULL" selected disabled>Type</option>
         <option value="preseason">Preseason</option>
         <option value="regular season">Regular Season</option>
@@ -199,8 +199,8 @@
     </select>
 
     {# Update game status #}
-    <label for="update_game_gameStatus">Status: </label>
-    <select name="update_game_gameStatus" id="update_game_gameStatus" required>
+    <label for="update_gameStatus">Status: </label>
+    <select name="update_gameStatus" id="update_gameStatus" required>
         <option value="NULL" selected disabled>Status</option>
         <option value="scheduled">Scheduled</option>
         <option value="in progress">In Progress</option>
@@ -229,12 +229,12 @@
     const sportSel = document.getElementById('create_game_sport')
     const homeTeamSel = document.getElementById('create_game_homeTeam')
     const awayTeamSel = document.getElementById('create_game_awayTeam')
-    const updateGameSel = document.getElementById('update_game_gameID')
-    const updateFacility = document.getElementById('update_game_facilityID')
-    const updateDate = document.getElementById('update_game_gameDate')
-    const updateTime = document.getElementById('update_game_gameTime')
-    const updateType = document.getElementById('update_game_gameType')
-    const updateStatus = document.getElementById('update_game_gameStatus')
+    const updateGameSel = document.getElementById('update_gameID')
+    const updateFacility = document.getElementById('update_facilityID')
+    const updateDate = document.getElementById('update_gameDate')
+    const updateTime = document.getElementById('update_gameTime')
+    const updateType = document.getElementById('update_gameType')
+    const updateStatus = document.getElementById('update_gameStatus')
 
     {# Render teams in the dropdown selections #}
     function loadTeams(teams, teamElement) {

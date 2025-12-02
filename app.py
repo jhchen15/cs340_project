@@ -393,7 +393,7 @@ def games():
         dbConnection = db.connectDB()  # Open database connection
 
         # Retrieve scheduled games list with associated details
-        query1 = ("SELECT g.gameID AS id, "
+        query1 = ("SELECT g.gameID AS id, ht.sportType as sport_type, "
                   "ht.teamName AS home_team, at.teamName AS away_team, "
                   "s.name AS facility_location, f.facilityName AS facility_name, "
                   "g.gameDate AS game_date, g.gameTime as game_time, g.gameType as game_type, g.status "
@@ -417,7 +417,7 @@ def games():
         query4 = "SELECT DISTINCT sportType FROM Teams"
         sportTypes = db.query(dbConnection, query4).fetchall()
 
-        headers = ('Id', 'Home Team', 'Away Team', 'Facility Location', 'Facility Name',
+        headers = ('Id', 'Sport', 'Home Team', 'Away Team', 'Facility Location', 'Facility Name',
                    'Game Date', 'Game Time', 'Game Type', 'Status')
 
         # Render games.j2 file, and send game query results
@@ -517,12 +517,12 @@ def update_game():
         cursor = dbConnection.cursor()
 
         # Retrieve updated game details
-        gameID = request.form["update_game_gameID"]
-        facilityID = request.form["update_game_facilityID"]
-        gameDate = request.form["update_game_gameDate"]
-        gameTime = request.form["update_game_gameTime"]
-        gameType = request.form["update_game_gameType"]
-        status = request.form["update_game_gameStatus"]
+        gameID = request.form["update_gameID"]
+        facilityID = request.form["update_facilityID"]
+        gameDate = request.form["update_gameDate"]
+        gameTime = request.form["update_gameTime"]
+        gameType = request.form["update_gameType"]
+        status = request.form["update_gameStatus"]
 
         # Call update procedure
         query = "CALL sp_UpdateGame(%s, %s, %s, %s, %s, %s)"

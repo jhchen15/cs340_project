@@ -16,7 +16,7 @@
 {% endif %}
 {% if err == 'create_unknown' %}
     <div class="error-message">
-    Something went wrong while creating a player. Please refresh the page and try again.
+    Something went wrong while creating a player. Please ensure that you are not creating a duplicate entry.
     </div>
 {% endif %}
 {% if msg == 'create_ok' %}
@@ -119,6 +119,12 @@
             -
             {{player['first_name']}}
             {{player['last_name']}}
+            -
+            {{ player['school'] }}
+            -
+            {{ player['sport'].title() }}
+            {{ player['varsity_/_JV'].title() }}
+            {{ player['academic_year'] }}
         </option>
         {% endfor %}
     </select>
@@ -126,18 +132,18 @@
     <label for="update_player_teamID">Team: </label>
     <select name="update_player_teamID" id="update_player_teamID" required>
         <option value="NULL" disabled selected>Select a Team</option>
-        {% for team in teams %}
-        <option value="{{team['teamID']}}" required>
-            {{team['teamID']}}
-            -
-            {{team['schoolName'] | title}}
-            -
-            {{team['sportType'] | title}}
-            -
-            {{team['varsityJv'] | title}}
-            {{team['academicYear']}}
-        </option>
-        {% endfor %}
+{#        {% for team in teams %}#}
+{#        <option value="{{team['teamID']}}" required>#}
+{#            {{team['teamID']}}#}
+{#            -#}
+{#            {{team['schoolName'] | title}}#}
+{#            -#}
+{#            {{team['sportType'] | title}}#}
+{#            -#}
+{#            {{team['varsityJv'] | title}}#}
+{#            {{team['academicYear']}}#}
+{#        </option>#}
+{#        {% endfor %}#}
     </select>
 
     <input type="submit">
@@ -159,8 +165,10 @@
     const teamSel = document.getElementById('create_player_team_select')
     const rosterSel = document.getElementById('roster_team_select')
     const roster = document.getElementById('players_tbody')
+    const updatePlayerSel = document.getElementById('update_playerID')
+    const updateTeamSel = document.getElementById('update_player_teamID')
 
-    {# Renders teams in dropdown based on athlete selected #}
+    {# Renders teams in creation dropdown based on athlete selected #}
     function renderTeams(teams) {
         teamSel.innerHTML = '';
         if (!teams || teams.length === 0) {
@@ -176,6 +184,24 @@
             teamSel.appendChild(opt);
         });
         teamSel.disabled = false;
+    };
+
+    {# Renders teams in update dropdown based on playerID selected #}
+    function renderUpdateTeams(teams) {
+        updateTeamSel.innerHTML = '';
+        if (!teams || teams.length === 0) {
+            updateTeamSel.innerHTML = '<option value="">No teams available</option>';
+            updateTeamSel.disabled = true;
+            return;
+        }
+        updateTeamSel.insertAdjacentHTML('beforeend', '<option value="">Select Team</option>');
+        teams.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.teamID;
+            opt.textContent = `${t.teamID} - ${t.teamName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
+            updateTeamSel.appendChild(opt);
+        });
+        updateTeamSel.disabled = false;
     };
 
     {# Renders roster based on team selected #}
@@ -258,6 +284,21 @@
             console.error(err);
         }
     });
+
+    {# Event listener for player update selector to display eligible teams #}
+    updatePlayerSel.addEventListener('change', async() => {
+        const playerID = updatePlayerSel.value;
+        const url = `/players/updateTeams?playerID=${encodeURIComponent(playerID)}`
+
+        try {
+            const res = await fetch(url, {headers: {'Accept': 'application/json'}});
+            if (!res.ok) throw new Error (`HTTP ${res.status}`);
+            const teams = await res.json();
+            renderUpdateTeams(teams);
+        } catch (err) {
+            console.error(err);
+        }
+    })
 
 </script>
 {% endblock %}
