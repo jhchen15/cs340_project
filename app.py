@@ -544,12 +544,13 @@ def players_fetch_teams():
     try:
         dbConnection = db.connectDB()
         athleteID = request.args.get("athleteID")
-        query = ("SELECT teamID, teamName, sportType, varsityJv, academicYear "
+        query = ("SELECT teamID, name AS schoolName, teamName, sportType, varsityJv, academicYear "
                  "FROM Schools as s "
                  "JOIN Teams as t ON s.schoolID = t.schoolID "
                  "JOIN Athletes as a ON a.schoolID = s.schoolID "
-                 "WHERE a.athleteID = %s")
-        teams_list = db.query(dbConnection, query, (athleteID,)).fetchall()
+                 "WHERE a.athleteID = %s "
+                 "AND t.teamID NOT IN (SELECT teamID FROM Players WHERE athleteID = %s)")
+        teams_list = db.query(dbConnection, query, (athleteID, athleteID,)).fetchall()
         return jsonify(teams_list)
 
     except Exception as e:
@@ -596,6 +597,9 @@ def players_fetch_roster():
 
 @app.route("/players/delete", methods=["POST"])
 def delete_player():
+    """
+    Removes an athlete from a team
+    """
     try:
         dbConnection = db.connectDB()
         cursor = dbConnection.cursor()
@@ -624,6 +628,9 @@ def delete_player():
 
 @app.route("/players/create", methods=["POST"])
 def create_player():
+    """
+    Assigns an athlete to a new team
+    """
     try:
         dbConnection = db.connectDB()
         cursor = dbConnection.cursor()
@@ -653,6 +660,70 @@ def create_player():
 
     finally:
         # CLose the DB connection
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/players/updateTeams", methods=["GET"])
+def player_update_teams():
+    """
+    Returns teams that a player can be reassigned to
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        playerID = request.args.get("playerID")
+        query = ("SELECT a.athleteID, a.schoolID "
+                 "FROM Players AS p JOIN Athletes AS a ON p.athleteID = a.athleteID "
+                 "WHERE p.playerID = %s ;")
+        cursor.execute(query, (playerID,))
+        athleteID, schoolID = cursor.fetchone()
+
+        query = ("SELECT t.teamID, s.name AS schoolName, t.teamName, "
+                 "t.sportType, t.varsityJv, t.seasonName, t.academicYear "
+                 "FROM Teams AS t "
+                 "JOIN Schools AS s ON s.schoolID = t.schoolID "
+                 "WHERE teamID NOT IN (SELECT teamID FROM Players WHERE athleteID = %s) "
+                 "AND s.schoolID = %s ;")
+        teams = db.query(dbConnection, query, (athleteID, schoolID, )).fetchall()
+        return jsonify(teams)
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("players", error="teams_unknown"))
+
+    finally:
+        # Close the db connection
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/players/update", methods=["POST"])
+def update_player():
+    """
+    Updates a player's team assignment
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        playerID = request.form["update_playerID"]
+        teamID = request.form["update_teamID"]
+
+        query = "CALL sp_UpdatePlayer(%s, %s)"
+        cursor.execute(query, (playerID, teamID,))
+
+        dbConnection.commit()
+
+        print(f"PlayerID: {playerID} Updated TeamID: {teamID}")
+        return redirect(url_for("players", msg=f"update_ok"))
+
+    except Exception as e:
+        print(f"Error executing queries: {e}")
+        return redirect(url_for("players", error="update_unknown"))
+
+    finally:
         if "dbConnection" in locals() and dbConnection:
             dbConnection.close()
 

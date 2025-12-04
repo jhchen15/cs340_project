@@ -382,6 +382,44 @@ BEGIN
 END //
 DELIMITER ;
 
+-- UPDATE procedure
+-- Adapted from: CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+-- Date Accessed: 11/18/2025
+DROP PROCEDURE IF EXISTS sp_UpdatePlayer;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_UpdatePlayer(
+    IN updatePlayerID INT(11),
+    IN updateTeamID INT(11)
+)
+BEGIN
+    DECLARE error_message VARCHAR(255);
+
+    -- Exit handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            RESIGNAL;
+        END;
+
+    -- Update player
+    START TRANSACTION;
+        UPDATE Players
+        SET teamID = updateTeamID
+        WHERE playerID = updatePlayerID;
+
+        IF ROW_COUNT() = 0 THEN
+            SET error_message = 'Player team assignment update failed';
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+        END IF;
+
+    COMMIT;
+
+END //
+
+DELIMITER ;
+
 /****************
   Games Table
 *****************/
