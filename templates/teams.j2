@@ -4,12 +4,31 @@
 {# Error messages from URL parameters #}
 {% set msg = request.args.get('msg') %}
 {% set err = request.args.get('error') %}
+{% set err_message = request.args.get('message') %}
 {% if msg == 'delete_ok' %}
     <div class="success-message">
     Team successfully deleted.
     </div>
 {% endif %}
-{% if err == 'team_has_players_and_games' %}
+{% if msg == 'create_ok' %}
+    <div class="success-message">
+    Team successfully added!
+    </div>
+{% endif %}
+{% if msg == 'update_ok' %}
+    <div class="success-message">
+    Team successfully updated.
+    </div>
+{% endif %}
+{% if err == 'season_sport' %}
+    <div class="error-message">
+    {% if err_message %}
+        {{ err_message }}
+    {% else %}
+        Invalid season for this sport. Please select the correct season for the chosen sport.
+    {% endif %}
+    </div>
+{% elif err == 'team_has_players_and_games' %}
     <div class="error-message">
     This team cannot be deleted because it has players assigned and games scheduled. Please remove all players and games first.
     </div>
@@ -28,6 +47,14 @@
 {% elif err == 'delete_failed' %}
     <div class="error-message">
     An error occurred while deleting the team.
+    </div>
+{% elif err == 'create_failed' %}
+    <div class="error-message">
+    An error occurred while creating the team. Please check all fields and try again.
+    </div>
+{% elif err == 'update_failed' %}
+    <div class="error-message">
+    An error occurred while updating the team. Please check all fields and try again.
     </div>
 {% endif %}
 
@@ -76,7 +103,7 @@
 
 {# CREATE form #}
 <h2>Create a Team</h2>
-<form class="cuForm" id="create_team_form">
+<form class="cuForm" id="create_team_form" method="POST" action="/teams/create">
     <label for="create_team_school">School: </label>
     <select name="create_team_school" id="create_team_school" required>
         <option value="" disabled selected>Select a School</option>
@@ -108,30 +135,25 @@
 
     <label for="create_team_seasonName">Season: </label>
     <select name="create_team_seasonName" id="create_team_seasonName" required>
-        <option value="" disabled selected>Select Season</option>
-        <option value="fall">Fall</option>
-        <option value="winter">Winter</option>
-        <option value="spring">Spring</option>
+        <option value="" disabled selected>Select Sport First</option>
     </select>
 
     <label for="create_team_academicYear">Academic Year: </label>
-    <input type="number" name="create_team_academicYear" id="create_team_academicYear" min="2020" max="2030" required>
+    <input type="number" name="create_team_academicYear" id="create_team_academicYear" 
+           min="2020" max="2030" placeholder="Select sport and season first" required>
 
-    <input type="submit">
+    <input type="submit" value="Create Team">
 </form>
 
 {# UPDATE form #}
 <h2>Update a Team</h2>
-<form class="cuForm" id="update_team_form">
+<form class="cuForm" id="update_team_form" method="POST" action="/teams/update">
     <label for="update_team_id">Team to Update: </label>
     <select name="update_team_id" id="update_team_id" required>
         <option value="" disabled selected>Select a Team</option>
         {% for team in teams %}
-        <option value="{{team['teamID']}}" required>
-            {{team['teamID']}}
-            -
-            {{team['teamName']}}
-            ({{team['sportType']}} - {{team['school']}})
+        <option value="{{team['Id']}}" required>
+            {{team['Id']}} - {{team['Team Name']}} ({{team['Sport Type']}} - {{team['School']}})
         </option>
         {% endfor %}
     </select>
@@ -176,7 +198,142 @@
     <label for="update_team_academicYear">Academic Year: </label>
     <input type="number" name="update_team_academicYear" id="update_team_academicYear" min="2020" max="2030" required>
 
-    <input type="submit">
+    <input type="submit" value="Update Team">
 </form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Team update form auto-population
+    const teamUpdateSelect = document.getElementById('update_team_id');
+    const updateTeamSchoolSelect = document.getElementById('update_team_school');
+    const updateTeamName = document.getElementById('update_team_name');
+    const updateSportType = document.getElementById('update_team_sportType');
+    const updateVarsityJv = document.getElementById('update_team_varsityJv');
+    const updateSeasonName = document.getElementById('update_team_seasonName');
+    const updateAcademicYear = document.getElementById('update_team_academicYear');
+
+    // For CREATE form
+    const createSportSelect = document.getElementById('create_team_sportType');
+    const createSeasonSelect = document.getElementById('create_team_seasonName');
+    const createVarsityJvSelect = document.getElementById('create_team_varsityJv');
+    const createAcademicYear = document.getElementById('create_team_academicYear');
+
+    // Sport-season mapping
+    const sportSeasons = {
+        'football': ['fall'],
+        'volleyball': ['fall'],
+        'basketball': ['winter'],
+        'soccer': ['winter'],
+        'baseball': ['spring'],
+        'tennis': ['spring']
+    };
+
+    // Function to update season options based on selected sport
+    function updateSeasonOptions(sportSelect, seasonSelect) {
+        const selectedSport = sportSelect.value;
+        const currentSeasonValue = seasonSelect.value;
+        
+        // Clear all options except the first one
+        while (seasonSelect.options.length > 1) {
+            seasonSelect.remove(1);
+        }
+        
+        if (selectedSport && sportSeasons[selectedSport]) {
+            // Enable the select
+            seasonSelect.disabled = false;
+            
+            // Add the valid seasons for this sport
+            sportSeasons[selectedSport].forEach(season => {
+                const option = document.createElement('option');
+                option.value = season;
+                option.textContent = season.charAt(0).toUpperCase() + season.slice(1);
+                seasonSelect.appendChild(option);
+            });
+            
+            // If the current value is valid, keep it selected
+            if (sportSeasons[selectedSport].includes(currentSeasonValue)) {
+                seasonSelect.value = currentSeasonValue;
+            } else {
+                seasonSelect.selectedIndex = 0;
+            }
+        } else {
+            // No sport selected or invalid sport
+            seasonSelect.disabled = true;
+            seasonSelect.selectedIndex = 0;
+        }
+    }
+
+    // Function to show/hide academic year requirement
+    function updateAcademicYearRequirement() {
+        if (createSportSelect.value && createSeasonSelect.value) {
+            createAcademicYear.placeholder = "Enter academic year (e.g., 2024)";
+            createAcademicYear.title = "";
+        } else {
+            createAcademicYear.placeholder = "Select sport and season first";
+            createAcademicYear.title = "Please select a sport and season first";
+        }
+    }
+
+    // Event listeners for CREATE form
+    createSportSelect.addEventListener('change', function() {
+        updateSeasonOptions(createSportSelect, createSeasonSelect);
+        updateAcademicYearRequirement();
+    });
+
+    createSeasonSelect.addEventListener('change', function() {
+        updateAcademicYearRequirement();
+    });
+
+    // Event listeners for UPDATE form
+    updateSportType.addEventListener('change', function() {
+        updateSeasonOptions(updateSportType, updateSeasonName);
+    });
+
+    // Initialize season options on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSeasonOptions(createSportSelect, createSeasonSelect);
+        updateSeasonOptions(updateSportType, updateSeasonName);
+        updateAcademicYearRequirement();
+    });
+
+    teamUpdateSelect.addEventListener('change', async function() {
+        const teamID = this.value;
+        
+        if (!teamID) {
+            // Clear all fields if no team selected
+            updateTeamSchoolSelect.value = '';
+            updateTeamName.value = '';
+            updateSportType.value = '';
+            updateVarsityJv.value = '';
+            updateSeasonName.value = '';
+            updateAcademicYear.value = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/teams/details?teamID=${encodeURIComponent(teamID)}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const team = await response.json();
+            
+            // Populate form fields
+            updateTeamSchoolSelect.value = team.schoolID;
+            updateTeamName.value = team.teamName;
+            updateSportType.value = team.sportType;
+            updateVarsityJv.value = team.varsityJv;
+            updateSeasonName.value = team.seasonName;
+            updateAcademicYear.value = team.academicYear;
+            
+            // Update season options based on selected sport
+            updateSeasonOptions(updateSportType, updateSeasonName);
+            
+        } catch (error) {
+            console.error('Error loading team details:', error);
+            alert('Error loading team details. Please try again.');
+        }
+    });
+</script>
 
 {% endblock %}
