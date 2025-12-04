@@ -19,11 +19,27 @@
     Something went wrong while creating a player. Please ensure that you are not creating a duplicate entry.
     </div>
 {% endif %}
+{% if err == 'teams_unknown' %}
+    <div class="error-message">
+    Encountered an error when retrieving eligible teams for that player.
+    </div>
+{% endif %}
+{% if err == 'update_unknown' %}
+    <div class="error-message">
+    Encountered an error when updating player assignment.
+    </div>
+{% endif %}
 {% if msg == 'create_ok' %}
     <div class="success-message">
     Player successfully added!
     </div>
 {% endif %}
+{% if msg == 'update_ok' %}
+    <div class="success-message">
+    Player team assignment successfully updated!
+    </div>
+{% endif %}
+
 
 <h1>Players</h1>
 
@@ -108,7 +124,7 @@
 
 {# UPDATE PLAYER form #}
 <h2>Update Athlete Team Assignment</h2>
-<form class="cuForm" id="update_player_form">
+<form class="cuForm" id="update_player_form" action="/players/update" method="POST">
 
     <label for="update_playerID">Player to Update: </label>
     <select name="update_playerID" id="update_playerID" required>
@@ -129,21 +145,9 @@
         {% endfor %}
     </select>
 
-    <label for="update_player_teamID">Team: </label>
-    <select name="update_player_teamID" id="update_player_teamID" required>
+    <label for="update_teamID">Team: </label>
+    <select name="update_teamID" id="update_teamID" required>
         <option value="NULL" disabled selected>Select a Team</option>
-{#        {% for team in teams %}#}
-{#        <option value="{{team['teamID']}}" required>#}
-{#            {{team['teamID']}}#}
-{#            -#}
-{#            {{team['schoolName'] | title}}#}
-{#            -#}
-{#            {{team['sportType'] | title}}#}
-{#            -#}
-{#            {{team['varsityJv'] | title}}#}
-{#            {{team['academicYear']}}#}
-{#        </option>#}
-{#        {% endfor %}#}
     </select>
 
     <input type="submit">
@@ -166,13 +170,13 @@
     const rosterSel = document.getElementById('roster_team_select')
     const roster = document.getElementById('players_tbody')
     const updatePlayerSel = document.getElementById('update_playerID')
-    const updateTeamSel = document.getElementById('update_player_teamID')
+    const updateTeamSel = document.getElementById('update_teamID')
 
     {# Renders teams in creation dropdown based on athlete selected #}
     function renderTeams(teams) {
         teamSel.innerHTML = '';
         if (!teams || teams.length === 0) {
-            teamSel.innerHTML = '<option value="">No teams available</option>';
+            teamSel.innerHTML = '<option value="">No new team assignments available for this athlete</option>';
             teamSel.disabled = true;
             return;
         }
@@ -180,7 +184,7 @@
         teams.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t.teamID;
-            opt.textContent = `${t.teamID} - ${t.teamName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
+            opt.textContent = `${t.teamID} - ${t.schoolName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
             teamSel.appendChild(opt);
         });
         teamSel.disabled = false;
@@ -194,11 +198,11 @@
             updateTeamSel.disabled = true;
             return;
         }
-        updateTeamSel.insertAdjacentHTML('beforeend', '<option value="">Select Team</option>');
+        updateTeamSel.insertAdjacentHTML('beforeend', '<option value="">Select a Team</option>');
         teams.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t.teamID;
-            opt.textContent = `${t.teamID} - ${t.teamName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
+            opt.textContent = `${t.schoolName} - ${t.sportType} ${t.varsityJv} ${t.academicYear}`;
             updateTeamSel.appendChild(opt);
         });
         updateTeamSel.disabled = false;
@@ -289,6 +293,9 @@
     updatePlayerSel.addEventListener('change', async() => {
         const playerID = updatePlayerSel.value;
         const url = `/players/updateTeams?playerID=${encodeURIComponent(playerID)}`
+
+        updateTeamSel.disabled = true;
+        updateTeamSel.innerHTML = '<option>Loading...</option>';
 
         try {
             const res = await fetch(url, {headers: {'Accept': 'application/json'}});
