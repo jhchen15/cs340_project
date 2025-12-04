@@ -4,7 +4,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for
 import database.db_connector as db
 
-PORT = 3097
+PORT = 3092
 
 app = Flask(__name__)
 
@@ -114,6 +114,86 @@ def athletes():
             dbConnection.close()
 
 
+@app.route("/athletes/create", methods=["POST"])
+def create_athlete():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Get form data
+        schoolID = request.form["create_athlete_school"]
+        firstName = request.form["create_athlete_firstName"]
+        lastName = request.form["create_athlete_lastName"]
+        gradeLevel = request.form["create_athlete_gradeLevel"]
+        isEligible = request.form["create_athlete_isEligible"]
+        isActive = request.form["create_athlete_isActive"]
+        emergencyContact = request.form.get("create_athlete_emergencyContact", "")
+
+        # Call stored procedure to create an athlete
+        query = "CALL sp_CreateAthlete(%s, %s, %s, %s, %s, %s, %s, @newAthleteID)"
+        cursor.execute(query, (schoolID, firstName, lastName, gradeLevel, 
+                              isEligible, isActive, emergencyContact))
+
+        # Retrieve new athlete ID from out variable
+        cursor.execute("SELECT @newAthleteID AS athleteID")
+        row = cursor.fetchone()
+        athleteID = row[0] if row else None
+
+        dbConnection.commit()
+
+        # If successful, redirect back to page with success message
+        print(f"Athlete created. ID: {athleteID} Name: {firstName} {lastName}")
+        return redirect("/athletes?msg=create_ok")
+
+    except Exception as e:
+        dbConnection.rollback()
+        error_message = str(e)
+        print(f"Error creating athlete: {error_message}")
+        return redirect("/athletes?error=create_failed")
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/athletes/update", methods=["POST"])
+def update_athlete():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Get form data
+        athleteID = request.form["update_athlete_id"]
+        schoolID = request.form["update_athlete_school"]
+        firstName = request.form["update_athlete_firstName"]
+        lastName = request.form["update_athlete_lastName"]
+        gradeLevel = request.form["update_athlete_gradeLevel"]
+        isEligible = request.form["update_athlete_isEligible"]
+        isActive = request.form["update_athlete_isActive"]
+        emergencyContact = request.form.get("update_athlete_emergencyContact", "")
+
+        # Call stored procedure to update athlete
+        query = "CALL sp_UpdateAthlete(%s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (athleteID, schoolID, firstName, lastName, gradeLevel,
+                              isEligible, isActive, emergencyContact))
+
+        dbConnection.commit()
+
+        # If successful, redirect back to page with success message
+        print(f"Athlete updated. ID: {athleteID} Name: {firstName} {lastName}")
+        return redirect("/athletes?msg=update_ok")
+
+    except Exception as e:
+        dbConnection.rollback()
+        error_message = str(e)
+        print(f"Error updating athlete: {error_message}")
+        return redirect("/athletes?error=update_failed")
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
 @app.route("/athletes/delete", methods=["POST"])
 def delete_athlete():
     try:
@@ -145,6 +225,46 @@ def delete_athlete():
             return redirect(f"/athletes?error={error_param}")
         else:
             return redirect(f"/athletes?error=delete_failed")
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/athletes/details", methods=["GET"])
+def athlete_details():
+    """
+    Returns details of the requested athleteID
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        athleteID = request.args.get("athleteID")
+        query = ("SELECT athleteID, schoolID, firstName, lastName, gradeLevel, isEligible, isActive, emergencyContact "
+                 "FROM Athletes WHERE athleteID = %s")
+        cursor.execute(query, (athleteID,))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({"error": "Athlete not found"}), 404
+
+        athlete = {
+            "athleteID": result[0],
+            "schoolID": result[1],
+            "firstName": result[2],
+            "lastName": result[3],
+            "gradeLevel": result[4],
+            "isEligible": result[5],
+            "isActive": result[6],
+            "emergencyContact": result[7] if result[7] else ""
+        }
+
+        return jsonify(athlete)
+
+    except Exception as e:
+        print(f"Error retrieving athlete details: {e}")
+        return jsonify({"error": str(e)}), 500
 
     finally:
         if "dbConnection" in locals() and dbConnection:
@@ -186,6 +306,110 @@ def teams():
             dbConnection.close()
 
 
+@app.route("/teams/create", methods=["POST"])
+def create_team():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Get form data
+        schoolID = request.form["create_team_school"]
+        teamName = request.form["create_team_name"]
+        sportType = request.form["create_team_sportType"]
+        varsityJv = request.form["create_team_varsityJv"]
+        seasonName = request.form["create_team_seasonName"]
+        academicYear = request.form["create_team_academicYear"]
+
+        # Call stored procedure to create a team
+        query = "CALL sp_CreateTeam(%s, %s, %s, %s, %s, %s, @newTeamID)"
+        cursor.execute(query, (schoolID, teamName, sportType, varsityJv, 
+                              seasonName, academicYear))
+
+        # Retrieve new team ID from out variable
+        cursor.execute("SELECT @newTeamID AS teamID")
+        row = cursor.fetchone()
+        teamID = row[0] if row else None
+
+        dbConnection.commit()
+
+        # If successful, redirect back to page with success message
+        print(f"Team created. ID: {teamID} Name: {teamName} ({sportType})")
+        return redirect("/teams?msg=create_ok")
+
+    except Exception as e:
+        dbConnection.rollback()
+        error_message = str(e)
+        print(f"Error creating team: {error_message}")
+        
+        # Check for sport-season constraint error
+        if "Invalid season for" in error_message:
+            # Extract just the error message part
+            if "SQLSTATE[45000]: (1644)" in error_message:
+                # Extract the message after the last colon
+                parts = error_message.split(":")
+                if len(parts) > 2:
+                    clean_message = parts[-1].strip()
+                else:
+                    clean_message = error_message
+            else:
+                clean_message = error_message
+            
+            # URL encode the message
+            import urllib.parse
+            encoded_message = urllib.parse.quote(clean_message)
+            return redirect(f"/teams?error=season_sport&message={encoded_message}")
+        else:
+            return redirect("/teams?error=create_failed")
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/teams/update", methods=["POST"])
+def update_team():
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        # Get form data
+        teamID = request.form["update_team_id"]
+        schoolID = request.form["update_team_school"]
+        teamName = request.form["update_team_name"]
+        sportType = request.form["update_team_sportType"]
+        varsityJv = request.form["update_team_varsityJv"]
+        seasonName = request.form["update_team_seasonName"]
+        academicYear = request.form["update_team_academicYear"]
+
+        # Call stored procedure to update team
+        query = "CALL sp_UpdateTeam(%s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (teamID, schoolID, teamName, sportType, 
+                              varsityJv, seasonName, academicYear))
+
+        dbConnection.commit()
+
+        # If successful, redirect back to page with success message
+        print(f"Team updated. ID: {teamID} Name: {teamName} ({sportType})")
+        return redirect("/teams?msg=update_ok")
+
+    except Exception as e:
+        dbConnection.rollback()
+        error_message = str(e)
+        print(f"Error updating team: {error_message}")
+        
+        # Check for sport-season constraint error
+        if "does not play in" in error_message:
+            # Extract the sport-season error message
+            error_param = error_message.split(": ")[-1] if ": " in error_message else error_message
+            return redirect(f"/teams?error=season_sport&message={error_param}")
+        else:
+            return redirect("/teams?error=update_failed")
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
 @app.route("/teams/delete", methods=["POST"])
 def delete_team():
     try:
@@ -221,6 +445,45 @@ def delete_team():
             return redirect(f"/teams?error={error_param}")
         else:
             return redirect(f"/teams?error=delete_failed")
+
+    finally:
+        if "dbConnection" in locals() and dbConnection:
+            dbConnection.close()
+
+
+@app.route("/teams/details", methods=["GET"])
+def team_details():
+    """
+    Returns details of the requested teamID
+    """
+    try:
+        dbConnection = db.connectDB()
+        cursor = dbConnection.cursor()
+
+        teamID = request.args.get("teamID")
+        query = ("SELECT teamID, schoolID, teamName, sportType, varsityJv, seasonName, academicYear "
+                 "FROM Teams WHERE teamID = %s")
+        cursor.execute(query, (teamID,))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({"error": "Team not found"}), 404
+
+        team = {
+            "teamID": result[0],
+            "schoolID": result[1],
+            "teamName": result[2],
+            "sportType": result[3],
+            "varsityJv": result[4],
+            "seasonName": result[5],
+            "academicYear": result[6]
+        }
+
+        return jsonify(team)
+
+    except Exception as e:
+        print(f"Error retrieving team details: {e}")
+        return jsonify({"error": str(e)}), 500
 
     finally:
         if "dbConnection" in locals() and dbConnection:

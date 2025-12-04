@@ -9,6 +9,16 @@
     Athlete successfully deleted.
     </div>
 {% endif %}
+{% if msg == 'create_ok' %}
+    <div class="success-message">
+    Athlete successfully added!
+    </div>
+{% endif %}
+{% if msg == 'update_ok' %}
+    <div class="success-message">
+    Athlete successfully updated.
+    </div>
+{% endif %}
 {% if err == 'athlete_has_players' %}
     <div class="error-message">
     This athlete cannot be deleted because they are currently assigned to one or more teams. Please remove the athlete from all teams first.
@@ -20,6 +30,14 @@
 {% elif err == 'delete_failed' %}
     <div class="error-message">
     An error occurred while deleting the athlete.
+    </div>
+{% elif err == 'create_failed' %}
+    <div class="error-message">
+    An error occurred while creating the athlete. Please check all fields and try again.
+    </div>
+{% elif err == 'update_failed' %}
+    <div class="error-message">
+    An error occurred while updating the athlete. Please check all fields and try again.
     </div>
 {% endif %}
 
@@ -68,7 +86,7 @@
 
 {# CREATE form #}
 <h2>Create an Athlete</h2>
-<form class="cuForm" id="create_athlete_form">
+<form class="cuForm" id="create_athlete_form" method="POST" action="/athletes/create">
     <label for="create_athlete_school">School: </label>
     <select name="create_athlete_school" id="create_athlete_school" required>
         <option value="" disabled selected>Select a School</option>
@@ -106,17 +124,13 @@
 
 {# UPDATE form #}
 <h2>Update an Athlete</h2>
-<form class="cuForm" id="update_athlete_form">
+<form class="cuForm" id="update_athlete_form" method="POST" action="/athletes/update">
     <label for="update_athlete_id">Athlete to Update: </label>
     <select name="update_athlete_id" id="update_athlete_id" required>
         <option value="" disabled selected>Select an Athlete</option>
         {% for athlete in athletes %}
-        <option value="{{athlete['athleteID']}}" required>
-            {{athlete['athleteID']}}
-            -
-            {{athlete['firstName']}}
-            {{athlete['lastName']}}
-            ({{athlete['school']}})
+        <option value="{{athlete['Id']}}" required>
+            {{athlete['Id']}} - {{athlete['First Name']}} {{athlete['Last Name']}} ({{athlete['School']}})
         </option>
         {% endfor %}
     </select>
@@ -153,7 +167,58 @@
     <label for="update_athlete_emergencyContact">Emergency Contact: </label>
     <input type="text" name="update_athlete_emergencyContact" id="update_athlete_emergencyContact">
 
-    <input type="submit">
+    <input type="submit" value="Update Athlete">
 </form>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Athlete update form auto-population
+    const athleteUpdateSelect = document.getElementById('update_athlete_id');
+    const updateSchoolSelect = document.getElementById('update_athlete_school');
+    const updateFirstName = document.getElementById('update_athlete_firstName');
+    const updateLastName = document.getElementById('update_athlete_lastName');
+    const updateGradeLevel = document.getElementById('update_athlete_gradeLevel');
+    const updateIsEligible = document.getElementById('update_athlete_isEligible');
+    const updateIsActive = document.getElementById('update_athlete_isActive');
+    const updateEmergencyContact = document.getElementById('update_athlete_emergencyContact');
+
+    athleteUpdateSelect.addEventListener('change', async function() {
+        const athleteID = this.value;
+        
+        if (!athleteID) {
+            // Clear all fields if no athlete selected
+            updateSchoolSelect.value = '';
+            updateFirstName.value = '';
+            updateLastName.value = '';
+            updateGradeLevel.value = '';
+            updateIsEligible.value = '1';
+            updateIsActive.value = '1';
+            updateEmergencyContact.value = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/athletes/details?athleteID=${encodeURIComponent(athleteID)}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const athlete = await response.json();
+            
+            // Populate form fields
+            updateSchoolSelect.value = athlete.schoolID;
+            updateFirstName.value = athlete.firstName;
+            updateLastName.value = athlete.lastName;
+            updateGradeLevel.value = athlete.gradeLevel;
+            updateIsEligible.value = athlete.isEligible ? '1' : '0';
+            updateIsActive.value = athlete.isActive ? '1' : '0';
+            updateEmergencyContact.value = athlete.emergencyContact || '';
+            
+        } catch (error) {
+            console.error('Error loading athlete details:', error);
+            alert('Error loading athlete details. Please try again.');
+        }
+    });
+</script>
 
 {% endblock %}

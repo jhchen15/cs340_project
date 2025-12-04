@@ -159,6 +159,7 @@ CREATE PROCEDURE sp_CreateTeam(
 )
 BEGIN
     DECLARE error_message VARCHAR(255);
+    DECLARE valid_seasons VARCHAR(255);
 
     -- Exit handler
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -166,6 +167,25 @@ BEGIN
         ROLLBACK;
         RESIGNAL;
     END;
+
+    -- Validate sport-season combination
+    CASE t_sportType
+        WHEN 'football' THEN SET valid_seasons = 'fall';
+        WHEN 'volleyball' THEN SET valid_seasons = 'fall';
+        WHEN 'basketball' THEN SET valid_seasons = 'winter';
+        WHEN 'soccer' THEN SET valid_seasons = 'winter';
+        WHEN 'baseball' THEN SET valid_seasons = 'spring';
+        WHEN 'tennis' THEN SET valid_seasons = 'spring';
+        ELSE SET valid_seasons = '';
+    END CASE;
+
+    IF valid_seasons != t_seasonName THEN
+        -- Custom error message with season information
+        SET error_message = CONCAT('Invalid season for ', t_sportType, 
+                                   '. ', t_sportType, ' teams must be in ', 
+                                   valid_seasons, ' season.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+    END IF;
 
     -- Create team
     START TRANSACTION;
@@ -201,6 +221,7 @@ CREATE PROCEDURE sp_UpdateTeam(
 )
 BEGIN
     DECLARE error_message VARCHAR(255);
+    DECLARE valid_seasons VARCHAR(255);
 
     -- Exit handler
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -208,6 +229,25 @@ BEGIN
         ROLLBACK;
         RESIGNAL;
     END;
+
+    -- Validate sport-season combination
+    CASE t_sportType
+        WHEN 'football' THEN SET valid_seasons = 'fall';
+        WHEN 'volleyball' THEN SET valid_seasons = 'fall';
+        WHEN 'basketball' THEN SET valid_seasons = 'winter';
+        WHEN 'soccer' THEN SET valid_seasons = 'winter';
+        WHEN 'baseball' THEN SET valid_seasons = 'spring';
+        WHEN 'tennis' THEN SET valid_seasons = 'spring';
+        ELSE SET valid_seasons = '';
+    END CASE;
+
+    IF valid_seasons != t_seasonName THEN
+        -- Custom error message with season information
+        SET error_message = CONCAT('Invalid season for ', t_sportType, 
+                                   '. ', t_sportType, ' teams must be in ', 
+                                   valid_seasons, ' season.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = error_message;
+    END IF;
 
     -- Update team
     START TRANSACTION;
