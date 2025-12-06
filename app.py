@@ -1,8 +1,11 @@
 """
 Citation: all route handlers in this module were adapted from the CS340 course template
 First Accessed: 10/20/2025
-Adapted from: CS340 Module 6 Exploration: Web Application Technology
-Source URL: https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-application-technology-2
+Adapted from: CS340 Module 6 Exploration: Web Application Technology & CS340 Module 8 Exploration: Implementing CUD Operations In Your App
+Source URLs: 
+https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-application-technology-2
+https://canvas.oregonstate.edu/courses/2017561/pages/exploration-implementing-cud-operations-in-your-app?module_item_id=25645149
+Everything else is original work
 """
 
 # ########################################
@@ -222,16 +225,7 @@ def delete_athlete():
         dbConnection.rollback()
         error_message = str(e)
         print(f"Error executing queries: {error_message}")
-        
-        # Contraint error code 1451: Cannot delete or update a parent row: a foreign key constraint fails
-        if "1451" in error_message:
-            if "Players" in error_message:
-                error_param = "athlete_has_players"
-            else:
-                error_param = "athlete_constraint_error"
-            return redirect(f"/athletes?error={error_param}")
-        else:
-            return redirect(f"/athletes?error=delete_failed")
+        return redirect(f"/athletes?error=delete_failed")
 
     finally:
         if "dbConnection" in locals() and dbConnection:
@@ -347,26 +341,7 @@ def create_team():
         dbConnection.rollback()
         error_message = str(e)
         print(f"Error creating team: {error_message}")
-        
-        # Check for sport-season constraint error
-        if "Invalid season for" in error_message:
-            # Extract just the error message part
-            if "SQLSTATE[45000]: (1644)" in error_message:
-                # Extract the message after the last colon
-                parts = error_message.split(":")
-                if len(parts) > 2:
-                    clean_message = parts[-1].strip()
-                else:
-                    clean_message = error_message
-            else:
-                clean_message = error_message
-            
-            # URL encode the message
-            import urllib.parse
-            encoded_message = urllib.parse.quote(clean_message)
-            return redirect(f"/teams?error=season_sport&message={encoded_message}")
-        else:
-            return redirect("/teams?error=create_failed")
+        return redirect("/teams?error=create_failed")
 
     finally:
         if "dbConnection" in locals() and dbConnection:
@@ -403,14 +378,7 @@ def update_team():
         dbConnection.rollback()
         error_message = str(e)
         print(f"Error updating team: {error_message}")
-        
-        # Check for sport-season constraint error
-        if "does not play in" in error_message:
-            # Extract the sport-season error message
-            error_param = error_message.split(": ")[-1] if ": " in error_message else error_message
-            return redirect(f"/teams?error=season_sport&message={error_param}")
-        else:
-            return redirect("/teams?error=update_failed")
+        return redirect("/teams?error=update_failed")
 
     finally:
         if "dbConnection" in locals() and dbConnection:
@@ -438,20 +406,7 @@ def delete_team():
         dbConnection.rollback()
         error_message = str(e)
         print(f"Error executing queries: {error_message}")
-        
-        # Contraint error code 1451: Cannot delete or update a parent row: a foreign key constraint fails
-        if "1451" in error_message:
-            if "Players" in error_message and "Games" in error_message:
-                error_param = "team_has_players_and_games"
-            elif "Players" in error_message:
-                error_param = "team_has_players"
-            elif "Games" in error_message:
-                error_param = "team_has_games"
-            else:
-                error_param = "team_constraint_error"
-            return redirect(f"/teams?error={error_param}")
-        else:
-            return redirect(f"/teams?error=delete_failed")
+        return redirect(f"/teams?error=delete_failed")
 
     finally:
         if "dbConnection" in locals() and dbConnection:

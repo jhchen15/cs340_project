@@ -3,6 +3,7 @@ Citation: this module was adapted from the CS340 course template
 First Accessed: 10/20/2025
 Adapted from: CS340 Module 6 Exploration: Web Application Technology
 Source URL: https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-application-technology-2
+Everything else is original work
 """
 
 from dotenv import load_dotenv
@@ -13,9 +14,9 @@ load_dotenv()
 
 # Database credentials
 host = 'classmysql.engr.oregonstate.edu'    
-user = 'cs340_chenjame'
+user = os.getenv('DB_USER')  
 passwd = os.getenv('DB_PASSWORD')    
-db = 'cs340_chenjame'
+db = os.getenv('DB_USER')
 
 def connectDB(host = host, user = user, passwd = passwd, db = db):
     '''
