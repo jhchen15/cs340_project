@@ -37,7 +37,7 @@ BEGIN
         PRIMARY KEY (teamID),
         FOREIGN KEY (schoolID)
             REFERENCES Schools (schoolID)
-            ON DELETE RESTRICT
+            ON DELETE CASCADE
             ON UPDATE CASCADE,
         CONSTRAINT valid_season_sports CHECK (
             (seasonName = 'fall' AND sportType IN ('football', 'volleyball')) OR
@@ -58,7 +58,7 @@ BEGIN
         PRIMARY KEY (facilityID),
         FOREIGN KEY (schoolID)
             REFERENCES Schools (schoolID)
-            ON DELETE RESTRICT
+            ON DELETE CASCADE
             ON UPDATE CASCADE
     );
 
@@ -77,7 +77,7 @@ BEGIN
         PRIMARY KEY (athleteID),
         FOREIGN KEY (schoolid)
             REFERENCES Schools (schoolid)
-            ON DELETE RESTRICT
+            ON DELETE CASCADE
             ON UPDATE CASCADE
     );
 
@@ -91,10 +91,10 @@ BEGIN
         PRIMARY KEY (playerID),
         FOREIGN KEY (teamID)
             REFERENCES Teams (teamID)
-            ON DELETE RESTRICT
+            ON DELETE CASCADE
             ON UPDATE CASCADE,
         FOREIGN KEY (athleteID) REFERENCES Athletes (athleteID)
-            ON DELETE RESTRICT
+            ON DELETE CASCADE
             ON UPDATE CASCADE,
         CONSTRAINT unique_players UNIQUE (athleteID, teamID)
     );
@@ -114,13 +114,13 @@ BEGIN
         PRIMARY KEY (gameID),
         FOREIGN KEY (homeTeamID)
             REFERENCES Teams (teamID)
-            ON DELETE RESTRICT,
+            ON DELETE CASCADE,
         FOREIGN KEY (awayTeamID)
             REFERENCES Teams (teamID)
-            ON DELETE RESTRICT,
+            ON DELETE CASCADE,
         FOREIGN KEY (facilityID)
             REFERENCES Facilities (facilityID)
-            ON DELETE RESTRICT,
+            ON DELETE CASCADE,
         CONSTRAINT unique_teams CHECK (homeTeamID != awayTeamID),
         CONSTRAINT facility_in_use UNIQUE (facilityID, gameDate)
     );

@@ -755,7 +755,7 @@ def games():
         facilities = db.query(dbConnection, query3).fetchall()
 
         # Retrieve list of sport types
-        query4 = "SELECT DISTINCT sportType FROM Teams"
+        query4 = "SELECT sportType, COUNT(*) as numTeams FROM Teams GROUP BY sportType ORDER BY 2 DESC"
         sportTypes = db.query(dbConnection, query4).fetchall()
 
         headers = ('Id', 'Sport', 'Home Team', 'Away Team', 'Facility Location', 'Facility Name',
