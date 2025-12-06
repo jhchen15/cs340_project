@@ -1,3 +1,12 @@
+/*
+Citation for use of AI Tools:
+Date: 10/27/2025
+Prompts used to generate sample data:
+Could you generate mock data for a school district athletics database? I need 4 fake school names with addresses and phone numbers, 4 team names, and 8 athlete names.
+AI Source URL: https://gemini.google.com/
+Eveyrything else is original work.
+*/
+
 DROP PROCEDURE IF EXISTS sp_load_athleticsdb;
 
 DELIMITER //

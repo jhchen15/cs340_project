@@ -1,3 +1,15 @@
+/*
+Citation for use of AI Tools:
+Date: 11/12/2025
+Prompts used to generate CSS:
+Modify the CSS to improve the UI. I want the UI to have a minimalistic, modern design with a gray color scheme. 
+Keep the overall look simple and easy to navigate. Center the content for a more organized and balanced aesthetic. 
+Add a prominent button for resetting the database on the nav bar. 
+Ensure that all pages have a consistent style, including headings, tables, and forms. 
+I need styling for an error message to display when a user runs into a constraint error while performing CRUD operations.
+AI Source URL: https://copilot.microsoft.com
+*/
+
 /* ========================================
    GLOBAL STYLES & RESET
    ======================================== */

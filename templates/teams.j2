@@ -1,10 +1,18 @@
+{#
+Citation: this module was adapted from the CS340 course template, with the exception of
+scripts separately cited below that were designed with the assistance of AI
+First Accessed: 10/20/2025
+Adapted from: CS340 Module 6 Exploration: Web Application Technology
+Source URL: https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-application-technology-2
+Everything else is original work
+#}
+
 {% extends "main.j2" %}
 {% block content %}
 
 {# Error messages from URL parameters #}
 {% set msg = request.args.get('msg') %}
 {% set err = request.args.get('error') %}
-{% set err_message = request.args.get('message') %}
 {% if msg == 'delete_ok' %}
     <div class="success-message">
     Team successfully deleted.
@@ -20,41 +28,9 @@
     Team successfully updated.
     </div>
 {% endif %}
-{% if err == 'season_sport' %}
+{% if err == 'delete_failed' or err == 'create_failed' or err == 'update_failed' %}
     <div class="error-message">
-    {% if err_message %}
-        {{ err_message }}
-    {% else %}
-        Invalid season for this sport. Please select the correct season for the chosen sport.
-    {% endif %}
-    </div>
-{% elif err == 'team_has_players_and_games' %}
-    <div class="error-message">
-    This team cannot be deleted because it has players assigned and games scheduled. Please remove all players and games first.
-    </div>
-{% elif err == 'team_has_players' %}
-    <div class="error-message">
-    This team cannot be deleted because it has players assigned. Please remove all players from this team first.
-    </div>
-{% elif err == 'team_has_games' %}
-    <div class="error-message">
-    This team cannot be deleted because it has games scheduled. Please remove or reassign all games first.
-    </div>
-{% elif err == 'team_constraint_error' %}
-    <div class="error-message">
-    This team cannot be deleted due to existing references in the database.
-    </div>
-{% elif err == 'delete_failed' %}
-    <div class="error-message">
-    An error occurred while deleting the team.
-    </div>
-{% elif err == 'create_failed' %}
-    <div class="error-message">
-    An error occurred while creating the team. Please check all fields and try again.
-    </div>
-{% elif err == 'update_failed' %}
-    <div class="error-message">
-    An error occurred while updating the team. Please check all fields and try again.
+    An error occurred. Please check your inputs and try again.
     </div>
 {% endif %}
 
@@ -205,6 +181,16 @@
 {% endblock %}
 
 {% block scripts %}
+{#
+Citation for use of AI tools: the following functions and scripts were generated with the
+assistance of AI
+Date:  12/4/2025
+Prompts used to generate base template:
+How to create dependent dropdowns where selecting a sport determines available seasons?
+Need to implement sport-season validation for team creation/update forms as well as auto-populating
+the update form when a team is selected from the dropdown.
+#}
+
 <script>
     // Team update form auto-population
     const teamUpdateSelect = document.getElementById('update_team_id');
