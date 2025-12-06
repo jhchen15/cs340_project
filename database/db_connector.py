@@ -1,3 +1,10 @@
+"""
+Citation: this module was adapted from the CS340 course template
+First Accessed: 10/20/2025
+Adapted from: CS340 Module 6 Exploration: Web Application Technology
+Source URL: https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-application-technology-2
+"""
+
 from dotenv import load_dotenv
 import os
 import MySQLdb
