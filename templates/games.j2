@@ -1,3 +1,11 @@
+{#
+Citation: this module was adapted from the CS340 course template, with the exception of
+scripts separately cited below that were designed with the assistance of AI
+First Accessed: 10/20/2025
+Adapted from: CS340 Module 6 Exploration: Web Application Technology
+Source URL: https://canvas.oregonstate.edu/courses/2017561/pages/exploration-web-application-technology-2
+#}
+
 {% extends "main.j2" %}
 {% block content %}
 
@@ -9,25 +17,27 @@
     Game successfully deleted.
     </div>
 {% endif %}
-{% if msg == 'create_ok' %}
-    <div class="success-message">
-    Game added to the schedule!
-    </div>
-{% endif %}
-{% if msg == 'update_ok' %}
-    <div class="success-message">
-    Game details updated.
-    </div>
-{% endif %}
 {% if err == 'delete_unknown' %}
     <div class="error-message">
     Something went wrong while deleting that game. Please refresh the page and try again.
+    </div>
+{% endif %}
+
+{% if msg == 'create_ok' %}
+    <div class="success-message">
+    Game added to the schedule!
     </div>
 {% endif %}
 {% if err == 'create_unknown' %}
     <div class="error-message">
     Something went wrong while creating that game.
     Please make sure home and away teams are correct, and the facility is not already in use on that game date.
+    </div>
+{% endif %}
+
+{% if msg == 'update_ok' %}
+    <div class="success-message">
+    Game details updated.
     </div>
 {% endif %}
 {% if err == 'update_unknown' %}
@@ -72,6 +82,10 @@
             </form>
         </tr>
         {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="{{ headers|length + 1 }}" style="text-align: center;">No games found</td>
+        </tr>
     {% endif %}
     </tbody>
 </table>
@@ -81,13 +95,19 @@
 <form class="cuForm" id="create_game_form" action="/games/create" method="POST">
 
     {# Sport selection #}
-    <label for="create_game_sport">Sport: </label>
+    <label for="create_game_sport">Sport (2 unique registered teams required to schedule): </label>
     <select name="create_game_sport" id="create_game_sport" required>
         <option value="NULL" selected disabled>Select a Sport</option>
         {% for sport in sportTypes %}
-        <option value="{{ sport["sportType"] }}" required>
-            {{ sport["sportType"].title() }}
-        </option>
+            {% if sport["numTeams"] >= 2 %}
+                <option value="{{ sport["sportType"] }}">
+                {{ sport["sportType"].title() }}
+                </option>
+            {% else %}
+                <option value="{{ sport["sportType"] }}" disabled>
+                {{ sport["sportType"].title() }}
+                </option>
+            {% endif %}
         {% endfor %}
     </select>
 
@@ -216,16 +236,18 @@
 {% endblock %}
 
 {% block scripts %}
+{#
+Citation for use of AI tools: the following functions and scripts were generated with the
+assistance of AI
+Date:  11/10/2025
+Prompts used to generate base template:
+- How would one implement a drop down on a form field (such as Athlete) that dynamically
+populates another field (such as Teams) based on the user’s selection?
+- How can I have a pre-populated table such as the list of Players updated based on the team
+selected by the user?
+#}
+
 <script>
-    {# Citation for use of AI tools #}
-    {# Date:  11/10/2025 #}
-    {# Prompts used to generate JS #}
-    {# How would one implement a drop down on a form field (such as Athlete) that dynamically
-    populates another field (such as Teams) based on the user’s selection?
-    How can I have a pre-populated table such as the list of Players updated based on the team
-    selected by the user? #}
-
-
     const sportSel = document.getElementById('create_game_sport')
     const homeTeamSel = document.getElementById('create_game_homeTeam')
     const awayTeamSel = document.getElementById('create_game_awayTeam')
