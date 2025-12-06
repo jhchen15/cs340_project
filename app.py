@@ -59,9 +59,7 @@ def facilities():
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
-        # Create and execute our queries
-        # In query1, we use a JOIN clause to display the names of the homeworlds,
-        #       instead of just ID values
+        # Create and execute queries
         query1 = "SELECT f.facilityID as 'Id', s.name as 'School', \
             f.facilityName as 'Name', f.capacity as 'Capacity' FROM Facilities f \
             LEFT JOIN Schools s ON f.schoolID = s.schoolID;"
@@ -90,9 +88,7 @@ def athletes():
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
-        # Create and execute our queries
-        # In query1, we use a JOIN clause to display the names of the homeworlds,
-        #       instead of just ID values
+        # Create and execute queries
         query1 = "SELECT a.athleteID as 'Id', s.name as 'School', \
             a.firstName as 'First Name', a.lastName as 'Last Name', a.gradeLevel as 'Grade Level', \
             IF(a.isEligible, '✓', '✗') AS 'Eligible', IF(a.isActive, '✓', '✗') as 'Active', \
@@ -283,9 +279,7 @@ def teams():
     try:
         dbConnection = db.connectDB()  # Open our database connection
 
-        # Create and execute our queries
-        # In query1, we use a JOIN clause to display the names of the homeworlds,
-        #       instead of just ID values
+        # Create and execute queries
         query1 = "SELECT t.teamID as 'Id', s.name as 'School', \
             t.teamName as 'Team Name', t.sportType as 'Sport Type', t.varsityJv as 'Varsity / JV', \
             t.seasonName as 'Season Name', t.academicYear as 'Academic Year' FROM Teams t \
